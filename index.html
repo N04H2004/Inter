@@ -67,7 +67,7 @@
   .menu-item .ic svg { width: 16px; height: 16px; }
   .side .gear { margin-top: auto; width: 32px; height: 32px; border: 2px solid #1d2733; display: grid; place-items: center; margin-left: 6px; margin-bottom: 6px; background: #fff; }
 
-  main { flex: 1; min-width: 0; padding: 6px 4px 0 6px; display: flex; flex-direction: column; }
+  main { flex: 1; min-width: 0; padding: 6px 4px 0 6px; display: flex; flex-direction: column; overflow-y: auto; }
   .titleband { display: flex; align-items: center; gap: 8px; height: 26px; margin-bottom: 6px; }
   .titleband .flag { width: 6px; align-self: stretch; background: var(--th); }
   .titleband h1 { margin: 0; font-size: 13.5px; font-weight: 400; color: var(--title-ink); padding: 4px 26px 4px 6px; background: linear-gradient(90deg, #eaf2fb, #f7fafd 80%, transparent); clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 100%, 0 100%); }
@@ -121,10 +121,22 @@
   .chip { font-size: 10.5px; font-weight: 700; padding: 0 6px; border-radius: 8px; background: #eef1f5; color: var(--muted); white-space: nowrap; }
   .chip.on { background: var(--up-bg); color: var(--up); }
   .tile.loc .chip.on { background: var(--local-bg); color: var(--local); }
+  .fx-strip { display: none; align-items: center; flex-wrap: wrap; gap: 5px; }
+  .fx-box.compact .fx-strip { display: flex; }
+  .fx-box.compact .fx-wrap { display: none; }
+  .fx-box.compact > .bd { padding: 5px 10px; }
+  .sch { display: inline-flex; align-items: center; gap: 4px; border: 1px solid #c9d8ea; background: #fff; padding: 1px 7px; border-radius: 10px; cursor: pointer; font-size: 11.5px; white-space: nowrap; }
+  .sch:hover { border-color: #7fa3cf; }
+  .sch b { color: var(--up); }
+  .sch.loc { border-color: #d6c6f3; } .sch.loc b { color: var(--local); }
+  .sch.wx { background: linear-gradient(90deg, #eaf4ff, #fff7e6); font-weight: 600; }
+  .sch.more { background: #5f73c4; border-color: #5f73c4; color: #fff; }
   .fx-note { font-size: 11px; color: var(--muted); margin-top: 6px; }
 
   /* ---------- Tables ---------- */
-  .grid-wrap { overflow: auto; border: 1px solid #c7d3e0; }
+  .grid-wrap { overflow-x: auto; border: 1px solid #c7d3e0; flex: none; }
+  .hint { color: var(--muted); font-size: 11px; margin: 0 0 4px; }
+  .hint b { color: var(--title-ink); }
   table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
   th { background: linear-gradient(#6795cd, #5585c0); color: #fff; font-weight: 400; font-size: 11.5px; text-align: left; padding: 4px 5px; border-right: 1px solid #8eb0da; position: sticky; top: 0; z-index: 2; vertical-align: middle; line-height: 1.15; }
   th.sort::after { content: " ⇅"; font-size: 9px; opacity: .8; }
@@ -158,7 +170,7 @@
   .pager b { border: 1px solid #f0a040; color: #e08a00; padding: 0 5px; background: #fff; font-weight: 400; }
 
   /* ---------- Barre d'actions ---------- */
-  .actions { margin-top: auto; border-top: 1px solid #9fb6cf; display: flex; justify-content: center; gap: 4px; padding: 6px 0 4px; background: #fff; flex-wrap: wrap; }
+  .actions { position: sticky; bottom: 0; z-index: 5; margin-top: auto; border-top: 1px solid #9fb6cf; display: flex; justify-content: center; gap: 4px; padding: 6px 0 4px; background: #fff; flex-wrap: wrap; }
   .act { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 82px; border: 0; background: transparent; cursor: pointer; font-size: 10px; color: #26384d; line-height: 1.1; padding: 0 2px; border-right: 1px solid #d5dee8; }
   .act:last-child { border-right: 0; }
   .act .o { width: 36px; height: 36px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #5ea1e0, #1f63a8); border: 2px solid #fff; box-shadow: 0 0 0 1px #2f73b8; display: grid; place-items: center; color: #fff; }
@@ -223,8 +235,8 @@
     <div class="titleband"><div class="flag"></div><h1 id="title">Proposition de commande fournisseur du 15/10/2026</h1><button class="back" id="backBtn" hidden>◀ Retour aux propositions</button></div>
 
     <!-- Sélection (reprise de l'écran existant) -->
-    <section class="box" id="selBox">
-      <div class="hd"><span class="grow">Sélection</span><button class="tg" data-toggle="selBox">▾</button></div>
+    <section class="box collapsed" id="selBox">
+      <div class="hd"><span class="grow">Sélection</span><button class="tg" data-toggle="selBox">▸</button></div>
       <div class="bd">
         <div class="sel-grid">
           <label>Origine fournisseur</label><span class="dd"><span></span><i>▼</i></span>
@@ -242,9 +254,10 @@
     </section>
 
     <!-- NOUVEAU : facteurs externes -->
-    <section class="box fx-box" id="fxBox">
-      <div class="hd"><span>⚡ Facteurs externes</span><span class="grow" id="fxScope" style="opacity:.9"></span><button class="tg" data-toggle="fxBox">▾</button></div>
+    <section class="box fx-box compact" id="fxBox">
+      <div class="hd"><span>⚡ Facteurs externes</span><span class="grow" id="fxScope" style="opacity:.9"></span><button class="tg" id="fxMode">Détail ▾</button></div>
       <div class="bd">
+        <div class="fx-strip" id="fxStrip"></div>
         <div class="fx-wrap">
           <div class="meteo" id="meteo"></div>
           <div>
@@ -255,6 +268,7 @@
       </div>
     </section>
 
+    <div class="hint" id="hint"></div>
     <div class="grid-wrap" id="gridWrap"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
     <div class="pager" id="pager"><span>⏮</span><span>◀</span><span>Page 1 sur 1</span><b>1</b><span>▶</span><span>⏭</span></div>
 
@@ -597,6 +611,13 @@ function renderFactors() {
     <div class="desc">${FORECAST.ciel}<br>Pluie ${FORECAST.pluie} % · Vent ${FORECAST.vent.toLowerCase()}<br>Normale de saison : ${FORECAST.normale}° (${FORECAST.tmax - FORECAST.normale >= 0 ? "+" : ""}${FORECAST.tmax - FORECAST.normale}°)</div>
     <div class="eff">${!wOn ? '<span class="chip">Désactivé</span>' : ww === 0 ? '<span class="chip">Hors horizon météo pour cette livraison</span>' : effs || '<span class="chip">Sans effet</span>'}</div>`;
 
+  // Bandeau compact : météo + facteurs actifs
+  document.getElementById("fxStrip").innerHTML =
+    `<span class="sch wx" title="Météo de demain">${FORECAST.icon} Demain ${FORECAST.tmax}° / ${FORECAST.tmin}° · pluie ${FORECAST.pluie} %</span>` +
+    FACTORS.filter(f => !f.hidden && fx[f.id].i > 0).map(f =>
+      `<span class="sch ${f.local ? "loc" : ""}" data-tile="${f.id}">${f.icon} ${f.name.split(" — ")[0].replace(/ \(.*\)/, "")} <b>${nf(fx[f.id].i, 2)}</b></span>`).join("") +
+    `<span class="sch more" id="fxMore">Tous les facteurs ▾</span>`;
+
   // Tuiles
   document.getElementById("fxGrid").innerHTML = FACTORS.filter(f => !f.hidden).map(f => {
     const r = fx[f.id], on = state.on[f.id];
@@ -713,6 +734,9 @@ function render() {
     ? `Détail article — ${s.nom} — livraison du ${fDs(s.liv)}`
     : "Proposition de commande fournisseur du 15/10/2026";
   document.getElementById("backBtn").hidden = !art;
+  document.getElementById("hint").innerHTML = art
+    ? `Liste des articles de <b>${s.nom}</b> : coefficient par article (survol = détail des facteurs), nb de colis modifiable.`
+    : `Une ligne = une proposition fournisseur. <b>Double-cliquez sur un fournisseur</b> (ou bouton <b>Détail article</b>) pour voir ses produits avec leur coefficient.`;
   document.getElementById("selBox").style.display = art ? "none" : "";
   document.getElementById("statusPath").textContent = art ? "/PropositionCommandeAValiderF/DetailArticle" : "/PropositionCommandeAValiderF/Calculer";
   document.getElementById("aArt").disabled = art;
@@ -780,6 +804,14 @@ document.addEventListener("click", e => {
   }
   if (!e.target.closest("#pop")) pop.classList.remove("show");
 });
+function toggleFx() {
+  const box = document.getElementById("fxBox");
+  box.classList.toggle("compact");
+  document.getElementById("fxMode").textContent = box.classList.contains("compact") ? "Détail ▾" : "Réduire ▴";
+  document.getElementById("pop").classList.remove("show");
+}
+document.getElementById("fxMode").onclick = toggleFx;
+document.getElementById("fxStrip").addEventListener("click", e => { if (e.target.closest("#fxMore")) toggleFx(); });
 document.querySelectorAll("[data-toggle]").forEach(b => b.addEventListener("click", () => {
   const box = document.getElementById(b.dataset.toggle);
   box.classList.toggle("collapsed");
