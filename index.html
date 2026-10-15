@@ -21,6 +21,8 @@
     --neutral-bg: #eceff3;
     --edit: #2f5bd3;
     --edit-bg: #e6edfc;
+    --local: #7a4bd1;
+    --local-bg: #f0e9fd;
     --shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .08);
   }
   @media (prefers-color-scheme: dark) {
@@ -29,6 +31,7 @@
       --text: #e7eaf0; --muted: #98a1b3; --accent: #ef4b4b; --accent-ink: #fff;
       --up: #5fd39a; --up-bg: #183527; --down: #f29a72; --down-bg: #3a2219;
       --neutral-bg: #262b36; --edit: #8aa8ff; --edit-bg: #1e2a4a;
+      --local: #b996ff; --local-bg: #2a2140;
       --shadow: none;
     }
   }
@@ -37,6 +40,7 @@
     --text: #e7eaf0; --muted: #98a1b3; --accent: #ef4b4b; --accent-ink: #fff;
     --up: #5fd39a; --up-bg: #183527; --down: #f29a72; --down-bg: #3a2219;
     --neutral-bg: #262b36; --edit: #8aa8ff; --edit-bg: #1e2a4a;
+    --local: #b996ff; --local-bg: #2a2140;
     --shadow: none;
   }
   * { box-sizing: border-box; }
@@ -44,27 +48,44 @@
     margin: 0; background: var(--bg); color: var(--text);
     font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   }
-  .wrap { max-width: 1320px; margin: 0 auto; padding: 20px 16px 120px; }
-  header.top { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .wrap { max-width: 1680px; margin: 0 auto; padding: 20px 16px 120px; }
+  header.top { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-start; justify-content: space-between; margin-bottom: 18px; }
   h1 { font-size: 22px; margin: 0; letter-spacing: -.01em; }
   .sub { color: var(--muted); font-size: 13px; }
+  .store { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; margin-top: 4px; }
   .pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); font-size: 12px; color: var(--muted); }
   .pill .dot { width: 8px; height: 8px; border-radius: 50%; background: #e0a100; }
   .pill.ok .dot { background: var(--up); }
+  .pill b { color: var(--text); }
+  .pill input[type=date] { border: 0; background: transparent; color: var(--text); font: inherit; font-weight: 700; padding: 0; }
 
-  .grid { display: grid; grid-template-columns: 320px 1fr; gap: 16px; align-items: start; }
-  @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
+  .grid { display: grid; grid-template-columns: 340px 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 1060px) { .grid { grid-template-columns: 1fr; } }
   .grid > * { min-width: 0; }
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); }
-  .card h2 { font-size: 14px; margin: 0; padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-  .card .body { padding: 12px 16px 16px; }
+  .card h2 { font-size: 14px; margin: 0; padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .card .body { padding: 4px 16px 12px; }
 
+  .group { font-size: 11px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 700; margin: 14px 0 2px; display: flex; align-items: center; gap: 6px; }
+  .group.local { color: var(--local); }
   .factor { padding: 10px 0; border-bottom: 1px dashed var(--border); }
   .factor:last-child { border-bottom: 0; }
   .factor .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
   .factor .name { font-weight: 600; }
-  .factor .hint { color: var(--muted); font-size: 12px; margin-top: 2px; }
-  input[type=range] { width: 100%; accent-color: var(--accent); margin-top: 8px; }
+  .factor.off .name, .factor.off ul { opacity: .5; }
+  .factor ul { margin: 6px 0 0; padding: 0; list-style: none; font-size: 12px; color: var(--muted); }
+  .factor li { padding: 1px 0 1px 12px; position: relative; }
+  .factor li::before { content: "·"; position: absolute; left: 3px; }
+  .factor li b { color: var(--text); font-weight: 600; }
+  .factor li.match { display: flex; gap: 6px; align-items: baseline; padding-left: 0; }
+  .factor li.match::before { content: none; }
+  .factor li.match input { margin: 0; accent-color: var(--accent); }
+  .factor li.match.out { opacity: .55; }
+  .intens { font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; background: var(--neutral-bg); color: var(--muted); white-space: nowrap; }
+  .intens.on { background: var(--up-bg); color: var(--up); }
+  .factor.loc .intens.on { background: var(--local-bg); color: var(--local); }
+  .src { font-size: 11px; color: var(--muted); font-style: italic; margin-top: 4px; }
+  input[type=range] { width: 100%; accent-color: var(--accent); margin-top: 6px; }
   .switch { position: relative; width: 38px; height: 22px; flex: none; }
   .switch input { opacity: 0; width: 0; height: 0; }
   .switch span { position: absolute; inset: 0; background: var(--neutral-bg); border: 1px solid var(--border); border-radius: 999px; cursor: pointer; transition: .15s; }
@@ -72,7 +93,7 @@
   .switch input:checked + span { background: var(--accent); border-color: var(--accent); }
   .switch input:checked + span::after { transform: translateX(16px); }
   .switch input:focus-visible + span { outline: 2px solid var(--edit); outline-offset: 2px; }
-  .temp { font-variant-numeric: tabular-nums; font-weight: 700; }
+  .right { display: flex; align-items: center; gap: 8px; }
 
   .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
   @media (max-width: 700px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
@@ -89,13 +110,14 @@
   .toolbar label.chk { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); font-size: 13px; cursor: pointer; }
   .btn { border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 8px 12px; border-radius: 8px; font: inherit; font-weight: 600; cursor: pointer; }
   .btn:hover { background: var(--surface-2); }
+  .btn.sm { padding: 4px 8px; font-size: 12px; }
   .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
   .btn.primary:hover { filter: brightness(1.05); }
   .btn:disabled { opacity: .5; cursor: default; }
 
   .table-wrap { overflow-x: auto; }
   table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-  th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th, td { padding: 8px 7px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
   th { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); font-weight: 600; background: var(--surface-2); position: sticky; top: 0; }
   td.num, th.num { text-align: right; }
   tr:hover td { background: var(--surface-2); }
@@ -103,21 +125,24 @@
   .ean { color: var(--muted); font-size: 11px; }
   .promo { display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: var(--accent); color: var(--accent-ink); vertical-align: 1px; }
   th.hl, td.hl { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+  .drivers { display: block; font-size: 11px; color: var(--muted); margin-top: 2px; text-align: right; }
 
-  .coef { position: relative; display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-weight: 700; cursor: help; border: 0; font: inherit; font-weight: 700; }
+  .coef { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; cursor: help; border: 0; font: inherit; font-weight: 700; }
   .coef.up { background: var(--up-bg); color: var(--up); }
   .coef.down { background: var(--down-bg); color: var(--down); }
   .coef.flat { background: var(--neutral-bg); color: var(--muted); }
   .coef .tip { display: none; }
   #tip {
-    display: none; position: fixed; z-index: 40;
-    min-width: 230px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 10px;
+    display: none; position: fixed; z-index: 40; max-width: 320px;
+    min-width: 250px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 10px;
     box-shadow: 0 8px 24px rgba(0,0,0,.18); padding: 10px 12px; font-weight: 400; font-size: 12px; text-align: left; white-space: normal;
   }
   #tip.show { display: block; }
   .tip .l { display: flex; justify-content: space-between; gap: 12px; padding: 2px 0; }
+  .tip .why { color: var(--muted); font-size: 11px; margin: -1px 0 3px 20px; }
   .tip .t { font-weight: 700; margin-bottom: 4px; }
   .tip .tot { border-top: 1px solid var(--border); margin-top: 4px; padding-top: 4px; font-weight: 700; }
+  .tip .tag { font-size: 9px; font-weight: 700; color: var(--local); background: var(--local-bg); padding: 0 4px; border-radius: 3px; margin-left: 4px; }
   .pos { color: var(--up); } .neg { color: var(--down); }
 
   .qty { display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
@@ -133,16 +158,17 @@
   .arrow { color: var(--muted); font-size: 12px; }
 
   .bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--border); box-shadow: 0 -4px 16px rgba(0,0,0,.06); }
-  .bar .in { max-width: 1320px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .bar .in { max-width: 1680px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
   .bar .sum { color: var(--muted); }
   .bar .sum b { color: var(--text); }
 
   .modal { position: fixed; inset: 0; background: rgba(10, 12, 16, .5); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
   .modal.open { display: flex; }
   .modal .card { max-width: 460px; width: 100%; }
+  .modal .body { padding: 12px 16px 16px; }
   .modal .body p { margin: 6px 0; }
   .modal .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
-  .legend { color: var(--muted); font-size: 12px; padding: 10px 16px; }
+  .legend { color: var(--muted); font-size: 12px; padding: 10px 16px 14px; border-top: 1px solid var(--border); }
   .legend code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
 </style>
 </head>
@@ -151,21 +177,24 @@
   <header class="top">
     <div>
       <h1>Réassort du jour — proposition de commande</h1>
+      <div class="store">📍 Intermarché Express Nice Cessole <span class="sub" style="font-weight:400">· 143 boulevard de Cessole, 06100 Nice · 950 m² · proximité</span></div>
       <div class="sub" id="today"></div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
       <span class="pill" id="statusPill"><span class="dot"></span><span id="statusText">À valider avant 10:00</span></span>
-      <span class="pill">Livraison prévue : <b id="delivery" style="color:var(--text)"></b></span>
+      <span class="pill">Livraison : <input type="date" id="deliveryDate" aria-label="Date de livraison"></span>
+      <span class="pill">Couverture : <b id="coverage"></b></span>
     </div>
   </header>
 
   <div class="grid">
     <!-- Facteurs externes -->
     <aside class="card">
-      <h2>Facteurs externes <button class="btn" id="resetFactors" style="padding:4px 8px;font-size:12px">Réinitialiser</button></h2>
+      <h2>Facteurs externes <button class="btn sm" id="resetFactors">Réinitialiser</button></h2>
       <div class="body" id="factors"></div>
       <div class="legend">
-        Coefficient = <code>1 + Σ (sensibilité article × intensité facteur)</code>, borné entre 0,50 et 2,50.<br>
+        Intensité de chaque facteur calculée sur la période de couverture.<br>
+        Coefficient = <code>1 + Σ (sensibilité article × intensité)</code>, borné entre 0,50 et 2,50.<br>
         Qté conseillée = proposition auto × coefficient, arrondie au colis (PCB).
       </div>
     </aside>
@@ -192,16 +221,15 @@
             <thead>
               <tr>
                 <th>Article</th>
-                <th>Rayon</th>
                 <th class="num">Stock</th>
                 <th class="num">Ventes/j</th>
                 <th class="num">PCB</th>
-                <th class="num">Proposition auto<br>(UVC)</th>
-                <th class="num hl">Coef. facteurs<br>externes</th>
-                <th class="num hl">Qté conseillée<br>(UVC)</th>
-                <th class="num">Qté à commander<br>(UVC)</th>
+                <th class="num">Prop. auto<br>(UVC)</th>
+                <th class="num hl">Coef.<br>externe</th>
+                <th class="num hl">Conseillé<br>(UVC)</th>
+                <th class="num">À commander<br>(UVC)</th>
                 <th class="num">Colis</th>
-                <th class="num">Montant HT</th>
+                <th class="num">Montant<br>HT</th>
                 <th>Statut</th>
               </tr>
             </thead>
@@ -233,78 +261,265 @@
 </div>
 
 <script>
-/* ---------- Facteurs externes ---------- */
-const FACTORS = [
-  { id: "chaleur",  icon: "☀️", name: "Chaleur",            type: "derived" },
-  { id: "froid",    icon: "🥶", name: "Froid",              type: "derived" },
-  { id: "pluie",    icon: "🌧️", name: "Pluie / intempéries", type: "bool", def: true,  hint: "Prévision J à J+2" },
-  { id: "vacances", icon: "🎒", name: "Vacances scolaires",  type: "bool", def: true,  hint: "Toussaint — début samedi" },
-  { id: "halloween",icon: "🎃", name: "Halloween",           type: "bool", def: true,  hint: "Montée en charge J-16" },
-  { id: "match",    icon: "⚽", name: "Match / événement sportif", type: "bool", def: false, hint: "Diffusion TV ce week-end" },
-  { id: "ferie",    icon: "📅", name: "Pont / jour férié",   type: "bool", def: false, hint: "Week-end prolongé à venir" },
-  { id: "paie",     icon: "💶", name: "Début de mois (paie)", type: "bool", def: false, hint: "Hausse panier moyen" },
-  { id: "promo",    icon: "🏷️", name: "Promo catalogue",     type: "bool", def: true,  hint: "Articles en prospectus" },
-];
-const DEFAULT_TEMP = 12;
+/* =====================================================================
+   Contexte de la démo
+   Magasin : Intermarché Express, 143 bd de Cessole, 06100 Nice
+   Commande passée le jeudi 15/10/2026 pour livraison le vendredi 16/10/2026.
+   Les dates de calendrier (CAF, vacances, matchs, fériés) sont réelles ;
+   les articles, stocks, prix et sensibilités sont fictifs.
+   ===================================================================== */
+const ORDER_DATE = new Date(2026, 9, 15);       // jeudi 15 octobre 2026
+const DEFAULT_DELIVERY = new Date(2026, 9, 16); // vendredi 16 octobre 2026
 
-/* sensibilités par article : impact (en part de la demande) pour une intensité de 1 */
+/* --- Météo Nice (prévision ven. 16/10 : 15–23 °C, ensoleillé, pas de pluie) --- */
+const WEATHER = { tmin: 15, tmax: 23, normale: 22, pluie: false, ciel: "Ensoleillé, quelques nuages marins" };
+
+/* --- Calendrier scolaire : académie de Nice = zone B --- */
+const HOLIDAYS_SCHOOL = [
+  { name: "Toussaint", from: new Date(2026, 9, 17), to: new Date(2026, 10, 1) },   // reprise lun. 2 nov.
+  { name: "Noël",      from: new Date(2026, 11, 19), to: new Date(2027, 0, 3) },
+];
+
+/* --- Jours fériés --- */
+const PUBLIC_HOLIDAYS = [
+  { name: "Toussaint", d: new Date(2026, 10, 1) },
+  { name: "Armistice", d: new Date(2026, 10, 11) },
+  { name: "Noël",      d: new Date(2026, 11, 25) },
+];
+
+/* --- Football : matchs diffusés sur la période (poids = attrait pour la clientèle niçoise) --- */
+const MATCHES = [
+  { d: new Date(2026, 9, 16, 20, 45), label: "Le Mans – Toulouse",           comp: "Ligue 1 · J7",  w: .05 },
+  { d: new Date(2026, 9, 17, 17, 15), label: "Strasbourg – PSG",             comp: "Ligue 1 · J7",  w: .4 },
+  { d: new Date(2026, 9, 18, 15, 0),  label: "Angers – OM",                  comp: "Ligue 1 · J7",  w: .45 },
+  { d: new Date(2026, 9, 18, 20, 45), label: "Lyon – OGC Nice",              comp: "Ligue 1 · J7",  w: .8, local: true },
+  { d: new Date(2026, 9, 20, 21, 0),  label: "PSG – FC Barcelone",           comp: "Ligue des champions", w: .5 },
+  { d: new Date(2026, 9, 23, 20, 45), label: "Brest – OGC Nice",             comp: "Ligue 1 · J8",  w: .8, local: true },
+  { d: new Date(2026, 9, 31, 17, 15), label: "OGC Nice – Rennes (Allianz Riviera)", comp: "Ligue 1 · J9", w: 1, local: true },
+];
+
+/* --- Événements en ville (hors zone de chalandise directe) --- */
+const CITY_EVENTS = [
+  { d: new Date(2026, 9, 16), label: "Avishai Cohen — Palais Nikaïa" },
+  { d: new Date(2026, 9, 17), label: "Les Wampas — Nice Music Live" },
+  { d: new Date(2026, 9, 17), label: "Spectacles Halloween — théâtre l'Alphabet (17→30/10)" },
+];
+
+/* ---------- Utilitaires dates ---------- */
+const DAY = 864e5;
+const d0 = d => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+const addDays = (d, n) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + n);
+const diffDays = (a, b) => Math.round((d0(a) - d0(b)) / DAY);
+const sameDay = (a, b) => diffDays(a, b) === 0;
+const fmtD = (d, o = { weekday: "short", day: "numeric", month: "short" }) => d.toLocaleDateString("fr-FR", o);
+const fmtH = d => d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }).replace(":", "h");
+const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
+const rel = n => n === 0 ? "J" : n > 0 ? `J+${n}` : `J${n}`;
+
+/* Période couverte par la livraison : pas de livraison le samedi ni le dimanche */
+function coverageDays(delivery) {
+  const days = [d0(delivery)];
+  let d = addDays(delivery, 1);
+  while (d.getDay() === 6 || d.getDay() === 0) { days.push(d); d = addDays(d, 1); }
+  return days;
+}
+
+/* Versement CAF (APL, RSA, prestations familiales) : le 5, avancé au vendredi si samedi, reporté au lundi si dimanche */
+function cafPayment(y, m) {
+  const d = new Date(y, m, 5);
+  if (d.getDay() === 6) return addDays(d, -1);
+  if (d.getDay() === 0) return addDays(d, 1);
+  return d;
+}
+function lastCaf(date) {
+  let p = cafPayment(date.getFullYear(), date.getMonth());
+  if (p > d0(date)) p = cafPayment(date.getFullYear(), date.getMonth() - 1);
+  return p;
+}
+function nextCaf(date) {
+  let p = cafPayment(date.getFullYear(), date.getMonth());
+  if (p <= d0(date)) p = cafPayment(date.getFullYear(), date.getMonth() + 1);
+  return p;
+}
+/* Salaires : dernier jour ouvré du mois */
+function payday(y, m) {
+  let d = new Date(y, m + 1, 0);
+  while (d.getDay() === 0 || d.getDay() === 6) d = addDays(d, -1);
+  return d;
+}
+function lastPayday(date) {
+  let p = payday(date.getFullYear(), date.getMonth());
+  if (p > d0(date)) p = payday(date.getFullYear(), date.getMonth() - 1);
+  return p;
+}
+const inSchoolHoliday = d => HOLIDAYS_SCHOOL.find(h => d0(d) >= h.from && d0(d) <= h.to);
+
+/* =====================================================================
+   Facteurs : chacun calcule son intensité (0 → 1+) sur la période
+   et produit des lignes de détail affichées dans le panneau.
+   ===================================================================== */
+const FACTORS = [
+  /* ---- Météo ---- */
+  { id: "chaleur", group: "Météo — Nice", icon: "☀️", name: "Douceur / chaleur",
+    calc: s => { const i = clamp((s.temp - WEATHER.normale) / 5, 0, 1.5); return { i, lines: [
+      `Prévision ${fmtD(DEFAULT_DELIVERY)} : <b>${WEATHER.tmin}–${s.temp} °C</b>, ${WEATHER.ciel.toLowerCase()}`,
+      `Normale de saison à Nice : ${WEATHER.normale} °C (écart ${s.temp - WEATHER.normale >= 0 ? "+" : ""}${s.temp - WEATHER.normale} °C)`,
+    ]}; }, slider: true },
+  { id: "froid", group: "Météo — Nice", icon: "🧥", name: "Fraîcheur",
+    calc: s => ({ i: clamp((WEATHER.normale - s.temp) / 5, 0, 1.5), lines: [
+      s.temp < WEATHER.normale ? `${WEATHER.normale - s.temp} °C sous la normale` : "Pas de fraîcheur anormale prévue",
+    ]}) },
+  { id: "pluie", group: "Météo — Nice", icon: "🌧️", name: "Pluie / épisode méditerranéen", toggleDefault: false,
+    calc: s => ({ i: 1, lines: [ WEATHER.pluie ? "Pluie annoncée sur la période" : "Aucune pluie prévue (activer pour simuler un épisode cévenol)" ] }) },
+
+  /* ---- Pouvoir d'achat ---- */
+  { id: "caf", group: "Calendrier pouvoir d'achat", icon: "🏠", name: "Versement CAF (APL, RSA, alloc. familiales)",
+    calc: s => {
+      const best = Math.max(...s.days.map(d => { const n = diffDays(d, lastCaf(d)); return clamp(1 - n / 6, 0, 1); }));
+      const last = lastCaf(s.delivery), next = nextCaf(s.delivery);
+      return { i: best, lines: [
+        `Dernier versement : <b>${fmtD(last)}</b> (${rel(diffDays(s.delivery, last))} à la livraison)`,
+        `Prochain versement : <b>${fmtD(next)}</b> (${rel(-diffDays(next, s.delivery)).replace("J-", "dans ")} j)`,
+        best > 0 ? "Pic d'achats de première nécessité les jours suivant le versement" : "Hors fenêtre de versement → pas d'effet (effet sur ~6 jours)",
+      ]};
+    } },
+  { id: "salaires", group: "Calendrier pouvoir d'achat", icon: "💶", name: "Versement des salaires",
+    calc: s => {
+      const best = Math.max(...s.days.map(d => clamp(1 - diffDays(d, lastPayday(d)) / 5, 0, 1)));
+      const next = payday(s.delivery.getFullYear(), s.delivery.getMonth());
+      return { i: best, lines: [
+        `Dernier jour ouvré du mois : <b>${fmtD(next >= d0(s.delivery) ? next : payday(s.delivery.getFullYear(), s.delivery.getMonth() + 1))}</b>`,
+        best > 0 ? "Panier moyen en hausse (premium, alcools)" : "Milieu de mois → panier contraint, pas d'effet haussier",
+      ]};
+    } },
+
+  /* ---- Sport ---- */
+  { id: "foot", group: "Football — diffusions TV", icon: "⚽", name: "Matchs sur la période", matches: true,
+    calc: s => {
+      const inWin = MATCHES.filter(m => s.days.some(d => sameDay(d, m.d)));
+      const active = inWin.filter(m => s.matchOn[m.label] !== false);
+      const i = active.length ? Math.max(...active.map(m => m.w)) + Math.min(.2, (active.length - 1) * .05) : 0;
+      return { i: clamp(i, 0, 1.2), inWin, lines: [] };
+    } },
+
+  /* ---- Calendrier ---- */
+  { id: "vacances", group: "Calendrier scolaire & fêtes", icon: "🎒", name: "Vacances scolaires (zone B)",
+    calc: s => {
+      const n = s.days.filter(inSchoolHoliday).length;
+      const h = HOLIDAYS_SCHOOL.find(h => h.to >= d0(s.delivery));
+      return { i: n / s.days.length, lines: [
+        h ? `${h.name} : <b>${fmtD(h.from)} → ${fmtD(h.to)}</b> (reprise ${fmtD(addDays(h.to, 1))})` : "",
+        `${n}/${s.days.length} jour(s) de la couverture en vacances — enfants à la maison`,
+      ].filter(Boolean)};
+    } },
+  { id: "halloween", group: "Calendrier scolaire & fêtes", icon: "🎃", name: "Halloween",
+    calc: s => {
+      const h = new Date(s.delivery.getFullYear(), 9, 31);
+      const n = diffDays(h, s.delivery);
+      return { i: n >= 0 ? clamp(1 - n / 28, 0, 1) : 0, lines: [
+        n >= 0 ? `Sam. 31 oct. → <b>J-${n}</b> : montée en charge confiserie / courges` : "Passé",
+      ]};
+    } },
+  { id: "ferie", group: "Calendrier scolaire & fêtes", icon: "📅", name: "Jour férié / pont",
+    calc: s => {
+      const inWin = PUBLIC_HOLIDAYS.filter(p => s.days.some(d => sameDay(d, p.d)) || sameDay(addDays(s.days[s.days.length - 1], 1), p.d));
+      const next = PUBLIC_HOLIDAYS.find(p => p.d >= d0(s.delivery));
+      return { i: inWin.length ? 1 : 0, lines: [
+        inWin.length ? `<b>${inWin.map(p => p.name).join(", ")}</b> sur la période` : "Aucun férié sur la période",
+        next ? `Prochain : ${next.name}, ${fmtD(next.d)}${next.d.getDay() === 0 ? " (tombe un dimanche)" : ""}` : "",
+      ].filter(Boolean)};
+    } },
+  { id: "promo", group: "Commerce", icon: "🏷️", name: "Promo catalogue en cours", toggleDefault: true,
+    calc: s => ({ i: 1, lines: ["Prospectus semaine 42 — articles marqués PROMO"] }) },
+
+  /* ---- Local : Nice Cessole ---- */
+  { id: "dimanche", group: "Local — Nice Cessole", local: true, icon: "🛒", name: "Ouverture le dimanche",
+    calc: s => ({ i: s.days.some(d => d.getDay() === 0) ? 1 : 0, lines: [
+      "Magasin ouvert le dimanche : report de la clientèle du quartier",
+      "Pic du dimanche matin sur boulangerie, rôtisserie, apéritif",
+    ]}) },
+  { id: "ecoles", group: "Local — Nice Cessole", local: true, icon: "🏫", name: "Établissements scolaires du quartier",
+    calc: s => ({ i: s.days.filter(inSchoolHoliday).length / s.days.length, lines: [
+      "Lycée Honoré d'Estienne d'Orves, écoles Saint-Barthélémy, Nazareth, maternelle Ray-Gorbella",
+      "Pendant les vacances : baisse du snacking du midi (sandwichs, boissons individuelles)",
+    ]}) },
+  { id: "tourisme", group: "Local — Nice Cessole", local: true, icon: "🧳", name: "Saisonnalité touristique",
+    calc: s => { const m = s.delivery.getMonth(); const i = [0,0,0,.1,.3,.6,1,1,.5,0,0,.2][m]; return { i, lines: [
+      i ? `Indice saisonnier ${m + 1}/12 : ${Math.round(i * 100)} %` : "Basse saison — quartier résidentiel du nord de Nice, peu exposé au tourisme",
+    ]}; } },
+  { id: "events", group: "Local — Nice Cessole", local: true, icon: "🎤", name: "Événements en ville", toggleDefault: false,
+    calc: s => {
+      const ev = CITY_EVENTS.filter(e => s.days.some(d => sameDay(d, e.d)));
+      return { i: ev.length ? .3 : 0, lines: ev.length
+        ? [...ev.map(e => `${fmtD(e.d)} : ${e.label}`), "Hors zone de chalandise → désactivé par défaut"]
+        : ["Aucun événement recensé sur la période"] };
+    } },
+];
+
+/* =====================================================================
+   Articles — sensibilités fictives (part de demande en plus/moins pour intensité 1)
+   ===================================================================== */
 const PRODUCTS = [
-  { ean: "3270190207924", lib: "Eau minérale 6×1,5 L",        rayon: "Liquides",     pcb: 4,  prix: 2.35, stock: 18, vj: 14, auto: 40, s: { chaleur: .35, froid: -.1, match: .1 } },
-  { ean: "3124480191182", lib: "Soda cola 1,5 L",             rayon: "Liquides",     pcb: 6,  prix: 1.12, stock: 22, vj: 16, auto: 36, s: { chaleur: .3, match: .35, ferie: .15, vacances: .1 } },
-  { ean: "3080216052434", lib: "Bière blonde 12×25 cl",       rayon: "Liquides",     pcb: 3,  prix: 6.40, stock: 9,  vj: 5,  auto: 12, s: { chaleur: .3, match: .6, ferie: .25 } },
-  { ean: "3250390006513", lib: "Jus d'orange 1 L",            rayon: "Liquides",     pcb: 6,  prix: 1.05, stock: 14, vj: 8,  auto: 18, s: { vacances: .2, froid: .05 } },
-  { ean: "3175681105522", lib: "Vin rouge AOP 75 cl",         rayon: "Liquides",     pcb: 6,  prix: 3.90, stock: 30, vj: 6,  auto: 12, s: { ferie: .3, froid: .1, paie: .15 }, promo: true },
-  { ean: "3168930010265", lib: "Chips nature 150 g",          rayon: "Épicerie",     pcb: 12, prix: 0.78, stock: 20, vj: 15, auto: 36, s: { match: .45, ferie: .2, vacances: .1, chaleur: .1 } },
-  { ean: "3017620422003", lib: "Pâte à tartiner 750 g",       rayon: "Épicerie",     pcb: 6,  prix: 3.10, stock: 11, vj: 4,  auto: 12, s: { vacances: .25 } },
-  { ean: "7622210449283", lib: "Biscuits goûter ×8",          rayon: "Épicerie",     pcb: 12, prix: 1.35, stock: 16, vj: 10, auto: 24, s: { vacances: .35 } },
-  { ean: "3229820129488", lib: "Céréales petit-déj 500 g",    rayon: "Épicerie",     pcb: 8,  prix: 1.95, stock: 12, vj: 6,  auto: 16, s: { vacances: .3 } },
-  { ean: "3038359004964", lib: "Pâtes coquillettes 500 g",    rayon: "Épicerie",     pcb: 20, prix: 0.62, stock: 45, vj: 12, auto: 20, s: { pluie: .05, paie: .05 } },
-  { ean: "3103220009574", lib: "Bonbons assortis 250 g",      rayon: "Épicerie",     pcb: 12, prix: 1.48, stock: 10, vj: 5,  auto: 12, s: { halloween: .9, vacances: .15 }, promo: true },
-  { ean: "3045320094084", lib: "Chocolat en poudre 800 g",    rayon: "Épicerie",     pcb: 6,  prix: 3.25, stock: 8,  vj: 3,  auto: 6,  s: { froid: .4, vacances: .15 } },
-  { ean: "3366321051981", lib: "Soupe de légumes 1 L",        rayon: "Épicerie",     pcb: 6,  prix: 1.69, stock: 10, vj: 5,  auto: 12, s: { froid: .55, pluie: .2, chaleur: -.4 } },
-  { ean: "3270160891443", lib: "Crème glacée vanille 1 L",    rayon: "Surgelés",     pcb: 4,  prix: 2.80, stock: 12, vj: 3,  auto: 8,  s: { chaleur: .8, froid: -.3, pluie: -.15 } },
-  { ean: "3270160890231", lib: "Bâtonnets glacés ×6",         rayon: "Surgelés",     pcb: 6,  prix: 2.20, stock: 14, vj: 3,  auto: 6,  s: { chaleur: .9, froid: -.35, pluie: -.2, vacances: .1 } },
-  { ean: "3256221234567", lib: "Pizza surgelée 4 fromages",   rayon: "Surgelés",     pcb: 8,  prix: 2.15, stock: 10, vj: 7,  auto: 16, s: { match: .4, pluie: .1, vacances: .1 } },
-  { ean: "3266980054071", lib: "Raclette tranches 400 g",     rayon: "Crèmerie",     pcb: 6,  prix: 4.35, stock: 6,  vj: 4,  auto: 12, s: { froid: .7, chaleur: -.5, pluie: .1 } },
-  { ean: "3155251205301", lib: "Lait demi-écrémé 6×1 L",      rayon: "Crèmerie",     pcb: 4,  prix: 5.10, stock: 20, vj: 9,  auto: 20, s: { vacances: .1 } },
-  { ean: "2000000123458", lib: "Saucisses de Toulouse ×6",    rayon: "Boucherie LS", pcb: 6,  prix: 3.75, stock: 8,  vj: 5,  auto: 12, s: { chaleur: .45, pluie: -.25, match: .15, ferie: .1 } },
-  { ean: "2000000654321", lib: "Pommes de terre 2,5 kg",      rayon: "Fruits & lég.",pcb: 8,  prix: 1.80, stock: 14, vj: 8,  auto: 16, s: { froid: .2 } },
-  { ean: "2000000456789", lib: "Salade iceberg",              rayon: "Fruits & lég.",pcb: 12, prix: 0.65, stock: 15, vj: 9,  auto: 24, s: { chaleur: .4, froid: -.2 } },
-  { ean: "2000000789012", lib: "Potiron (pièce)",             rayon: "Fruits & lég.",pcb: 6,  prix: 1.40, stock: 5,  vj: 4,  auto: 12, s: { halloween: .6, froid: .2 } },
+  { ean: "3270190207924", lib: "Eau minérale 6×1,5 L",         rayon: "Liquides",      pcb: 4,  prix: 2.35, stock: 18, vj: 14, auto: 40, s: { chaleur: .3, froid: -.1, foot: .05 } },
+  { ean: "3270190112457", lib: "Eau minérale 50 cl",           rayon: "Liquides",      pcb: 24, prix: 0.28, stock: 40, vj: 30, auto: 72, s: { chaleur: .35, ecoles: -.45 } },
+  { ean: "3124480191182", lib: "Soda cola 1,5 L",              rayon: "Liquides",      pcb: 6,  prix: 1.12, stock: 22, vj: 16, auto: 36, s: { chaleur: .2, foot: .35, vacances: .1 } },
+  { ean: "3080216052434", lib: "Bière blonde 12×25 cl",        rayon: "Liquides",      pcb: 3,  prix: 6.40, stock: 9,  vj: 5,  auto: 12, s: { chaleur: .25, foot: .6, salaires: .1, dimanche: .1 } },
+  { ean: "3175681105522", lib: "Rosé de Provence AOP 75 cl",   rayon: "Liquides",      pcb: 6,  prix: 4.20, stock: 20, vj: 6,  auto: 12, s: { chaleur: .3, ferie: .25, salaires: .2, dimanche: .15 }, promo: true },
+  { ean: "3250390006513", lib: "Jus d'orange 1 L",             rayon: "Liquides",      pcb: 6,  prix: 1.05, stock: 14, vj: 8,  auto: 18, s: { vacances: .2 } },
+  { ean: "3168930010265", lib: "Chips nature 150 g",           rayon: "Épicerie",      pcb: 12, prix: 0.78, stock: 20, vj: 15, auto: 36, s: { foot: .45, vacances: .1, dimanche: .1 } },
+  { ean: "3017620422003", lib: "Pâte à tartiner 750 g",        rayon: "Épicerie",      pcb: 6,  prix: 3.10, stock: 11, vj: 4,  auto: 12, s: { vacances: .25, caf: .15 } },
+  { ean: "7622210449283", lib: "Biscuits goûter ×8",           rayon: "Épicerie",      pcb: 12, prix: 1.35, stock: 16, vj: 10, auto: 24, s: { vacances: .35, caf: .1 } },
+  { ean: "3229820129488", lib: "Céréales petit-déj 500 g",     rayon: "Épicerie",      pcb: 8,  prix: 1.95, stock: 12, vj: 6,  auto: 16, s: { vacances: .3 } },
+  { ean: "3038359004964", lib: "Pâtes coquillettes 500 g",     rayon: "Épicerie",      pcb: 20, prix: 0.62, stock: 45, vj: 12, auto: 20, s: { caf: .25, pluie: .05 } },
+  { ean: "3103220009574", lib: "Bonbons assortis 250 g",       rayon: "Épicerie",      pcb: 12, prix: 1.48, stock: 10, vj: 5,  auto: 12, s: { halloween: 1.2, vacances: .15 }, promo: true },
+  { ean: "3366321051981", lib: "Soupe de légumes 1 L",         rayon: "Épicerie",      pcb: 6,  prix: 1.69, stock: 10, vj: 5,  auto: 12, s: { froid: .5, pluie: .2, chaleur: -.3 } },
+  { ean: "3270160891443", lib: "Crème glacée vanille 1 L",     rayon: "Surgelés",      pcb: 4,  prix: 2.80, stock: 12, vj: 3,  auto: 8,  s: { chaleur: .6, froid: -.3, pluie: -.15 } },
+  { ean: "3256221234567", lib: "Pizza surgelée 4 fromages",    rayon: "Surgelés",      pcb: 8,  prix: 2.15, stock: 10, vj: 7,  auto: 16, s: { foot: .4, vacances: .15, pluie: .1 } },
+  { ean: "3155251205301", lib: "Lait demi-écrémé 6×1 L",       rayon: "Crèmerie",      pcb: 4,  prix: 5.10, stock: 20, vj: 9,  auto: 20, s: { caf: .2, vacances: .1 } },
+  { ean: "2000000310021", lib: "Sandwich jambon-beurre",       rayon: "Traiteur LS",   pcb: 6,  prix: 1.90, stock: 6,  vj: 14, auto: 30, s: { ecoles: -.55, chaleur: .05 } },
+  { ean: "2000000310038", lib: "Salade composée bar à salade", rayon: "Traiteur LS",   pcb: 6,  prix: 2.60, stock: 4,  vj: 8,  auto: 18, s: { chaleur: .3, ecoles: -.3 } },
+  { ean: "2000000420015", lib: "Poulet rôti (pièce)",          rayon: "Traiteur LS",   pcb: 4,  prix: 4.90, stock: 0,  vj: 6,  auto: 16, s: { dimanche: .45, foot: .05, salaires: .05 } },
+  { ean: "2000000520012", lib: "Pissaladière (part)",          rayon: "Boulangerie",   pcb: 10, prix: 0.95, stock: 0,  vj: 12, auto: 30, s: { dimanche: .3, foot: .1, chaleur: .05 } },
+  { ean: "2000000520029", lib: "Croissants ×6",                rayon: "Boulangerie",   pcb: 8,  prix: 1.60, stock: 0,  vj: 7,  auto: 16, s: { dimanche: .35, vacances: .1 } },
+  { ean: "2000000654321", lib: "Mesclun niçois 250 g",         rayon: "Fruits & lég.", pcb: 10, prix: 1.10, stock: 8,  vj: 7,  auto: 20, s: { chaleur: .3, froid: -.15 } },
+  { ean: "2000000789012", lib: "Courge butternut (pièce)",     rayon: "Fruits & lég.", pcb: 8,  prix: 1.30, stock: 6,  vj: 4,  auto: 8,  s: { halloween: .5, froid: .25, chaleur: -.1 } },
+  { ean: "2000000123458", lib: "Steak haché 5 % ×2",           rayon: "Boucherie LS",  pcb: 6,  prix: 3.20, stock: 10, vj: 8,  auto: 18, s: { caf: .25, salaires: .1, vacances: .1 } },
 ];
 
 /* ---------- État ---------- */
+const TOGGLE_DEFAULTS = Object.fromEntries(FACTORS.map(f => [f.id, f.toggleDefault ?? true]));
 const state = {
-  temp: DEFAULT_TEMP,
-  f: Object.fromEntries(FACTORS.filter(f => f.type === "bool").map(f => [f.id, f.def])),
-  final: {},        // ean -> qté saisie manuellement (UVC)
-  sent: false,
+  delivery: DEFAULT_DELIVERY,
+  temp: WEATHER.tmax,
+  on: { ...TOGGLE_DEFAULTS },
+  matchOn: {},
+  final: {},
 };
-
 const fmtN = n => n.toLocaleString("fr-FR");
 const fmtE = n => n.toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
 const fmtC = n => n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 const roundPcb = (q, pcb) => q <= 0 ? 0 : Math.ceil(q / pcb) * pcb;
 const factorById = id => FACTORS.find(f => f.id === id);
 
-function intensities() {
-  return {
-    chaleur: Math.max(0, (state.temp - 18) / 10),   // +1 à 28 °C
-    froid:   Math.max(0, (15 - state.temp) / 10),   // +1 à 5 °C
-    ...Object.fromEntries(Object.entries(state.f).map(([k, v]) => [k, v ? 1 : 0])),
-  };
+let FX = {}; // résultats calculés des facteurs { id: { i, lines, ... } }
+function computeFactors() {
+  const s = { ...state, days: coverageDays(state.delivery) };
+  FX = Object.fromEntries(FACTORS.map(f => [f.id, f.calc(s)]));
+  for (const f of FACTORS) if (!state.on[f.id]) FX[f.id].i = 0;
+  return s;
 }
 
-function compute(p, I) {
+function compute(p) {
   const parts = [];
   let sum = 0;
   const sens = { ...p.s };
   if (p.promo) sens.promo = .5;
   for (const [id, s] of Object.entries(sens)) {
-    const v = s * (I[id] || 0);
+    const v = s * (FX[id]?.i || 0);
     if (Math.abs(v) >= .005) { parts.push({ id, v }); sum += v; }
   }
-  const coef = Math.min(2.5, Math.max(.5, Math.round((1 + sum) * 100) / 100));
+  const coef = clamp(Math.round((1 + sum) * 100) / 100, .5, 2.5);
   const conseil = roundPcb(p.auto * coef, p.pcb);
   const manual = state.final[p.ean];
   const final = manual ?? conseil;
@@ -316,40 +531,65 @@ function compute(p, I) {
 }
 
 /* ---------- Panneau facteurs ---------- */
-function renderFactors() {
-  const el = document.getElementById("factors");
-  el.innerHTML = `
-    <div class="factor">
-      <div class="row"><span class="name">🌡️ Température prévue</span><span class="temp" id="tVal">${state.temp} °C</span></div>
-      <input type="range" id="temp" min="-2" max="36" step="1" value="${state.temp}" aria-label="Température prévue">
-      <div class="hint" id="tHint"></div>
-    </div>
-    ${FACTORS.filter(f => f.type === "bool").map(f => `
-      <div class="factor">
-        <div class="row">
-          <span class="name">${f.icon} ${f.name}</span>
-          <label class="switch"><input type="checkbox" data-f="${f.id}" ${state.f[f.id] ? "checked" : ""} aria-label="${f.name}"><span></span></label>
-        </div>
-        <div class="hint">${f.hint}</div>
-      </div>`).join("")}
-  `;
-  el.querySelector("#temp").addEventListener("input", e => { state.temp = +e.target.value; render(); });
-  el.querySelectorAll("[data-f]").forEach(c => c.addEventListener("change", e => { state.f[e.target.dataset.f] = e.target.checked; render(); }));
+function factorDetail(f, s) {
+  const r = FX[f.id];
+  if (!f.matches) return r.lines.map(l => `<li>${l}</li>`).join("");
+  let lines = r.inWin.length
+    ? r.inWin.map(m => `<li class="match"><input type="checkbox" data-match="${m.label}" ${state.matchOn[m.label] !== false ? "checked" : ""} aria-label="${m.label}">
+        <span><b>${m.local ? "🔴⚫ " : ""}${m.label}</b> — ${cap(fmtD(m.d))} ${fmtH(m.d)} · ${m.comp}${m.local ? " · <b>club local</b>" : ""}</span></li>`).join("")
+    : `<li>Aucun match sur la période</li>`;
+  const next = MATCHES.find(m => m.local && d0(m.d) > s.days[s.days.length - 1]);
+  if (next) lines += `<li>Prochain OGC Nice : ${next.label}, ${fmtD(next.d)} ${fmtH(next.d)}</li>`;
+  return lines;
 }
 
-function tempHint() {
-  const t = state.temp;
-  if (t >= 18) return `☀️ Chaleur : intensité ${fmtC((t - 18) / 10)}`;
-  if (t <= 15) return `🥶 Froid : intensité ${fmtC((15 - t) / 10)}`;
-  return "Températures de saison — pas d'effet";
+function buildFactors() {
+  let html = "", lastGroup = "";
+  for (const f of FACTORS) {
+    if (f.group !== lastGroup) { html += `<div class="group ${f.local ? "local" : ""}">${f.local ? "📍 " : ""}${f.group}</div>`; lastGroup = f.group; }
+    html += `
+      <div class="factor ${f.local ? "loc" : ""}" data-id="${f.id}">
+        <div class="row">
+          <span class="name">${f.icon} ${f.name}</span>
+          <span class="right">
+            <span class="intens" title="Intensité sur la période"></span>
+            <label class="switch"><input type="checkbox" data-f="${f.id}" aria-label="${f.name}"><span></span></label>
+          </span>
+        </div>
+        ${f.slider ? `<input type="range" id="temp" min="5" max="34" step="1" aria-label="Température maximale prévue">` : ""}
+        <ul></ul>
+      </div>`;
+  }
+  const el = document.getElementById("factors");
+  el.innerHTML = html;
+  el.addEventListener("input", e => {
+    if (e.target.id === "temp") { state.temp = +e.target.value; refresh(); }
+  });
+  el.addEventListener("change", e => {
+    if (e.target.dataset.f) { state.on[e.target.dataset.f] = e.target.checked; refresh(); }
+    if (e.target.dataset.match) { state.matchOn[e.target.dataset.match] = e.target.checked; refresh(); }
+  });
 }
+
+function updateFactors() {
+  const s = computeFactors();
+  for (const f of FACTORS) {
+    const box = document.querySelector(`.factor[data-id="${f.id}"]`);
+    const on = state.on[f.id], i = FX[f.id].i;
+    box.classList.toggle("off", !on);
+    box.querySelector("[data-f]").checked = on;
+    const badge = box.querySelector(".intens");
+    badge.className = `intens ${i > 0 ? "on" : ""}`;
+    badge.textContent = !on ? "Désactivé" : i > 0 ? `Intensité ${fmtC(i)}` : "Sans effet";
+    box.querySelector("ul").innerHTML = factorDetail(f, s);
+  }
+  document.getElementById("temp").value = state.temp;
+}
+
+function refresh() { updateFactors(); render(); }
 
 /* ---------- Tableau ---------- */
 function render() {
-  const I = intensities();
-  document.getElementById("tVal").textContent = `${state.temp} °C`;
-  document.getElementById("tHint").textContent = tempHint();
-
   const q = document.getElementById("q").value.trim().toLowerCase();
   const rayon = document.getElementById("rayon").value;
   const onlyImp = document.getElementById("onlyImpacted").checked;
@@ -358,7 +598,7 @@ function render() {
   const html = [];
 
   for (const p of PRODUCTS) {
-    const r = compute(p, I);
+    const r = compute(p);
     tAuto += p.auto; tFinal += r.final; tAmount += r.final * p.prix; tAmountAuto += p.auto * p.prix;
     if (r.final > 0) lines++;
     if (r.coef !== 1) impacted++;
@@ -370,23 +610,27 @@ function render() {
 
     const cls = r.coef > 1 ? "up" : r.coef < 1 ? "down" : "flat";
     const tip = r.parts.length
-      ? r.parts.map(x => { const f = factorById(x.id); return `<div class="l"><span>${f.icon} ${f.name}</span><span class="${x.v > 0 ? "pos" : "neg"}">${x.v > 0 ? "+" : ""}${Math.round(x.v * 100)} %</span></div>`; }).join("")
+      ? r.parts.map(x => {
+          const f = factorById(x.id);
+          return `<div class="l"><span>${f.icon} ${f.name}${f.local ? '<span class="tag">LOCAL</span>' : ""}</span><span class="${x.v > 0 ? "pos" : "neg"}">${x.v > 0 ? "+" : ""}${Math.round(x.v * 100)} %</span></div>`;
+        }).join("")
         + `<div class="l tot"><span>Coefficient</span><span>× ${fmtC(r.coef)}</span></div>`
       : `<div>Aucun facteur actif sur cet article.</div>`;
+    const drivers = r.parts.slice(0, 3).map(x => factorById(x.id).icon).join(" ");
     const statusLabel = { auto: "Auto", coef: "Coef appliqué", man: "Modifié", zero: "Non commandé" }[r.status];
 
     html.push(`
       <tr>
-        <td><div class="art">${p.lib}${p.promo ? '<span class="promo">PROMO</span>' : ""}</div><div class="ean">${p.ean}</div></td>
-        <td>${p.rayon}</td>
+        <td><div class="art">${p.lib}${p.promo ? '<span class="promo">PROMO</span>' : ""}</div><div class="ean">${p.ean} · ${p.rayon}</div></td>
         <td class="num">${p.stock}</td>
         <td class="num">${p.vj}</td>
         <td class="num">${p.pcb}</td>
         <td class="num">${p.auto}</td>
         <td class="num hl">
           <button class="coef ${cls}" aria-label="Détail du coefficient">× ${fmtC(r.coef)}
-            <span class="tip"><div class="t">Détail des facteurs</div>${tip}</span>
+            <span class="tip"><div class="t">Détail des facteurs — ${p.lib}</div>${tip}</span>
           </button>
+          ${drivers ? `<span class="drivers">${drivers}</span>` : ""}
         </td>
         <td class="num hl"><b>${r.conseil}</b> ${r.conseil !== p.auto ? `<span class="arrow">(${r.conseil > p.auto ? "+" : ""}${r.conseil - p.auto})</span>` : ""}</td>
         <td class="num">
@@ -401,7 +645,7 @@ function render() {
         <td><span class="status ${r.status}">${statusLabel}</span></td>
       </tr>`);
   }
-  document.getElementById("rows").innerHTML = html.join("") || `<tr><td colspan="12" style="text-align:center;color:var(--muted);padding:24px">Aucun article ne correspond.</td></tr>`;
+  document.getElementById("rows").innerHTML = html.join("") || `<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:24px">Aucun article ne correspond.</td></tr>`;
 
   const pct = (a, b) => b ? `${a >= b ? "+" : ""}${Math.round((a - b) / b * 100)} % vs auto` : "";
   document.getElementById("kLines").textContent = fmtN(lines);
@@ -416,11 +660,22 @@ function render() {
   state.totals = { lines, tFinal, tAmount, manual, impacted };
 }
 
+function renderHeader() {
+  const days = coverageDays(state.delivery);
+  document.getElementById("today").textContent =
+    `Commande du ${fmtD(ORDER_DATE, { weekday: "long", day: "numeric", month: "long", year: "numeric" })} · générée à 06:00 par le réapprovisionnement automatique`;
+  document.getElementById("coverage").textContent = days.length > 1
+    ? `${fmtD(days[0])} → ${fmtD(days[days.length - 1])} (${days.length} j)`
+    : `${fmtD(days[0])} (1 j)`;
+  const d = state.delivery;
+  document.getElementById("deliveryDate").value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 /* ---------- Interactions ---------- */
 const product = ean => PRODUCTS.find(p => p.ean === ean);
 function setFinal(ean, v) {
   const p = product(ean);
-  const conseil = compute(p, intensities()).conseil;
+  const conseil = compute(p).conseil;
   v = Math.max(0, Math.round(v) || 0);
   if (v === conseil) delete state.final[ean]; else state.final[ean] = v;
   render();
@@ -430,8 +685,7 @@ rows.addEventListener("click", e => {
   const b = e.target.closest("button[data-step]");
   if (!b) return;
   const p = product(b.dataset.ean);
-  const cur = compute(p, intensities()).final;
-  setFinal(p.ean, cur + +b.dataset.step * p.pcb);
+  setFinal(p.ean, compute(p).final + +b.dataset.step * p.pcb);
 });
 const tipEl = document.getElementById("tip");
 function showTip(btn) {
@@ -456,27 +710,33 @@ rows.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.matche
 document.getElementById("applyAll").onclick = () => { state.final = {}; render(); };
 document.getElementById("resetAll").onclick = () => {
   state.final = {};
-  const I = intensities();
-  for (const p of PRODUCTS) if (compute(p, I).conseil !== p.auto) state.final[p.ean] = p.auto;
+  for (const p of PRODUCTS) if (compute(p).conseil !== p.auto) state.final[p.ean] = p.auto;
   render();
 };
 document.getElementById("resetFactors").onclick = () => {
-  state.temp = DEFAULT_TEMP;
-  FACTORS.filter(f => f.type === "bool").forEach(f => state.f[f.id] = f.def);
-  renderFactors(); render();
+  state.temp = WEATHER.tmax; state.on = { ...TOGGLE_DEFAULTS }; state.matchOn = {};
+  refresh();
 };
+document.getElementById("deliveryDate").addEventListener("change", e => {
+  const [y, m, d] = e.target.value.split("-").map(Number);
+  if (!y) return;
+  state.delivery = new Date(y, m - 1, d);
+  state.final = {};
+  renderHeader(); refresh();
+});
 
 document.getElementById("exportBtn").onclick = () => {
-  const I = intensities();
-  const head = ["EAN", "Libellé", "Rayon", "PCB", "Proposition auto", "Coef externe", "Qté conseillée", "Qté commandée", "Colis", "Montant HT"];
+  const head = ["EAN", "Libellé", "Rayon", "PCB", "Proposition auto", "Coef externe", "Facteurs", "Qté conseillée", "Qté commandée", "Colis", "Montant HT"];
   const lines = PRODUCTS.map(p => {
-    const r = compute(p, I);
-    return [p.ean, p.lib, p.rayon, p.pcb, p.auto, fmtC(r.coef), r.conseil, r.final, r.final / p.pcb, (r.final * p.prix).toFixed(2).replace(".", ",")];
+    const r = compute(p);
+    const fx = r.parts.map(x => `${factorById(x.id).name} ${x.v > 0 ? "+" : ""}${Math.round(x.v * 100)}%`).join(" | ");
+    return [p.ean, p.lib, p.rayon, p.pcb, p.auto, fmtC(r.coef), fx, r.conseil, r.final, r.final / p.pcb, (r.final * p.prix).toFixed(2).replace(".", ",")];
   });
   const csv = [head, ...lines].map(l => l.map(x => `"${String(x).replace(/"/g, '""')}"`).join(";")).join("\n");
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }));
-  a.download = `commande-${new Date().toISOString().slice(0, 10)}.csv`;
+  const d = state.delivery;
+  a.download = `commande-nice-cessole-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}.csv`;
   a.click();
 };
 
@@ -486,15 +746,14 @@ document.getElementById("validateBtn").onclick = () => {
   document.getElementById("mBody").innerHTML = `
     <p><b>${t.lines}</b> lignes · <b>${fmtN(t.tFinal)}</b> UVC · <b>${fmtE(t.tAmount)}</b> HT</p>
     <p>${t.impacted} lignes ajustées par les facteurs externes, ${t.manual} modification${t.manual > 1 ? "s" : ""} manuelle${t.manual > 1 ? "s" : ""}.</p>
-    <p class="sub">La commande sera transmise à l'entrepôt pour une livraison ${document.getElementById("delivery").textContent.toLowerCase()}.</p>
+    <p class="sub">Transmission à la base pour une livraison le ${fmtD(state.delivery, { weekday: "long", day: "numeric", month: "long" })} — Intermarché Express Nice Cessole.</p>
     <div class="actions"><button class="btn" id="mCancel">Annuler</button><button class="btn primary" id="mOk">Envoyer</button></div>`;
   modal.classList.add("open");
   document.getElementById("mCancel").onclick = () => modal.classList.remove("open");
   document.getElementById("mOk").onclick = () => {
     modal.classList.remove("open");
-    const now = new Date();
     document.getElementById("statusPill").classList.add("ok");
-    document.getElementById("statusText").textContent = `Commande envoyée à ${now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`;
+    document.getElementById("statusText").textContent = `Commande envoyée à ${new Date().toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`;
     const v = document.getElementById("validateBtn");
     v.textContent = "✓ Commande envoyée"; v.disabled = true;
   };
@@ -504,16 +763,11 @@ document.addEventListener("keydown", e => { if (e.key === "Escape") modal.classL
 
 /* ---------- Init ---------- */
 (function init() {
-  const d = new Date();
-  const opts = { weekday: "long", day: "numeric", month: "long" };
-  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
-  document.getElementById("today").textContent = `${cap(d.toLocaleDateString("fr-FR", { ...opts, year: "numeric" }))} · Magasin 0421 · Commande générée à 06:00 par le réapprovisionnement automatique`;
-  const del = new Date(d); del.setDate(d.getDate() + 1);
-  document.getElementById("delivery").textContent = cap(del.toLocaleDateString("fr-FR", opts));
   const rs = [...new Set(PRODUCTS.map(p => p.rayon))];
   document.getElementById("rayon").innerHTML = `<option value="">Tous les rayons</option>` + rs.map(r => `<option>${r}</option>`).join("");
-  renderFactors();
-  render();
+  renderHeader();
+  buildFactors();
+  refresh();
 })();
 </script>
 </body>
