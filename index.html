@@ -135,6 +135,22 @@
 
   /* ---------- Tables ---------- */
   .grid-wrap { overflow-x: auto; border: 1px solid #c7d3e0; flex: none; }
+  .ahead .bd { display: grid; grid-template-columns: 1.3fr 1fr 1fr 1fr; gap: 6px 18px; max-width: 880px; padding: 8px 12px; }
+  .ahead .f { display: flex; gap: 10px; white-space: nowrap; }
+  .ahead .f label { color: #26384d; min-width: 98px; }
+  .ahead .f label::before { content: "▸ "; color: var(--th); }
+  .ahead .f span { color: #1d2733; }
+  .ahead .f .delta { margin-left: 4px; }
+  .actions .act.back { margin-right: auto; border-right: 0; }
+  .act[hidden] { display: none; }
+  .search { border: 1px solid #b9c7d6; padding: 1px 5px; font: italic 11px "Segoe UI", Arial, sans-serif; width: 120px; margin-left: 10px; }
+  tr[data-art] { cursor: pointer; }
+  tr.blocked td { color: #a3adb8; text-decoration: line-through; }
+  tr.blocked td.new, tr.blocked td:has(input) { text-decoration: none; }
+  .expl table { width: 100%; border-collapse: collapse; margin: 4px 0 8px; }
+  .expl td { border: 0; border-bottom: 1px solid var(--line); height: auto; padding: 3px 4px; }
+  .expl .k { color: var(--muted); }
+  .expl h4 { margin: 8px 0 2px; font-size: 12px; color: var(--navy); }
   .hint { color: var(--muted); font-size: 11px; margin: 0 0 4px; }
   .hint b { color: var(--title-ink); }
   table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
@@ -234,6 +250,12 @@
   <main>
     <div class="titleband"><div class="flag"></div><h1 id="title">Proposition de commande fournisseur du 15/10/2026</h1><button class="back" id="backBtn" hidden>◀ Retour aux propositions</button></div>
 
+    <!-- En-tête du détail articles (reprise de l'écran existant) -->
+    <section class="box ahead" id="artHead" hidden>
+      <div class="hd"><span class="grow">Détail des articles de la proposition de commande</span></div>
+      <div class="bd" id="artHeadBd"></div>
+    </section>
+
     <!-- Sélection (reprise de l'écran existant) -->
     <section class="box collapsed" id="selBox">
       <div class="hd"><span class="grow">Sélection</span><button class="tg" data-toggle="selBox">▸</button></div>
@@ -270,17 +292,25 @@
 
     <div class="hint" id="hint"></div>
     <div class="grid-wrap" id="gridWrap"><table><thead id="thead"></thead><tbody id="tbody"></tbody></table></div>
-    <div class="pager" id="pager"><span>⏮</span><span>◀</span><span>Page 1 sur 1</span><b>1</b><span>▶</span><span>⏭</span></div>
+    <div class="pager" id="pager"><span>⏮</span><span>◀</span><span>Page 1 sur 1</span><b>1</b><span>▶</span><span>⏭</span><input class="search" id="artSearch" placeholder="Recherche article..." hidden><span id="artSearchIc" hidden style="border:0;background:none;color:var(--btn)">🔍</span></div>
 
     <div class="actions" id="actions">
-      <button class="act" id="aRaz"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9h12M6 13h12M6 17h7"/></svg></span>RAZ modifs<br>Nb Colis</button>
-      <button class="act" id="aPdf"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3c-2 4-1 7 3 11s5 5 6 4-3-3-9-2-8 3-7 4 3-1 5-6 2-11 2-11"/></svg></span>Pdf</button>
-      <button class="act" id="aValAll"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 5h3l2 9h9l2-6H7"/><path d="m11 11 2 2 4-4"/><circle cx="9" cy="19" r="1.3"/><circle cx="16" cy="19" r="1.3"/></svg></span>Valider toutes<br>les prop. cde.</button>
-      <button class="act" id="aVal"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 5h3l2 9h9l2-6H7"/><path d="M12 8v5M9.5 10.5h5"/><circle cx="9" cy="19" r="1.3"/><circle cx="16" cy="19" r="1.3"/></svg></span>Valider la<br>prop. cde.</button>
-      <button class="act fx" id="aFx"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2 5 14h6l-1 8 8-12h-6z"/></svg></span><span id="aFxLbl">Coef. externes<br>appliqués</span></button>
-      <button class="act" id="aFrein"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 18 18 4M5 7h5M15 17h5M17.5 14.5v5"/></svg></span>Modif. frein<br>accélérateur</button>
-      <button class="act" id="aNom"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 5h4M9 11h10M9 17h10M7 5v12h2M7 11h2"/></svg></span>Détail<br>nomenclature</button>
-      <button class="act" id="aArt"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9h16l-2 10H6z"/><path d="M8 9l4-5 4 5M9 13v3M12 13v3M15 13v3"/></svg></span>Détail article</button>
+      <button class="act back" id="bBack" data-v="art"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6"><path d="M19 12H6M11 6l-6 6 6 6"/></svg></span>Retour</button>
+      <button class="act" id="bRaz" data-v="art"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9h12M6 13h12M6 17h7"/></svg></span>RAZ modifs<br>Nb Colis</button>
+      <button class="act" id="bModif" data-v="art"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 5h3l2 9h9l2-6H7"/><path d="m14 3 3 3-5 5H9V8z"/><circle cx="9" cy="19" r="1.3"/><circle cx="16" cy="19" r="1.3"/></svg></span>Modifier Nb<br>de colis</button>
+      <button class="act" id="bFiche" data-v="art"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M7 10h6M7 14h4M16 10h2M16 14h2"/></svg></span>Fiche article</button>
+      <button class="act" id="bExpl" data-v="art"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 5h3l2 9h9l2-6H7"/><path d="M13 3v4M11 5h4"/><circle cx="9" cy="19" r="1.3"/><circle cx="16" cy="19" r="1.3"/></svg></span>Explications<br>calculs</button>
+      <button class="act" id="bBloq" data-v="art"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="6" y="3" width="12" height="18" rx="2"/><rect x="9" y="11" width="6" height="5"/><path d="M10 11V9a2 2 0 0 1 4 0v2"/></svg></span>Bloquer</button>
+      <button class="act" id="bParam" data-v="art"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M5 19l2-2M17 7l2-2"/></svg></span>Paramètres</button>
+      <button class="act" id="bFrein" data-v="art"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 18 18 4M5 7h5M15 17h5M17.5 14.5v5"/></svg></span>Modif. frein<br>accélérateur</button>
+      <button class="act" id="aRaz" data-v="list"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M6 9h12M6 13h12M6 17h7"/></svg></span>RAZ modifs<br>Nb Colis</button>
+      <button class="act" id="aPdf" data-v="list"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3c-2 4-1 7 3 11s5 5 6 4-3-3-9-2-8 3-7 4 3-1 5-6 2-11 2-11"/></svg></span>Pdf</button>
+      <button class="act" id="aValAll" data-v="list"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 5h3l2 9h9l2-6H7"/><path d="m11 11 2 2 4-4"/><circle cx="9" cy="19" r="1.3"/><circle cx="16" cy="19" r="1.3"/></svg></span>Valider toutes<br>les prop. cde.</button>
+      <button class="act" id="aVal" data-v="list"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M3 5h3l2 9h9l2-6H7"/><path d="M12 8v5M9.5 10.5h5"/><circle cx="9" cy="19" r="1.3"/><circle cx="16" cy="19" r="1.3"/></svg></span>Valider la<br>prop. cde.</button>
+      <button class="act fx" id="aFx" data-v="both"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M13 2 5 14h6l-1 8 8-12h-6z"/></svg></span><span id="aFxLbl">Coef. externes<br>appliqués</span></button>
+      <button class="act" id="aFrein" data-v="list"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 18 18 4M5 7h5M15 17h5M17.5 14.5v5"/></svg></span>Modif. frein<br>accélérateur</button>
+      <button class="act" id="aNom" data-v="list"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 5h4M9 11h10M9 17h10M7 5v12h2M7 11h2"/></svg></span>Détail<br>nomenclature</button>
+      <button class="act" id="aArt" data-v="list"><span class="o"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 9h16l-2 10H6z"/><path d="M8 9l4-5 4 5M9 13v3M12 13v3M15 13v3"/></svg></span>Détail article</button>
     </div>
   </main>
 </div>
@@ -452,12 +482,26 @@ const SUPPLIERS = [
     ["170016", "Lait demi-écrémé 6×1 L", 4, 3.60, 5.70, 20, 9, 5, { caf: .2, vacances: .1 }],
     ["170023", "Lait chocolaté 6×20 cl", 12, 1.30, 2.25, 10, 4, 1, { vacances: .35 }],
   ]},
-  { code: 40, nom: "40 EPICERIE SUCREE LENT", liv: new Date(2026, 9, 20), cov: 7, moy4s: 14, encours: 12, franco: 12, art: [
-    ["400019", "Pâte à tartiner 750 g", 6, 2.20, 3.95, 11, 4, 5, { vacances: .25, caf: .15 }],
-    ["400026", "Bonbons assortis 250 g", 12, 1.05, 1.95, 10, 5, 3, { halloween: 1.2, vacances: .15 }, true],
-    ["400033", "Chocolat en poudre 800 g", 6, 2.30, 4.15, 8, 3, 3, { froid: .4, vacances: .15 }],
-    ["400040", "Confiture fraise 370 g", 8, 1.20, 2.15, 9, 2, 2, { vacances: .1 }],
-    ["400057", "Sucre en poudre 1 kg", 10, 0.75, 1.29, 15, 4, 2, { caf: .1 }],
+  /* Articles réels de l'écran Mercalys (page 1) — sensibilités fictives */
+  { code: 40, nom: "40 EPICERIE SUCREE LENT", liv: new Date(2026, 9, 20), cov: 7, moy4s: 18, encours: 12, franco: 20, real: [
+    ["0000029294109", "LIPT.THE VT PAMP.MAND.X20...", 12, "C", "Mois", 2, 1.50, 0, 1, 2.16, { froid: .1 }],
+    ["0000017345225", "TWININGS T.VER/MENT 25S 37...", 12, "A", "Mois", 4, 4.75, 0, 1, 2.211, { froid: .2 }],
+    ["0000017897545", "COTTERLEY INF VERV 25S 32,5G", 10, "A", "Mois", 13, 5.75, 0, 1, 0.665, { froid: .3 }],
+    ["0000040065070", "MILKA LAIT NOISETTES 2X100G", 18, "A", "Mois", 26, 6.75, 0, 1, 2.583, { vacances: .15, halloween: .2 }, true],
+    ["0000017193942", "NESTLE CRUNCH LAIT 2X100G", 20, "A", "Mois", 8, 5.00, 0, 1, 2.03, { vacances: .2, halloween: .2 }],
+    ["0000040062015", "LES CREA CHOC NOIR 72% 100G", 19, "A", "Jour", 0, 64.75, 76, 1, 1.118, { vacances: .15 }],
+    ["0000040065151", "IVORIA BLOC LAIT NOISET. 200G", 11, "A", "Mois", 17, 8.75, 11, 1, 1.608, { vacances: .1 }],
+    ["0000040073046", "KINDER BUENO T3 129G", 10, "A", "Semaine", 1, 14.25, 20, 1, 2.153, { vacances: .3, halloween: .15 }],
+    ["0000017037479", "TWIX MINIS 333G", 24, "A", "Mois", 4, 1.50, 0, 1, 3.292, { halloween: .9, vacances: .1 }],
+    ["0000029800137", "PLESH AMANDE CHOCO NR FDS...", 12, "-", "1 / 1", 5, 0.75, 0, 1, 2.786, {}],
+    ["0000029403542", "HARIBO LANGUES PIK 180G", 24, "A", "Mois", 10, 2.50, 0, 1, 1.254, { halloween: .8, vacances: .2 }],
+    ["0000017672416", "ELOD ASS CONF GELIF+REGLIS6...", 12, "B", "Mois", 4, 0.75, 0, 1, 2.14, { halloween: .6, vacances: .1 }],
+    ["0000040072001", "HARIBO TUBO DRAGOLO 750G", 18, "B", "Mois", 5, 2.25, 0, 1, 3.236, { halloween: 1, vacances: .2 }],
+    ["0000029002854", "KREMA FRUITS ROUGES 240G", 18, "A", "Mois", 9, 2.00, 0, 1, 1.692, { halloween: .5, vacances: .1 }],
+    ["0000040084032", "CHABRIOR AMANDES EFFILEES...", 12, "A", "Mois", 12, 3.75, 0, 1, 1.574, { vacances: .1 }],
+    ["0000017079577", "ALSA COOKIE PEPITE CHOCO 24...", 7, "A", "Mois", 4, 2.75, 0, 1, 2.246, { vacances: .35 }],
+    ["0000040091040", "REGILAIT CONC SCR TUBE 300G", 12, "A", "Jour", 8, 21.50, 24, 1, 1.46, { caf: .1 }],
+    ["0000040094010", "PATURAGES LT ECREME PDRE 3...", 12, "A", "Mois", 8, 8.75, 12, 1, 1.657, { caf: .1 }],
   ]},
   { code: 43, nom: "43 EPICERIE SALEE LENT", liv: new Date(2026, 9, 20), cov: 7, moy4s: 12, encours: 8, franco: 10, art: [
     ["430014", "Soupe de légumes 1 L", 6, 1.20, 2.15, 10, 5, 5, { froid: .5, pluie: .2, chaleur: -.3 }],
@@ -506,7 +550,9 @@ const SUPPLIERS = [
     ["146012", "Croquettes chat 2 kg", 4, 4.20, 7.49, 6, 1, 1, { caf: .1 }],
     ["146029", "Litière 10 L", 3, 2.60, 4.69, 5, 1, 1, {}],
   ]},
-].map(s => ({ ...s, art: s.art.map(a => ({ code: a[0], lib: a[1], pcb: a[2], pa: a[3], pv: a[4], stock: a[5], vmoy: a[6], colis: a[7], s: a[8], promo: !!a[9] })) }));
+].map(s => ({ ...s, art: s.real
+  ? s.real.map(a => ({ code: a[0], itm8: a[0], lib: a[1], pcb: a[2], classe: a[3], type: a[4], stock: a[5], rot: a[6], encours: a[7], colis: a[8], pa: a[9], pv: Math.round(a[9] * 1.44 * 100) / 100, s: a[10], promo: !!a[11] }))
+  : s.art.map(a => ({ code: a[0], itm8: "00000" + a[0].padStart(8, "0"), lib: a[1].toUpperCase(), pcb: a[2], pa: a[3], pv: a[4], stock: a[5], rot: a[6], vmoy: a[6], colis: a[7], s: a[8], promo: !!a[9], classe: "A", type: "Mois", encours: 0 })) }));
 
 /* ---------- État ---------- */
 const state = {
@@ -517,7 +563,9 @@ const state = {
   applyCoef: true,
   edit: {},                     // code article -> nb colis saisi
   valid: {},                    // code fournisseur -> heure de validation
-  frozen: {},                   // code article -> nb colis figé à la validation
+  frozen: {},
+  artSel: null,                 // article sélectionné (écran détail)
+  q: "",                   // code article -> nb colis figé à la validation
 };
 
 /* ---------- Calculs ---------- */
@@ -700,30 +748,44 @@ function renderList() {
 }
 
 function renderArticles() {
-  const s = selSupplier();
+  const s = selSupplier(), r = supCalc(s);
+  const poids = s.art.reduce((t, a) => t + artCalc(a, s).final * 3.1, 0);
+  const d = r.fColis - r.colis, du = r.fUvc - r.uvc;
+  const fld = (l, v) => `<div class="f"><label>${l}</label><span>${v}</span></div>`;
+  document.getElementById("artHeadBd").innerHTML = [
+    fld("Date prop. cde.", "15/10/2026"), "<div></div>", "<div></div>", fld("Date livraison", s.liv.toLocaleDateString("fr-FR")),
+    fld("Fournisseur", `${s.code} : ${s.nom}`), "<div></div>", "<div></div>", "<div></div>",
+    fld("Montants achats", eur3(r.achat)), fld("Nombre de colis", `${r.fColis}${d ? `<span class="delta">(${d > 0 ? "+" : ""}${d})</span>` : ""}`), fld("Total Poids/volume", nf(Math.round(poids))), fld("Nombre d'UVC", `${r.fUvc}${du ? `<span class="delta">(${du > 0 ? "+" : ""}${du})</span>` : ""}`),
+    fld("Franco montant", "0,000 €"), fld("Franco colis", s.franco ?? 0), fld("Franco Poids/volume", 0), fld("Valeur vente", eur3(r.vente)),
+  ].join("");
+
   document.getElementById("thead").innerHTML = `<tr>
-    <th class="sort">Code article</th><th class="sort">Libellé</th><th class="sort n">Stock<br>(UVC)</th><th class="sort n">Ventes<br>moy./j</th><th class="n">PCB</th>
-    <th class="sort n">Nb colis<br>proposé</th><th class="sort n">Nb UVC</th>
-    <th class="new c">Coef.<br>ext.</th><th class="new n">Nb UVC<br>ajusté</th><th class="new n">Nb colis<br>à commander</th>
-    <th class="sort n">Montant<br>achats</th><th class="sort n">Valeur<br>vente</th><th>Statut</th></tr>`;
-  document.getElementById("tbody").innerHTML = s.art.map(a => {
-    const r = artCalc(a, s);
-    const status = r.mod ? '<span style="color:#2f5bd3;font-weight:700">Modifié</span>' : state.applyCoef && r.adjColis !== a.colis ? '<span class="pos" style="font-weight:700">Coef appliqué</span>' : '<span class="sub">Auto</span>';
-    return `<tr>
-      <td>${a.code}</td>
+    <th class="sort">Itm8</th><th class="sort">Libellé</th><th class="sort n">Cdt</th><th class="sort">Classe<br>ABC/Fam</th><th class="sort">Type<br>prév.</th>
+    <th class="sort n">Stk</th><th class="sort n">Rot.<br>Vte</th><th class="sort n">Cdes<br>en<br>cours</th>
+    <th class="sort n">Nb Colis<br>calculés</th><th class="sort n">Nb colis<br>validés</th><th class="sort n">Nb UVC</th>
+    <th class="new c">Coef.<br>ext.</th>
+    <th class="sort n">Prix d'achat</th><th class="sort n">Montant<br>achats</th><th class="sort">Frein / Acc</th></tr>`;
+  const q = state.q.trim().toLowerCase();
+  const list = s.art.filter(a => !q || a.lib.toLowerCase().includes(q) || a.itm8.includes(q));
+  if (!list.some(a => a.code === state.artSel)) state.artSel = list[0]?.code ?? null;
+  document.getElementById("tbody").innerHTML = list.map(a => {
+    const x = artCalc(a, s);
+    const du = (x.final - a.colis) * a.pcb;
+    return `<tr data-art="${a.code}" class="${a.code === state.artSel ? "sel" : ""} ${x.final === 0 && state.edit[a.code] === 0 ? "blocked" : ""}">
+      <td>${a.itm8}</td>
       <td>${a.lib}${a.promo ? '<span class="promo">PROMO</span>' : ""}</td>
-      <td class="n">${a.stock}</td><td class="n">${a.vmoy}</td><td class="n">${a.pcb}</td>
-      <td class="n">${a.colis}</td><td class="n">${a.colis * a.pcb}</td>
-      <td class="new c"><span class="coef ${coefCls(r.coef)}" data-tipart="${a.code}">× ${nf(r.coef, 2)}</span><span class="ics">${state.applyCoef ? r.parts.slice(0, 3).map(p => F[p.id].icon).join("") : ""}</span></td>
-      <td class="new n"><b>${r.adjColis * a.pcb}</b>${r.adjColis !== a.colis ? `<span class="delta">(${r.adjColis > a.colis ? "+" : ""}${(r.adjColis - a.colis) * a.pcb})</span>` : ""}</td>
-      <td class="new n"><input class="qty ${r.mod ? "mod" : ""}" data-qty="${a.code}" value="${r.final}" inputmode="numeric" ${state.valid[s.code] ? "disabled" : ""} aria-label="Nb colis ${a.lib}"></td>
-      <td class="n">${eur3(r.final * a.pcb * a.pa)}</td>
-      <td class="n">${eur2(r.final * a.pcb * a.pv)}</td>
-      <td>${status}</td></tr>`;
-  }).join("");
-  const r = supCalc(s);
+      <td class="n">${a.pcb}</td><td class="c">${a.classe}</td><td>${a.type}</td>
+      <td class="n">${a.stock}</td><td class="n">${nf(a.rot, 2)}</td><td class="n">${a.encours}</td>
+      <td class="n">${a.colis}</td>
+      <td class="n"><input class="qty ${x.mod ? "mod" : ""}" data-qty="${a.code}" value="${x.final}" inputmode="numeric" ${state.valid[s.code] ? "disabled" : ""} aria-label="Nb colis validés ${a.lib}"></td>
+      <td class="n"><b>${x.final * a.pcb}</b>${du ? `<span class="delta">(${du > 0 ? "+" : ""}${du})</span>` : ""}</td>
+      <td class="new c"><span class="coef ${coefCls(x.coef)}" data-tipart="${a.code}">× ${nf(x.coef, 2)}</span><span class="ics">${state.applyCoef ? x.parts.slice(0, 3).map(p => F[p.id].icon).join("") : ""}</span></td>
+      <td class="n">${a.pa.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 3 })}</td>
+      <td class="n">${eur3(x.final * a.pcb * a.pa)}</td>
+      <td></td></tr>`;
+  }).join("") || `<tr><td colspan="15" class="sub" style="text-align:center">Aucun article</td></tr>`;
   document.getElementById("statusSum").textContent =
-    `${s.nom} · ${s.art.length} articles · ${r.colis} → ${r.fColis} colis · ${eur3(r.achat)} · coef × ${nf(r.coef, 2)}`;
+    `${s.nom} · ${s.art.length} articles · ${r.colis} → ${r.fColis} colis · coef moyen × ${nf(r.coef, 2)}`;
 }
 
 function render() {
@@ -735,10 +797,15 @@ function render() {
     : "Proposition de commande fournisseur du 15/10/2026";
   document.getElementById("backBtn").hidden = !art;
   document.getElementById("hint").innerHTML = art
-    ? `Liste des articles de <b>${s.nom}</b> : coefficient par article (survol = détail des facteurs), nb de colis modifiable.`
+    ? `Colonne <b>Coef. ext.</b> : survol = détail des facteurs · <b>Nb colis validés</b> pré-rempli avec le coefficient, modifiable · bouton <b>Explications calculs</b> pour le détail d'une ligne.`
     : `Une ligne = une proposition fournisseur. <b>Double-cliquez sur un fournisseur</b> (ou bouton <b>Détail article</b>) pour voir ses produits avec leur coefficient.`;
   document.getElementById("selBox").style.display = art ? "none" : "";
-  document.getElementById("statusPath").textContent = art ? "/PropositionCommandeAValiderF/DetailArticle" : "/PropositionCommandeAValiderF/Calculer";
+  document.querySelector(".titleband").style.display = art ? "none" : "";
+  document.getElementById("artHead").hidden = !art;
+  document.getElementById("artSearch").hidden = !art;
+  document.getElementById("artSearchIc").hidden = !art;
+  document.querySelectorAll("#actions .act").forEach(b => b.hidden = !(b.dataset.v === "both" || b.dataset.v === (art ? "art" : "list")));
+  document.getElementById("statusPath").textContent = art ? "/PropositionCommandeAValiderA/IndexF" : "/PropositionCommandeAValiderF/Calculer";
   document.getElementById("aArt").disabled = art;
   document.getElementById("aFx").classList.toggle("offb", !state.applyCoef);
   document.getElementById("aFxLbl").innerHTML = state.applyCoef ? "Coef. externes<br>appliqués" : "Coef. externes<br>désactivés";
@@ -753,6 +820,8 @@ function render() {
    ===================================================================== */
 const tbody = document.getElementById("tbody");
 tbody.addEventListener("click", e => {
+  const ta = e.target.closest("tr[data-art]");
+  if (ta) { state.artSel = ta.dataset.art; tbody.querySelectorAll("tr[data-art]").forEach(r => r.classList.toggle("sel", r === ta)); return; }
   const tr = e.target.closest("tr[data-sup]");
   if (!tr || +tr.dataset.sup === state.sel) return;
   state.sel = +tr.dataset.sup;
@@ -823,7 +892,8 @@ function toast(msg) { const t = document.getElementById("toast"); t.textContent 
 function dialog(title, body, okLabel, onOk) {
   document.getElementById("mT").textContent = title;
   document.getElementById("mB").innerHTML = body;
-  document.getElementById("mF").innerHTML = `<button id="mNo">Annuler</button><button class="pri" id="mOk">${okLabel}</button>`;
+  document.getElementById("mF").innerHTML = onOk ? `<button id="mNo">Annuler</button><button class="pri" id="mOk">${okLabel}</button>` : `<button class="pri" id="mNo">${okLabel}</button>`;
+  if (!onOk) { const m = document.getElementById("modal"); m.classList.add("open"); document.getElementById("mNo").onclick = () => m.classList.remove("open"); return; }
   const m = document.getElementById("modal"); m.classList.add("open");
   document.getElementById("mNo").onclick = () => m.classList.remove("open");
   document.getElementById("mOk").onclick = () => { m.classList.remove("open"); onOk(); };
@@ -853,6 +923,35 @@ document.getElementById("aValAll").onclick = () => {
     "Valider tout", () => { const h = nowH(); todo.forEach(s => { freeze(s); state.valid[s.code] = h; }); render(); toast("Toutes les propositions ont été validées"); });
 };
 ["aPdf", "aFrein", "aNom"].forEach(id => document.getElementById(id).onclick = () => toast("Fonction de l'écran existant — non simulée dans la démo"));
+/* Boutons de l'écran détail articles */
+const curArt = () => selSupplier().art.find(a => a.code === state.artSel);
+document.getElementById("bBack").onclick = () => { state.view = "list"; state.q = ""; document.getElementById("artSearch").value = ""; render(); };
+document.getElementById("bRaz").onclick = () => { selSupplier().art.forEach(a => delete state.edit[a.code]); render(); toast("Modifications du nombre de colis remises à zéro"); };
+document.getElementById("bModif").onclick = () => { const i = document.querySelector(`input[data-qty="${state.artSel}"]`); if (i && !i.disabled) { i.focus(); i.select(); } };
+document.getElementById("bBloq").onclick = () => {
+  const a = curArt(); if (!a) return;
+  if (state.edit[a.code] === 0) { delete state.edit[a.code]; toast(`${a.lib} débloqué`); } else { state.edit[a.code] = 0; toast(`${a.lib} bloqué (0 colis)`); }
+  render();
+};
+document.getElementById("bExpl").onclick = () => {
+  const s = selSupplier(), a = curArt(); if (!a) return;
+  const x = artCalc(a, s), w = factorsFor(s)._w;
+  const raw = a.colis * x.coef;
+  const rows = x.parts.length ? x.parts.map(p => { const f = F[p.id]; return `<tr><td>${f.icon} ${f.name}${f.local ? ' <span class="ltag">LOCAL</span>' : ""}</td><td style="text-align:right" class="${p.v > 0 ? "pos" : "neg"}">${p.v > 0 ? "+" : ""}${Math.round(p.v * 100)} %</td></tr>`; }).join("") : `<tr><td colspan="2" class="k">Aucun facteur externe sur cet article</td></tr>`;
+  dialog("Explications calculs", `<div class="expl">
+    <p><b>${a.lib}</b> — Itm8 ${a.itm8}<br><span class="k">Classe ${a.classe} · prévision ${a.type} · Cdt ${a.pcb}</span></p>
+    <h4>1. Calcul réappro standard</h4>
+    <table><tr><td class="k">Stock</td><td style="text-align:right">${a.stock}</td></tr><tr><td class="k">Rotation vente</td><td style="text-align:right">${nf(a.rot, 2)}</td></tr><tr><td class="k">Commandes en cours</td><td style="text-align:right">${a.encours}</td></tr><tr><td><b>Nb colis calculés</b></td><td style="text-align:right"><b>${a.colis}</b> (${a.colis * a.pcb} UVC)</td></tr></table>
+    <h4>2. Facteurs externes — période ${fD(w.start)} → ${fD(w.days.at(-1))}</h4>
+    <table>${rows}<tr><td><b>Coefficient</b></td><td style="text-align:right"><b>× ${nf(x.coef, 2)}</b></td></tr></table>
+    <h4>3. Proposition ajustée</h4>
+    <p>${a.colis} colis × ${nf(x.coef, 2)} = ${nf(raw, 2)} colis → arrondi au colis : <b>${x.adjColis} colis (${x.adjColis * a.pcb} UVC)</b>${state.applyCoef ? "" : ' <span class="k">— coefficients désactivés, proposition brute conservée</span>'}</p>
+    ${x.mod ? `<p class="k">Quantité modifiée manuellement : ${x.final} colis.</p>` : ""}
+  </div>`, "Fermer", null);
+};
+["bFiche", "bParam", "bFrein"].forEach(id => document.getElementById(id).onclick = () => toast("Fonction de l'écran existant — non simulée dans la démo"));
+document.getElementById("artSearch").addEventListener("input", e => { state.q = e.target.value; renderArticles(); });
+
 document.getElementById("selectBtn").onclick = () => toast("Sélection : toutes les propositions du jour");
 document.addEventListener("keydown", e => { if (e.key === "Escape") { document.getElementById("modal").classList.remove("open"); document.getElementById("pop").classList.remove("show"); } });
 

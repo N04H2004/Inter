@@ -5,7 +5,8 @@ Ouvrir `index.html` dans un navigateur (aucune installation, aucun serveur).
 L'écran reprend l'interface **Mercalys Réappro** (Proposition de commande fournisseur) et y ajoute :
 - un bloc **Facteurs externes** (météo de demain + tuiles cliquables, dont les facteurs locaux) ;
 - dans la liste fournisseurs, les colonnes **Coef. ext.**, **Nb colis ajusté**, **Nb UVC ajusté** (en orange) ;
-- l'écran **Détail article** (bouton ou double-clic sur un fournisseur) avec le coefficient par article et le nb de colis modifiable ;
+- l'écran **Détail des articles de la proposition de commande** (double-clic sur un fournisseur), repris de Mercalys (Itm8, Cdt, Classe, Type prév., Stk, Rot. Vte, Nb colis calculés / validés, Nb UVC…) avec la colonne **Coef. ext.** à côté de Nb UVC et le bouton **Explications calculs** qui détaille le coefficient ;
+- pour 40 EPICERIE SUCREE LENT, les 18 articles de la page 1 de l'écran réel (sensibilités fictives) ;
 - un bouton **Coef. externes** pour comparer avec la proposition brute.
 
 Chaque fournisseur a sa propre date de livraison et sa période de couverture : les facteurs sont recalculés
