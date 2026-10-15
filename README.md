@@ -2,6 +2,16 @@
 
 Ouvrir `index.html` dans un navigateur (aucune installation, aucun serveur).
 
+L'écran reprend l'interface **Mercalys Réappro** (Proposition de commande fournisseur) et y ajoute :
+- un bloc **Facteurs externes** (météo de demain + tuiles cliquables, dont les facteurs locaux) ;
+- dans la liste fournisseurs, les colonnes **Coef. ext.**, **Nb colis ajusté**, **Nb UVC ajusté** (en orange) ;
+- l'écran **Détail article** (bouton ou double-clic sur un fournisseur) avec le coefficient par article et le nb de colis modifiable ;
+- un bouton **Coef. externes** pour comparer avec la proposition brute.
+
+Chaque fournisseur a sa propre date de livraison et sa période de couverture : les facteurs sont recalculés
+pour la période du fournisseur sélectionné (ex. 01.FRAIS MEA : sam. 17 → dim. 18/10 ; 40 EPICERIE SUCREE LENT : mar. 20 → lun. 26/10).
+La météo (prévision du lendemain) ne s'applique qu'aux livraisons à J+2 au plus.
+
 **Scénario** : Intermarché Express, 143 boulevard de Cessole, 06100 Nice.
 Commande du jeudi 15/10/2026 pour livraison le vendredi 16/10/2026, qui couvre ven. → dim. (pas de livraison le week-end).
 
@@ -22,8 +32,6 @@ Commande du jeudi 15/10/2026 pour livraison le vendredi 16/10/2026, qui couvre v
 | Calendrier | Vacances zone B | Toussaint du sam. 17/10 au dim. 1/11 (reprise lun. 2/11) |
 | Calendrier | Halloween, jours fériés, promo | 31/10 ; Toussaint 1/11 (dimanche), 11/11 |
 | Local | Ouverture le dimanche, écoles du quartier, tourisme, événements en ville | Spécifique au magasin de Nice Cessole |
-
-Le champ « Livraison » permet de rejouer une autre date (ex. 05/11/2026 = jour de versement CAF).
 
 Les dates de calendrier sont réelles ; les articles, stocks, prix et sensibilités sont fictifs
 et se modifient dans `PRODUCTS`, `MATCHES`, `WEATHER`… en tête du script.
