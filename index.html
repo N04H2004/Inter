@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Réassort du jour</title>
+<style>
+  :root {
+    --bg: #f5f6f8;
+    --surface: #ffffff;
+    --surface-2: #f0f2f5;
+    --border: #e1e4ea;
+    --text: #1b1f27;
+    --muted: #677084;
+    --accent: #d62828;
+    --accent-ink: #ffffff;
+    --up: #1a7f4b;
+    --up-bg: #e3f4ea;
+    --down: #b4441b;
+    --down-bg: #fbe9e1;
+    --neutral-bg: #eceff3;
+    --edit: #2f5bd3;
+    --edit-bg: #e6edfc;
+    --shadow: 0 1px 2px rgba(16, 24, 40, .06), 0 1px 3px rgba(16, 24, 40, .08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #12151b; --surface: #1a1e26; --surface-2: #222733; --border: #2e3442;
+      --text: #e7eaf0; --muted: #98a1b3; --accent: #ef4b4b; --accent-ink: #fff;
+      --up: #5fd39a; --up-bg: #183527; --down: #f29a72; --down-bg: #3a2219;
+      --neutral-bg: #262b36; --edit: #8aa8ff; --edit-bg: #1e2a4a;
+      --shadow: none;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #12151b; --surface: #1a1e26; --surface-2: #222733; --border: #2e3442;
+    --text: #e7eaf0; --muted: #98a1b3; --accent: #ef4b4b; --accent-ink: #fff;
+    --up: #5fd39a; --up-bg: #183527; --down: #f29a72; --down-bg: #3a2219;
+    --neutral-bg: #262b36; --edit: #8aa8ff; --edit-bg: #1e2a4a;
+    --shadow: none;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--text);
+    font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .wrap { max-width: 1320px; margin: 0 auto; padding: 20px 16px 120px; }
+  header.top { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  h1 { font-size: 22px; margin: 0; letter-spacing: -.01em; }
+  .sub { color: var(--muted); font-size: 13px; }
+  .pill { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+  .pill .dot { width: 8px; height: 8px; border-radius: 50%; background: #e0a100; }
+  .pill.ok .dot { background: var(--up); }
+
+  .grid { display: grid; grid-template-columns: 320px 1fr; gap: 16px; align-items: start; }
+  @media (max-width: 960px) { .grid { grid-template-columns: 1fr; } }
+  .grid > * { min-width: 0; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); }
+  .card h2 { font-size: 14px; margin: 0; padding: 14px 16px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .card .body { padding: 12px 16px 16px; }
+
+  .factor { padding: 10px 0; border-bottom: 1px dashed var(--border); }
+  .factor:last-child { border-bottom: 0; }
+  .factor .row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .factor .name { font-weight: 600; }
+  .factor .hint { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  input[type=range] { width: 100%; accent-color: var(--accent); margin-top: 8px; }
+  .switch { position: relative; width: 38px; height: 22px; flex: none; }
+  .switch input { opacity: 0; width: 0; height: 0; }
+  .switch span { position: absolute; inset: 0; background: var(--neutral-bg); border: 1px solid var(--border); border-radius: 999px; cursor: pointer; transition: .15s; }
+  .switch span::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); box-shadow: 0 1px 2px rgba(0,0,0,.3); transition: .15s; }
+  .switch input:checked + span { background: var(--accent); border-color: var(--accent); }
+  .switch input:checked + span::after { transform: translateX(16px); }
+  .switch input:focus-visible + span { outline: 2px solid var(--edit); outline-offset: 2px; }
+  .temp { font-variant-numeric: tabular-nums; font-weight: 700; }
+
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 16px; }
+  @media (max-width: 700px) { .kpis { grid-template-columns: repeat(2, 1fr); } }
+  .kpi { padding: 12px 14px; }
+  .kpi .label { color: var(--muted); font-size: 12px; }
+  .kpi .val { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; margin-top: 2px; }
+  .kpi .delta { font-size: 12px; margin-top: 2px; color: var(--muted); }
+
+  .toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px 16px; border-bottom: 1px solid var(--border); }
+  .toolbar input[type=search], .toolbar select {
+    padding: 7px 10px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); color: var(--text); font: inherit; min-width: 0;
+  }
+  .toolbar input[type=search] { flex: 1 1 180px; }
+  .toolbar label.chk { display: inline-flex; gap: 6px; align-items: center; color: var(--muted); font-size: 13px; cursor: pointer; }
+  .btn { border: 1px solid var(--border); background: var(--surface); color: var(--text); padding: 8px 12px; border-radius: 8px; font: inherit; font-weight: 600; cursor: pointer; }
+  .btn:hover { background: var(--surface-2); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  .btn.primary:hover { filter: brightness(1.05); }
+  .btn:disabled { opacity: .5; cursor: default; }
+
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+  th, td { padding: 9px 10px; text-align: left; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  th { font-size: 11px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); font-weight: 600; background: var(--surface-2); position: sticky; top: 0; }
+  td.num, th.num { text-align: right; }
+  tr:hover td { background: var(--surface-2); }
+  .art { font-weight: 600; }
+  .ean { color: var(--muted); font-size: 11px; }
+  .promo { display: inline-block; margin-left: 6px; font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 4px; background: var(--accent); color: var(--accent-ink); vertical-align: 1px; }
+  th.hl, td.hl { background: color-mix(in srgb, var(--accent) 6%, transparent); }
+
+  .coef { position: relative; display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 6px; font-weight: 700; cursor: help; border: 0; font: inherit; font-weight: 700; }
+  .coef.up { background: var(--up-bg); color: var(--up); }
+  .coef.down { background: var(--down-bg); color: var(--down); }
+  .coef.flat { background: var(--neutral-bg); color: var(--muted); }
+  .coef .tip { display: none; }
+  #tip {
+    display: none; position: fixed; z-index: 40;
+    min-width: 230px; background: var(--surface); color: var(--text); border: 1px solid var(--border); border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.18); padding: 10px 12px; font-weight: 400; font-size: 12px; text-align: left; white-space: normal;
+  }
+  #tip.show { display: block; }
+  .tip .l { display: flex; justify-content: space-between; gap: 12px; padding: 2px 0; }
+  .tip .t { font-weight: 700; margin-bottom: 4px; }
+  .tip .tot { border-top: 1px solid var(--border); margin-top: 4px; padding-top: 4px; font-weight: 700; }
+  .pos { color: var(--up); } .neg { color: var(--down); }
+
+  .qty { display: inline-flex; align-items: center; border: 1px solid var(--border); border-radius: 8px; overflow: hidden; background: var(--surface); }
+  .qty button { border: 0; background: var(--surface-2); color: var(--text); width: 26px; height: 30px; cursor: pointer; font-size: 15px; }
+  .qty input { width: 56px; border: 0; text-align: center; font: inherit; font-weight: 700; background: transparent; color: var(--text); height: 30px; }
+  .qty.modified { border-color: var(--edit); }
+  .qty.modified input { color: var(--edit); }
+  .status { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 999px; }
+  .status.auto { background: var(--neutral-bg); color: var(--muted); }
+  .status.coef { background: var(--up-bg); color: var(--up); }
+  .status.man { background: var(--edit-bg); color: var(--edit); }
+  .status.zero { background: var(--down-bg); color: var(--down); }
+  .arrow { color: var(--muted); font-size: 12px; }
+
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--surface); border-top: 1px solid var(--border); box-shadow: 0 -4px 16px rgba(0,0,0,.06); }
+  .bar .in { max-width: 1320px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .bar .sum { color: var(--muted); }
+  .bar .sum b { color: var(--text); }
+
+  .modal { position: fixed; inset: 0; background: rgba(10, 12, 16, .5); display: none; align-items: center; justify-content: center; padding: 16px; z-index: 50; }
+  .modal.open { display: flex; }
+  .modal .card { max-width: 460px; width: 100%; }
+  .modal .body p { margin: 6px 0; }
+  .modal .actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+  .legend { color: var(--muted); font-size: 12px; padding: 10px 16px; }
+  .legend code { background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Réassort du jour — proposition de commande</h1>
+      <div class="sub" id="today"></div>
+    </div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <span class="pill" id="statusPill"><span class="dot"></span><span id="statusText">À valider avant 10:00</span></span>
+      <span class="pill">Livraison prévue : <b id="delivery" style="color:var(--text)"></b></span>
+    </div>
+  </header>
+
+  <div class="grid">
+    <!-- Facteurs externes -->
+    <aside class="card">
+      <h2>Facteurs externes <button class="btn" id="resetFactors" style="padding:4px 8px;font-size:12px">Réinitialiser</button></h2>
+      <div class="body" id="factors"></div>
+      <div class="legend">
+        Coefficient = <code>1 + Σ (sensibilité article × intensité facteur)</code>, borné entre 0,50 et 2,50.<br>
+        Qté conseillée = proposition auto × coefficient, arrondie au colis (PCB).
+      </div>
+    </aside>
+
+    <main>
+      <section class="kpis">
+        <div class="card kpi"><div class="label">Lignes proposées</div><div class="val" id="kLines">–</div><div class="delta" id="kLinesD"></div></div>
+        <div class="card kpi"><div class="label">UVC proposition auto</div><div class="val" id="kAuto">–</div><div class="delta">calcul réassort standard</div></div>
+        <div class="card kpi"><div class="label">UVC à commander</div><div class="val" id="kFinal">–</div><div class="delta" id="kFinalD"></div></div>
+        <div class="card kpi"><div class="label">Montant HT</div><div class="val" id="kAmount">–</div><div class="delta" id="kAmountD"></div></div>
+      </section>
+
+      <section class="card">
+        <div class="toolbar">
+          <input type="search" id="q" placeholder="Rechercher un article ou un EAN…">
+          <select id="rayon"></select>
+          <label class="chk"><input type="checkbox" id="onlyImpacted"> Impactés par un facteur</label>
+          <span style="flex:1"></span>
+          <button class="btn" id="applyAll" title="Remet chaque ligne sur la quantité conseillée (coef appliqué)">Appliquer les coefs</button>
+          <button class="btn" id="resetAll" title="Revenir à la proposition auto brute">Proposition brute</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Article</th>
+                <th>Rayon</th>
+                <th class="num">Stock</th>
+                <th class="num">Ventes/j</th>
+                <th class="num">PCB</th>
+                <th class="num">Proposition auto<br>(UVC)</th>
+                <th class="num hl">Coef. facteurs<br>externes</th>
+                <th class="num hl">Qté conseillée<br>(UVC)</th>
+                <th class="num">Qté à commander<br>(UVC)</th>
+                <th class="num">Colis</th>
+                <th class="num">Montant HT</th>
+                <th>Statut</th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+</div>
+
+<div class="bar">
+  <div class="in">
+    <div class="sum" id="barSum"></div>
+    <div style="display:flex;gap:8px">
+      <button class="btn" id="exportBtn">Exporter CSV</button>
+      <button class="btn primary" id="validateBtn">▶ Valider la commande</button>
+    </div>
+  </div>
+</div>
+
+<div id="tip" class="tip" role="tooltip"></div>
+
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+  <div class="card">
+    <h2 id="mTitle">Confirmer l'envoi de la commande</h2>
+    <div class="body" id="mBody"></div>
+  </div>
+</div>
+
+<script>
+/* ---------- Facteurs externes ---------- */
+const FACTORS = [
+  { id: "chaleur",  icon: "☀️", name: "Chaleur",            type: "derived" },
+  { id: "froid",    icon: "🥶", name: "Froid",              type: "derived" },
+  { id: "pluie",    icon: "🌧️", name: "Pluie / intempéries", type: "bool", def: true,  hint: "Prévision J à J+2" },
+  { id: "vacances", icon: "🎒", name: "Vacances scolaires",  type: "bool", def: true,  hint: "Toussaint — début samedi" },
+  { id: "halloween",icon: "🎃", name: "Halloween",           type: "bool", def: true,  hint: "Montée en charge J-16" },
+  { id: "match",    icon: "⚽", name: "Match / événement sportif", type: "bool", def: false, hint: "Diffusion TV ce week-end" },
+  { id: "ferie",    icon: "📅", name: "Pont / jour férié",   type: "bool", def: false, hint: "Week-end prolongé à venir" },
+  { id: "paie",     icon: "💶", name: "Début de mois (paie)", type: "bool", def: false, hint: "Hausse panier moyen" },
+  { id: "promo",    icon: "🏷️", name: "Promo catalogue",     type: "bool", def: true,  hint: "Articles en prospectus" },
+];
+const DEFAULT_TEMP = 12;
+
+/* sensibilités par article : impact (en part de la demande) pour une intensité de 1 */
+const PRODUCTS = [
+  { ean: "3270190207924", lib: "Eau minérale 6×1,5 L",        rayon: "Liquides",     pcb: 4,  prix: 2.35, stock: 18, vj: 14, auto: 40, s: { chaleur: .35, froid: -.1, match: .1 } },
+  { ean: "3124480191182", lib: "Soda cola 1,5 L",             rayon: "Liquides",     pcb: 6,  prix: 1.12, stock: 22, vj: 16, auto: 36, s: { chaleur: .3, match: .35, ferie: .15, vacances: .1 } },
+  { ean: "3080216052434", lib: "Bière blonde 12×25 cl",       rayon: "Liquides",     pcb: 3,  prix: 6.40, stock: 9,  vj: 5,  auto: 12, s: { chaleur: .3, match: .6, ferie: .25 } },
+  { ean: "3250390006513", lib: "Jus d'orange 1 L",            rayon: "Liquides",     pcb: 6,  prix: 1.05, stock: 14, vj: 8,  auto: 18, s: { vacances: .2, froid: .05 } },
+  { ean: "3175681105522", lib: "Vin rouge AOP 75 cl",         rayon: "Liquides",     pcb: 6,  prix: 3.90, stock: 30, vj: 6,  auto: 12, s: { ferie: .3, froid: .1, paie: .15 }, promo: true },
+  { ean: "3168930010265", lib: "Chips nature 150 g",          rayon: "Épicerie",     pcb: 12, prix: 0.78, stock: 20, vj: 15, auto: 36, s: { match: .45, ferie: .2, vacances: .1, chaleur: .1 } },
+  { ean: "3017620422003", lib: "Pâte à tartiner 750 g",       rayon: "Épicerie",     pcb: 6,  prix: 3.10, stock: 11, vj: 4,  auto: 12, s: { vacances: .25 } },
+  { ean: "7622210449283", lib: "Biscuits goûter ×8",          rayon: "Épicerie",     pcb: 12, prix: 1.35, stock: 16, vj: 10, auto: 24, s: { vacances: .35 } },
+  { ean: "3229820129488", lib: "Céréales petit-déj 500 g",    rayon: "Épicerie",     pcb: 8,  prix: 1.95, stock: 12, vj: 6,  auto: 16, s: { vacances: .3 } },
+  { ean: "3038359004964", lib: "Pâtes coquillettes 500 g",    rayon: "Épicerie",     pcb: 20, prix: 0.62, stock: 45, vj: 12, auto: 20, s: { pluie: .05, paie: .05 } },
+  { ean: "3103220009574", lib: "Bonbons assortis 250 g",      rayon: "Épicerie",     pcb: 12, prix: 1.48, stock: 10, vj: 5,  auto: 12, s: { halloween: .9, vacances: .15 }, promo: true },
+  { ean: "3045320094084", lib: "Chocolat en poudre 800 g",    rayon: "Épicerie",     pcb: 6,  prix: 3.25, stock: 8,  vj: 3,  auto: 6,  s: { froid: .4, vacances: .15 } },
+  { ean: "3366321051981", lib: "Soupe de légumes 1 L",        rayon: "Épicerie",     pcb: 6,  prix: 1.69, stock: 10, vj: 5,  auto: 12, s: { froid: .55, pluie: .2, chaleur: -.4 } },
+  { ean: "3270160891443", lib: "Crème glacée vanille 1 L",    rayon: "Surgelés",     pcb: 4,  prix: 2.80, stock: 12, vj: 3,  auto: 8,  s: { chaleur: .8, froid: -.3, pluie: -.15 } },
+  { ean: "3270160890231", lib: "Bâtonnets glacés ×6",         rayon: "Surgelés",     pcb: 6,  prix: 2.20, stock: 14, vj: 3,  auto: 6,  s: { chaleur: .9, froid: -.35, pluie: -.2, vacances: .1 } },
+  { ean: "3256221234567", lib: "Pizza surgelée 4 fromages",   rayon: "Surgelés",     pcb: 8,  prix: 2.15, stock: 10, vj: 7,  auto: 16, s: { match: .4, pluie: .1, vacances: .1 } },
+  { ean: "3266980054071", lib: "Raclette tranches 400 g",     rayon: "Crèmerie",     pcb: 6,  prix: 4.35, stock: 6,  vj: 4,  auto: 12, s: { froid: .7, chaleur: -.5, pluie: .1 } },
+  { ean: "3155251205301", lib: "Lait demi-écrémé 6×1 L",      rayon: "Crèmerie",     pcb: 4,  prix: 5.10, stock: 20, vj: 9,  auto: 20, s: { vacances: .1 } },
+  { ean: "2000000123458", lib: "Saucisses de Toulouse ×6",    rayon: "Boucherie LS", pcb: 6,  prix: 3.75, stock: 8,  vj: 5,  auto: 12, s: { chaleur: .45, pluie: -.25, match: .15, ferie: .1 } },
+  { ean: "2000000654321", lib: "Pommes de terre 2,5 kg",      rayon: "Fruits & lég.",pcb: 8,  prix: 1.80, stock: 14, vj: 8,  auto: 16, s: { froid: .2 } },
+  { ean: "2000000456789", lib: "Salade iceberg",              rayon: "Fruits & lég.",pcb: 12, prix: 0.65, stock: 15, vj: 9,  auto: 24, s: { chaleur: .4, froid: -.2 } },
+  { ean: "2000000789012", lib: "Potiron (pièce)",             rayon: "Fruits & lég.",pcb: 6,  prix: 1.40, stock: 5,  vj: 4,  auto: 12, s: { halloween: .6, froid: .2 } },
+];
+
+/* ---------- État ---------- */
+const state = {
+  temp: DEFAULT_TEMP,
+  f: Object.fromEntries(FACTORS.filter(f => f.type === "bool").map(f => [f.id, f.def])),
+  final: {},        // ean -> qté saisie manuellement (UVC)
+  sent: false,
+};
+
+const fmtN = n => n.toLocaleString("fr-FR");
+const fmtE = n => n.toLocaleString("fr-FR", { style: "currency", currency: "EUR" });
+const fmtC = n => n.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const roundPcb = (q, pcb) => q <= 0 ? 0 : Math.ceil(q / pcb) * pcb;
+const factorById = id => FACTORS.find(f => f.id === id);
+
+function intensities() {
+  return {
+    chaleur: Math.max(0, (state.temp - 18) / 10),   // +1 à 28 °C
+    froid:   Math.max(0, (15 - state.temp) / 10),   // +1 à 5 °C
+    ...Object.fromEntries(Object.entries(state.f).map(([k, v]) => [k, v ? 1 : 0])),
+  };
+}
+
+function compute(p, I) {
+  const parts = [];
+  let sum = 0;
+  const sens = { ...p.s };
+  if (p.promo) sens.promo = .5;
+  for (const [id, s] of Object.entries(sens)) {
+    const v = s * (I[id] || 0);
+    if (Math.abs(v) >= .005) { parts.push({ id, v }); sum += v; }
+  }
+  const coef = Math.min(2.5, Math.max(.5, Math.round((1 + sum) * 100) / 100));
+  const conseil = roundPcb(p.auto * coef, p.pcb);
+  const manual = state.final[p.ean];
+  const final = manual ?? conseil;
+  let status = "auto";
+  if (manual !== undefined && manual !== conseil) status = "man";
+  else if (coef !== 1) status = "coef";
+  if (final === 0) status = "zero";
+  return { coef, parts: parts.sort((a, b) => Math.abs(b.v) - Math.abs(a.v)), conseil, final, status };
+}
+
+/* ---------- Panneau facteurs ---------- */
+function renderFactors() {
+  const el = document.getElementById("factors");
+  el.innerHTML = `
+    <div class="factor">
+      <div class="row"><span class="name">🌡️ Température prévue</span><span class="temp" id="tVal">${state.temp} °C</span></div>
+      <input type="range" id="temp" min="-2" max="36" step="1" value="${state.temp}" aria-label="Température prévue">
+      <div class="hint" id="tHint"></div>
+    </div>
+    ${FACTORS.filter(f => f.type === "bool").map(f => `
+      <div class="factor">
+        <div class="row">
+          <span class="name">${f.icon} ${f.name}</span>
+          <label class="switch"><input type="checkbox" data-f="${f.id}" ${state.f[f.id] ? "checked" : ""} aria-label="${f.name}"><span></span></label>
+        </div>
+        <div class="hint">${f.hint}</div>
+      </div>`).join("")}
+  `;
+  el.querySelector("#temp").addEventListener("input", e => { state.temp = +e.target.value; render(); });
+  el.querySelectorAll("[data-f]").forEach(c => c.addEventListener("change", e => { state.f[e.target.dataset.f] = e.target.checked; render(); }));
+}
+
+function tempHint() {
+  const t = state.temp;
+  if (t >= 18) return `☀️ Chaleur : intensité ${fmtC((t - 18) / 10)}`;
+  if (t <= 15) return `🥶 Froid : intensité ${fmtC((15 - t) / 10)}`;
+  return "Températures de saison — pas d'effet";
+}
+
+/* ---------- Tableau ---------- */
+function render() {
+  const I = intensities();
+  document.getElementById("tVal").textContent = `${state.temp} °C`;
+  document.getElementById("tHint").textContent = tempHint();
+
+  const q = document.getElementById("q").value.trim().toLowerCase();
+  const rayon = document.getElementById("rayon").value;
+  const onlyImp = document.getElementById("onlyImpacted").checked;
+
+  let tAuto = 0, tFinal = 0, tAmount = 0, tAmountAuto = 0, lines = 0, impacted = 0, manual = 0;
+  const html = [];
+
+  for (const p of PRODUCTS) {
+    const r = compute(p, I);
+    tAuto += p.auto; tFinal += r.final; tAmount += r.final * p.prix; tAmountAuto += p.auto * p.prix;
+    if (r.final > 0) lines++;
+    if (r.coef !== 1) impacted++;
+    if (r.status === "man") manual++;
+
+    if (q && !(p.lib.toLowerCase().includes(q) || p.ean.includes(q))) continue;
+    if (rayon && p.rayon !== rayon) continue;
+    if (onlyImp && r.coef === 1) continue;
+
+    const cls = r.coef > 1 ? "up" : r.coef < 1 ? "down" : "flat";
+    const tip = r.parts.length
+      ? r.parts.map(x => { const f = factorById(x.id); return `<div class="l"><span>${f.icon} ${f.name}</span><span class="${x.v > 0 ? "pos" : "neg"}">${x.v > 0 ? "+" : ""}${Math.round(x.v * 100)} %</span></div>`; }).join("")
+        + `<div class="l tot"><span>Coefficient</span><span>× ${fmtC(r.coef)}</span></div>`
+      : `<div>Aucun facteur actif sur cet article.</div>`;
+    const statusLabel = { auto: "Auto", coef: "Coef appliqué", man: "Modifié", zero: "Non commandé" }[r.status];
+
+    html.push(`
+      <tr>
+        <td><div class="art">${p.lib}${p.promo ? '<span class="promo">PROMO</span>' : ""}</div><div class="ean">${p.ean}</div></td>
+        <td>${p.rayon}</td>
+        <td class="num">${p.stock}</td>
+        <td class="num">${p.vj}</td>
+        <td class="num">${p.pcb}</td>
+        <td class="num">${p.auto}</td>
+        <td class="num hl">
+          <button class="coef ${cls}" aria-label="Détail du coefficient">× ${fmtC(r.coef)}
+            <span class="tip"><div class="t">Détail des facteurs</div>${tip}</span>
+          </button>
+        </td>
+        <td class="num hl"><b>${r.conseil}</b> ${r.conseil !== p.auto ? `<span class="arrow">(${r.conseil > p.auto ? "+" : ""}${r.conseil - p.auto})</span>` : ""}</td>
+        <td class="num">
+          <span class="qty ${r.status === "man" ? "modified" : ""}">
+            <button data-step="-1" data-ean="${p.ean}" aria-label="Retirer un colis">−</button>
+            <input inputmode="numeric" value="${r.final}" data-ean="${p.ean}" aria-label="Quantité à commander ${p.lib}">
+            <button data-step="1" data-ean="${p.ean}" aria-label="Ajouter un colis">+</button>
+          </span>
+        </td>
+        <td class="num">${r.final / p.pcb}</td>
+        <td class="num">${fmtE(r.final * p.prix)}</td>
+        <td><span class="status ${r.status}">${statusLabel}</span></td>
+      </tr>`);
+  }
+  document.getElementById("rows").innerHTML = html.join("") || `<tr><td colspan="12" style="text-align:center;color:var(--muted);padding:24px">Aucun article ne correspond.</td></tr>`;
+
+  const pct = (a, b) => b ? `${a >= b ? "+" : ""}${Math.round((a - b) / b * 100)} % vs auto` : "";
+  document.getElementById("kLines").textContent = fmtN(lines);
+  document.getElementById("kLinesD").textContent = `${impacted} impactées par un facteur`;
+  document.getElementById("kAuto").textContent = fmtN(tAuto);
+  document.getElementById("kFinal").textContent = fmtN(tFinal);
+  document.getElementById("kFinalD").textContent = pct(tFinal, tAuto);
+  document.getElementById("kAmount").textContent = fmtE(tAmount);
+  document.getElementById("kAmountD").textContent = pct(tAmount, tAmountAuto);
+  document.getElementById("barSum").innerHTML =
+    `<b>${lines}</b> lignes · <b>${fmtN(tFinal)}</b> UVC · <b>${fmtE(tAmount)}</b> HT · <b>${manual}</b> modification${manual > 1 ? "s" : ""} manuelle${manual > 1 ? "s" : ""}`;
+  state.totals = { lines, tFinal, tAmount, manual, impacted };
+}
+
+/* ---------- Interactions ---------- */
+const product = ean => PRODUCTS.find(p => p.ean === ean);
+function setFinal(ean, v) {
+  const p = product(ean);
+  const conseil = compute(p, intensities()).conseil;
+  v = Math.max(0, Math.round(v) || 0);
+  if (v === conseil) delete state.final[ean]; else state.final[ean] = v;
+  render();
+}
+const rows = document.getElementById("rows");
+rows.addEventListener("click", e => {
+  const b = e.target.closest("button[data-step]");
+  if (!b) return;
+  const p = product(b.dataset.ean);
+  const cur = compute(p, intensities()).final;
+  setFinal(p.ean, cur + +b.dataset.step * p.pcb);
+});
+const tipEl = document.getElementById("tip");
+function showTip(btn) {
+  tipEl.innerHTML = btn.querySelector(".tip").innerHTML;
+  tipEl.classList.add("show");
+  const b = btn.getBoundingClientRect(), t = tipEl.getBoundingClientRect();
+  let top = b.bottom + 6;
+  if (top + t.height > innerHeight - 8) top = b.top - t.height - 6;
+  tipEl.style.top = `${top}px`;
+  tipEl.style.left = `${Math.min(innerWidth - t.width - 8, Math.max(8, b.left + b.width / 2 - t.width / 2))}px`;
+}
+const hideTip = () => tipEl.classList.remove("show");
+rows.addEventListener("mouseover", e => { const b = e.target.closest(".coef"); if (b) showTip(b); });
+rows.addEventListener("mouseout", e => { if (e.target.closest(".coef")) hideTip(); });
+rows.addEventListener("focusin", e => { if (e.target.matches(".coef")) showTip(e.target); });
+rows.addEventListener("focusout", hideTip);
+window.addEventListener("scroll", hideTip, true);
+rows.addEventListener("change", e => { if (e.target.matches("input[data-ean]")) setFinal(e.target.dataset.ean, +e.target.value); });
+rows.addEventListener("keydown", e => { if (e.key === "Enter" && e.target.matches("input[data-ean]")) e.target.blur(); });
+
+["q", "rayon", "onlyImpacted"].forEach(id => document.getElementById(id).addEventListener("input", render));
+document.getElementById("applyAll").onclick = () => { state.final = {}; render(); };
+document.getElementById("resetAll").onclick = () => {
+  state.final = {};
+  const I = intensities();
+  for (const p of PRODUCTS) if (compute(p, I).conseil !== p.auto) state.final[p.ean] = p.auto;
+  render();
+};
+document.getElementById("resetFactors").onclick = () => {
+  state.temp = DEFAULT_TEMP;
+  FACTORS.filter(f => f.type === "bool").forEach(f => state.f[f.id] = f.def);
+  renderFactors(); render();
+};
+
+document.getElementById("exportBtn").onclick = () => {
+  const I = intensities();
+  const head = ["EAN", "Libellé", "Rayon", "PCB", "Proposition auto", "Coef externe", "Qté conseillée", "Qté commandée", "Colis", "Montant HT"];
+  const lines = PRODUCTS.map(p => {
+    const r = compute(p, I);
+    return [p.ean, p.lib, p.rayon, p.pcb, p.auto, fmtC(r.coef), r.conseil, r.final, r.final / p.pcb, (r.final * p.prix).toFixed(2).replace(".", ",")];
+  });
+  const csv = [head, ...lines].map(l => l.map(x => `"${String(x).replace(/"/g, '""')}"`).join(";")).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8" }));
+  a.download = `commande-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+};
+
+const modal = document.getElementById("modal");
+document.getElementById("validateBtn").onclick = () => {
+  const t = state.totals;
+  document.getElementById("mBody").innerHTML = `
+    <p><b>${t.lines}</b> lignes · <b>${fmtN(t.tFinal)}</b> UVC · <b>${fmtE(t.tAmount)}</b> HT</p>
+    <p>${t.impacted} lignes ajustées par les facteurs externes, ${t.manual} modification${t.manual > 1 ? "s" : ""} manuelle${t.manual > 1 ? "s" : ""}.</p>
+    <p class="sub">La commande sera transmise à l'entrepôt pour une livraison ${document.getElementById("delivery").textContent.toLowerCase()}.</p>
+    <div class="actions"><button class="btn" id="mCancel">Annuler</button><button class="btn primary" id="mOk">Envoyer</button></div>`;
+  modal.classList.add("open");
+  document.getElementById("mCancel").onclick = () => modal.classList.remove("open");
+  document.getElementById("mOk").onclick = () => {
+    modal.classList.remove("open");
+    const now = new Date();
+    document.getElementById("statusPill").classList.add("ok");
+    document.getElementById("statusText").textContent = `Commande envoyée à ${now.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}`;
+    const v = document.getElementById("validateBtn");
+    v.textContent = "✓ Commande envoyée"; v.disabled = true;
+  };
+};
+modal.addEventListener("click", e => { if (e.target === modal) modal.classList.remove("open"); });
+document.addEventListener("keydown", e => { if (e.key === "Escape") modal.classList.remove("open"); });
+
+/* ---------- Init ---------- */
+(function init() {
+  const d = new Date();
+  const opts = { weekday: "long", day: "numeric", month: "long" };
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+  document.getElementById("today").textContent = `${cap(d.toLocaleDateString("fr-FR", { ...opts, year: "numeric" }))} · Magasin 0421 · Commande générée à 06:00 par le réapprovisionnement automatique`;
+  const del = new Date(d); del.setDate(d.getDate() + 1);
+  document.getElementById("delivery").textContent = cap(del.toLocaleDateString("fr-FR", opts));
+  const rs = [...new Set(PRODUCTS.map(p => p.rayon))];
+  document.getElementById("rayon").innerHTML = `<option value="">Tous les rayons</option>` + rs.map(r => `<option>${r}</option>`).join("");
+  renderFactors();
+  render();
+})();
+</script>
+</body>
+</html>
