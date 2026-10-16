@@ -1547,8 +1547,6 @@ function traits() {
 }
 function viewProfil() {
   const pr = state.profile, I = insights();
-  const demo = 'v1';
-  const demoSubs = rankSubs(demo).slice(0, 3);
   const recs = RECIPES.filter(recipeAllowed).sort((a, b) => recipeScore(b) - recipeScore(a)).slice(0, 3);
   const seg = (arr, key) => `<div class="seg">${arr.map(([k, t, d]) => `<button class="${pr[key] === k ? 'on' : ''}" onclick="setProf('${key}','${k}')"><b>${t}</b><span>${d}</span></button>`).join('')}</div>`;
   return `<div class="panel" style="display:flex;justify-content:space-between;align-items:center;gap:20px">
@@ -1572,10 +1570,8 @@ function viewProfil() {
           <div class="bars">${I.byCat.map(([n, v]) => `<div class="bar"><span>${n}</span><div class="tr"><i style="width:${v / I.max * 100}%"></i></div><span class="v">${v}</span></div>`).join('')}</div>
         </div>
         <div class="panel">
-          <h3>Ce que votre profil change, en direct</h3>
-          <div class="preview"><div style="font-weight:700;margin-bottom:4px">🔄 Si la viande hachée Jean Rozé manque :</div>
-            ${demoSubs.length ? demoSubs.map((id, i) => `<div class="pi"><span class="num" style="width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700">${i + 1}</span><span class="n">${P[id].e} ${esc(P[id].b)} — ${esc(P[id].n)}</span>${deltaHtml(demo, id)}</div>`).join('') : '<div class="muted">Aucun remplacement compatible (profil végétarien) : la viande ne vous est plus proposée.</div>'}</div>
-          <div class="preview"><div style="font-weight:700;margin-bottom:4px">🍲 Vos recettes en tête de liste :</div>
+          <h3>Vos recettes en tête de liste</h3><p class="muted" style="margin:4px 0 0;font-size:14px">Elles changent dès que vous modifiez votre profil.</p>
+          <div class="preview">
             ${recs.map(r => `<div class="pi"><span>${r.e}</span><span class="n">${esc(r.n)}</span><span class="muted">${r.t} min</span></div>`).join('')}</div>
         </div>
       </div>
