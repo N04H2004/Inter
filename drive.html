@@ -363,6 +363,13 @@
   .insight:last-child { border-bottom: 0; }
   .insight .ic { font-size: 22px; width: 30px; text-align: center; }
   .insight b { display: block; }
+  .insight.off { opacity: .55; }
+  .insight.off b { text-decoration: line-through; }
+  .src { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 700; border-radius: 10px; padding: 1px 8px; vertical-align: 2px; text-decoration: none; }
+  .src.auto { background: #e6f1fa; color: var(--sea); }
+  .src.edit { background: #fff4c7; color: #7a5b00; }
+  .src.off { background: var(--bg); color: var(--muted); }
+  .kpi span { line-height: 1.25; display: block; margin-top: 4px; }
   .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0 6px; }
   .kpi { background: var(--bg); border-radius: 12px; padding: 12px; text-align: center; }
   .kpi b { font: 700 28px/1 "Barlow Condensed", sans-serif; display: block; }
@@ -377,6 +384,8 @@
   .fgroup .fl { font-weight: 700; font-size: 17px; margin-bottom: 4px; }
   .fgroup .fd { color: var(--muted); font-size: 14px; margin-bottom: 10px; }
   .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pgl { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: var(--muted); margin: 14px 0 8px; }
+  .pgl:first-of-type { margin-top: 4px; }
   .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
   .seg button { border: 1.5px solid var(--line); background: #fff; border-radius: 12px; padding: 12px; text-align: left; }
   .seg button b { display: block; font-size: 16px; }
@@ -657,10 +666,14 @@ const ORDERS = [
 const FOYERS = [
   ['solo', 'Personne seule'], ['couple', 'Couple'], ['famille', 'Famille avec enfants'], ['coloc', 'Colocation'], ['senior', 'Seniors'],
 ];
-const PREFS = [
-  ['local', '📍 Produits locaux & régionaux'], ['maison', '👩‍🍳 Fait maison'], ['bio', '🌱 Bio'], ['rapide', '⏱ Rapide & pratique'],
-  ['flexi', '🥕 Moins de viande'], ['veg', '🥦 Végétarien'], ['sansporc', '🚫 Sans porc'], ['sansgluten', '🌾 Sans gluten'], ['sanslactose', '🥛 Sans lactose'],
+const PREF_GROUPS = [
+  ['Ma façon de manger', [['maison', '👩‍🍳 Fait maison'], ['rapide', '⏱ Rapide & pratique'], ['healthy', '🥗 Équilibré & healthy'],
+    ['proteine', '💪 Riche en protéines'], ['sucre', '🍬 Moins de sucre'], ['flexi', '🥕 Moins de viande']]],
+  ['Mes engagements', [['local', '📍 Produits locaux & régionaux'], ['bio', '🌱 Bio'], ['antigaspi', '♻️ Anti-gaspi & petits prix']]],
+  ['Mes habitudes', [['enfants', '🧒 Produits pour enfants'], ['apero', '🥂 Apéro & convivialité'], ['petitdej', '🥐 Petit-déjeuner']]],
+  ['Régimes & exclusions', [['veg', '🥦 Végétarien'], ['sansporc', '🚫 Sans porc'], ['sansgluten', '🌾 Sans gluten'], ['sanslactose', '🥛 Sans lactose']]],
 ];
+const PREFS = PREF_GROUPS.flatMap(g => g[1]);
 const BUDGETS = [['petit', 'Petit prix', 'Le moins cher d’abord, marques Intermarché'], ['equilibre', 'Équilibré', 'Bon rapport qualité / prix'], ['premium', 'Premium', 'Qualité et labels avant tout']];
 const MARQUES = [['mdd', 'Marques Intermarché', 'Pâturages, Jean Rozé, Fiorini…'], ['mixte', 'Mixte', 'Selon les produits'], ['marques', 'Grandes marques', 'Charal, Président, Barilla…']];
 const TEMPS = [['court', 'Moins de 20 min', 'En semaine, ça doit aller vite'], ['moyen', '20 à 45 min', 'Un peu de cuisine au quotidien'], ['long', 'J’aime cuisiner', 'Plats mijotés, recettes du week-end']];
@@ -671,7 +684,7 @@ const DERIVED = { foyer: 'famille', personnes: 4, prefs: ['local', 'maison'], bu
    RECETTES — quantités pour `base` personnes ; pack = contenance d’un produit
    ===================================================================== */
 const RECIPES = [
-  { id: 'r1', n: 'Salade niçoise', e: '🥗', bg: '#e6f1fa', t: 25, base: 4, tags: ['local', 'fish', 'rapide'],
+  { id: 'r1', n: 'Salade niçoise', e: '🥗', bg: '#e6f1fa', t: 25, base: 4, tags: ['local', 'fish', 'rapide', 'proteine', 'healthy'],
     ing: [
       { pid: 'f15', q: 150, u: 'g', n: 'mesclun', pack: 150 },
       { pid: 'f1', q: 6, u: '', n: 'tomates', pack: 8 },
@@ -713,7 +726,7 @@ const RECIPES = [
       { q: 1, u: 'pincée', n: 'sel, poivre, muscade', pantry: true },
     ],
     steps: ['Laver et émincer finement les verts de blettes, les faire tomber à la poêle avec l’oignon.', 'Mélanger avec les œufs battus et le parmesan, assaisonner.', 'Foncer un moule avec une pâte, garnir, recouvrir de la seconde pâte.', 'Cuire 40 min à 180 °C.'] },
-  { id: 'r5', n: 'Daube niçoise', e: '🍲', bg: '#fbeaea', t: 180, base: 4, tags: ['local', 'meat'],
+  { id: 'r5', n: 'Daube niçoise', e: '🍲', bg: '#fbeaea', t: 180, base: 4, tags: ['local', 'meat', 'proteine'],
     ing: [
       { pid: 'v17', q: 800, u: 'g', n: 'bœuf à braiser', pack: 800 },
       { pid: 'd6', q: 75, u: 'cl', n: 'vin rouge de Provence', pack: 75 },
@@ -725,7 +738,7 @@ const RECIPES = [
       { q: 1, u: '', n: 'bouquet garni, zeste d’orange', pantry: true },
     ],
     steps: ['La veille, faire mariner la viande dans le vin avec les légumes et le bouquet garni.', 'Égoutter et faire revenir la viande, ajouter les légumes.', 'Mouiller avec la marinade et le coulis, laisser mijoter 2 h 30 à couvert.', 'Ajouter les olives 15 min avant la fin. Servir avec des pâtes ou des raviolis.'] },
-  { id: 'r6', n: 'Ratatouille niçoise', e: '🍆', bg: '#f3eafb', t: 60, base: 4, tags: ['local', 'veg'],
+  { id: 'r6', n: 'Ratatouille niçoise', e: '🍆', bg: '#f3eafb', t: 60, base: 4, tags: ['local', 'veg', 'healthy'],
     ing: [
       { pid: 'f5', q: 2, u: '', n: 'courgettes', pack: 4 },
       { pid: 'f6', q: 2, u: '', n: 'aubergines', pack: 2 },
@@ -758,7 +771,7 @@ const RECIPES = [
       { pid: 'f8', q: 1, u: '', n: 'oignon', pack: 6 },
     ],
     steps: ['Cuire les pommes de terre et les écraser en purée avec le lait et le beurre.', 'Faire revenir l’oignon et la viande.', 'Monter en couches dans un plat, parsemer de fromage.', 'Gratiner 20 min à 200 °C.'] },
-  { id: 'r9', n: 'Poulet au citron & riz basmati', e: '🍋', bg: '#fffbd9', t: 30, base: 4, tags: ['meat', 'rapide', 'lactose'],
+  { id: 'r9', n: 'Poulet au citron & riz basmati', e: '🍋', bg: '#fffbd9', t: 30, base: 4, tags: ['meat', 'rapide', 'lactose', 'proteine'],
     ing: [
       { pid: 'v6', q: 4, u: '', n: 'filets de poulet', pack: 2 },
       { pid: 'f20', q: 2, u: '', n: 'citrons', pack: 4 },
@@ -767,7 +780,7 @@ const RECIPES = [
       { pid: 'f9', q: 2, u: 'gousses', n: 'd’ail', pack: 30 },
     ],
     steps: ['Dorer les filets coupés en morceaux avec l’ail.', 'Ajouter le jus et le zeste des citrons, puis la crème.', 'Laisser réduire 10 min pendant la cuisson du riz.'] },
-  { id: 'r10', n: 'Curry de pois chiches', e: '🍛', bg: '#fff1e0', t: 25, base: 4, tags: ['veg', 'rapide'],
+  { id: 'r10', n: 'Curry de pois chiches', e: '🍛', bg: '#fff1e0', t: 25, base: 4, tags: ['veg', 'rapide', 'proteine', 'healthy'],
     ing: [
       { pid: 'e27', q: 800, u: 'g', n: 'pois chiches cuits', pack: 400 },
       { pid: 'e28', q: 40, u: 'cl', n: 'lait de coco', pack: 40 },
@@ -787,7 +800,7 @@ const RECIPES = [
       { pid: 'c13', q: 60, u: 'g', n: 'emmental râpé', pack: 200 },
     ],
     steps: ['Faire dorer les lardons.', 'Battre œufs, crème et lait, assaisonner.', 'Garnir la pâte, verser l’appareil, parsemer de fromage.', 'Cuire 35 min à 180 °C.'] },
-  { id: 'r12', n: 'Saumon & haricots verts', e: '🐟', bg: '#e8f1fb', t: 20, base: 4, tags: ['fish', 'rapide', 'lactose'],
+  { id: 'r12', n: 'Saumon & haricots verts', e: '🐟', bg: '#e8f1fb', t: 20, base: 4, tags: ['fish', 'rapide', 'lactose', 'proteine', 'healthy'],
     ing: [
       { pid: 'v12', q: 4, u: '', n: 'pavés de saumon', pack: 2 },
       { pid: 'f22', q: 600, u: 'g', n: 'haricots verts', pack: 500 },
@@ -862,6 +875,13 @@ function prodScore(p) {
   if (has('maison') && ['fl', 'epsal'].includes(p.cat)) s += 4;
   if (has('rapide') && ['boul'].includes(p.cat)) s += 6;
   if (has('flexi') && p.meat) s -= 12;
+  if (has('healthy')) s += { A: 8, B: 4, D: -8, E: -12 }[p.ns] || 0;
+  if (has('proteine') && (p.meat || p.fish || ['oeufs', 'legsec', 'yaourt', 'fromage'].includes(p.g))) s += 12;
+  if (has('sucre') && (p.cat === 'epsuc' || p.g === 'jus')) s -= 15;
+  if (has('antigaspi') && (PROMO[p.id] || p.mdd)) s += 6;
+  if (has('enfants') && ['yaourt', 'biscuit', 'tartiner', 'jus', 'banane', 'pomme', 'lait'].includes(p.g)) s += 12;
+  if (has('apero') && (['chips', 'olives', 'biere', 'vin', 'nicoise', 'anchois'].includes(p.g))) s += 12;
+  if (has('petitdej') && ['lait', 'jus', 'confit', 'tartiner', 'beurre', 'pain', 'biscuit'].includes(p.g)) s += 12;
   if (pr.budget === 'petit') { if (p.mdd) s += 10; if (PROMO[p.id]) s += 8; }
   if (pr.budget === 'premium') { if (p.bio || p.loc) s += 6; if (p.ns === 'A') s += 3; }
   if (pr.marques === 'mdd' && p.mdd) s += 10;
@@ -871,6 +891,11 @@ function prodScore(p) {
 function whyProd(p) {
   if (has('local') && p.loc) return '📍 Vous aimez le local';
   if (has('bio') && p.bio) return '🌱 Bio';
+  if (has('proteine') && (p.meat || p.fish || p.g === 'oeufs' || p.g === 'legsec')) return '💪 Riche en protéines';
+  if (has('apero') && ['chips', 'olives', 'biere', 'vin', 'nicoise'].includes(p.g)) return '🥂 Pour l’apéro';
+  if (has('enfants') && ['yaourt', 'biscuit', 'tartiner', 'jus', 'banane', 'pomme'].includes(p.g)) return '🧒 Pour les enfants';
+  if (has('petitdej') && ['lait', 'jus', 'confit', 'tartiner', 'beurre', 'pain'].includes(p.g)) return '🥐 Petit-déjeuner';
+  if (has('healthy') && p.ns === 'A') return '🥗 Nutri-Score A';
   if (HIST[p.id] >= 3) return '🔁 Vous l’achetez souvent';
   if (state.profile.budget === 'petit' && (p.mdd || PROMO[p.id])) return '💶 Petit budget';
   if (state.profile.marques === 'mdd' && p.mdd) return '★ Marque Intermarché';
@@ -903,7 +928,6 @@ function reasons(oid, cid) {
   else if (Math.abs(rel) <= 0.1) out.push(['Prix proche', '']);
   if (c.mdd && (state.profile.budget === 'petit' || state.profile.marques === 'mdd')) out.push(['Marque Intermarché', 'mdd']);
   if (!c.mdd && state.profile.marques === 'marques') out.push(['Grande marque', '']);
-  if (c.r <= 10) out.push(['Bonne disponibilité', 'ok']);
   if (!out.length) out.push(['Même rayon', '']);
   return out.slice(0, 3);
 }
@@ -937,6 +961,9 @@ function recipeScore(r) {
   if (pr.temps === 'long' && r.t >= 60) s += 12;
   if (has('flexi') && (r.tags.includes('meat'))) s -= 15;
   if (has('veg') && r.tags.includes('veg')) s += 10;
+  if (has('proteine') && r.tags.includes('proteine')) s += 15;
+  if (has('healthy') && r.tags.includes('healthy')) s += 12;
+  if (has('enfants') && r.tags.includes('famille')) s += 10;
   if (['famille', 'coloc'].includes(pr.foyer) && r.tags.includes('famille')) s += 10;
   if (pr.budget === 'petit') s -= recipeCost(r, 4).total / 4 * 4;
   if (pr.budget === 'premium' && r.tags.includes('local')) s += 6;
@@ -946,6 +973,8 @@ function recipeWhy(r) {
   const out = [];
   if (r.t <= 25 && (has('rapide') || state.profile.temps === 'court')) out.push('⏱ Rapide');
   if (r.tags.includes('veg') && (has('veg') || has('flexi'))) out.push('🥦 Végétarien');
+  if (r.tags.includes('proteine') && has('proteine')) out.push('💪 Riche en protéines');
+  if (r.tags.includes('healthy') && has('healthy')) out.push('🥗 Équilibrée');
   if (r.tags.includes('famille') && state.profile.foyer === 'famille') out.push('👨‍👩‍👧 En famille');
   if (has('maison') && r.t >= 40) out.push('👩‍🍳 Fait maison');
   return out.slice(0, 2);
@@ -1039,11 +1068,6 @@ function showModal(html, cls = '', kind = null) {
 function closeModal() { $('mdBg').classList.remove('on'); modalKind = null; }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeDrawers(); toggleMenu(false); } });
 
-function riskLine(p) {
-  return `<div style="display:flex;align-items:center;gap:10px;margin-top:6px;font-size:13px">
-    <div class="meter"><i style="width:${Math.min(100, p.r * 2)}%"></i></div>
-    <span><b style="color:var(--warn)">${p.r} %</b> de rupture sur le drive ${esc(STORE.short)} (30 derniers jours)</span></div>`;
-}
 function openSubProposal(pid) {
   const o = P[pid], s = state.subs[pid];
   const cards = s.list.map((id, i) => {
@@ -1059,13 +1083,13 @@ function openSubProposal(pid) {
     </div>`;
   }).join('');
   showModal(`
-    <div class="mh"><div style="font-size:30px">⚠️</div><div class="t">
-      <h2>Ce produit est souvent en rupture sur le drive</h2>
-      <div class="muted" style="margin-top:4px">Au cas où il manquerait le jour de la préparation, nous avons préparé des remplacements selon votre profil. Vous gardez la main.</div>
+    <div class="mh"><div style="font-size:30px">🔄</div><div class="t">
+      <h2>Au cas où ce produit serait indisponible</h2>
+      <div class="muted" style="margin-top:4px">Voici 3 remplacements choisis selon votre profil. Vous pouvez les accepter, les modifier ou les refuser.</div>
     </div><button class="xbtn" onclick="closeModal()">×</button></div>
     <div class="mb">
       <div class="orig"><div class="thumb" style="background:${BG[o.cat]}">${o.e}</div>
-        <div style="flex:1"><div class="nm">${esc(brandLine(o))} — ${esc(o.n)}</div><div class="muted" style="font-size:13px">${esc(o.u)} · ${fmt(o.p)} · ajouté à votre panier ✓</div>${riskLine(o)}</div></div>
+        <div style="flex:1"><div class="nm">${esc(brandLine(o))} — ${esc(o.n)}</div><div class="muted" style="font-size:13px">${esc(o.u)} · ${fmt(o.p)} · ajouté à votre panier ✓</div></div></div>
       <div class="mlabel" style="margin-top:20px"><span>Si indisponible, le préparateur prendra dans cet ordre :</span></div>
       ${s.list.length ? `<div class="subgrid">${cards}</div>` : `<div class="muted">Aucun remplacement retenu.</div>`}
       <div class="explain">ℹ️ <span>Classement selon votre profil : <b>${profileSummary()}</b>. Vous ne payez que le produit réellement préparé.</span></div>
@@ -1129,7 +1153,6 @@ function openRecipe(id) {
 function renderRecipe() {
   const r = RECIPES.find(x => x.id === rec.id);
   const { lines, buy, total } = recipeCost(r, rec.portions, rec.have);
-  const risky = buy.filter(l => P[l.pid].r >= RUPT).length;
   const rows = lines.map(l => {
     if (l.pantry) return `<label class="ingr ${l.have ? 'have' : ''}"><input type="checkbox" ${l.have ? 'checked' : ''} onchange="recHave(${l.i},this.checked)">
       <div><div class="q">${esc(l.qtyTxt)}</div><div class="p">Placard — non ajouté au panier</div></div><div class="pp"></div></label>`;
@@ -1137,7 +1160,7 @@ function renderRecipe() {
     return `<label class="ingr ${l.have ? 'have' : ''}"><input type="checkbox" ${l.have ? 'checked' : ''} onchange="recHave(${l.i},this.checked)" title="J’en ai déjà">
       <div><div class="q">${esc(l.qtyTxt)}</div>
         <div class="p"><span>${p.e} ${esc(p.b)} — ${esc(p.n)} (${esc(p.u)})${l.units > 1 ? ` × ${l.units}` : ''}</span>
-        ${l.swapped ? '<span class="tag loc">choisi selon votre profil</span>' : ''}${p.loc ? '<span class="tag loc">Local</span>' : ''}${p.r >= RUPT ? '<span class="tag warn">⚠ souvent en rupture</span>' : ''}</div></div>
+        ${l.swapped ? '<span class="tag loc">choisi selon votre profil</span>' : ''}${p.loc ? '<span class="tag loc">Local</span>' : ''}</div></div>
       <div class="pp">${fmt(p.p * l.units)}</div></label>`;
   }).join('');
   showModal(`
@@ -1154,7 +1177,6 @@ function renderRecipe() {
         ${rows}
       </div>
       <div><div class="colhead"><span>Préparation</span></div><ol class="steps">${r.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>
-        ${risky ? `<div class="riskbox" style="margin-top:14px"><span class="ic">🔄</span><span>${risky} ingrédient${risky > 1 ? 's sont' : ' est'} souvent en rupture : des remplacements vous seront proposés dans le panier.</span></div>` : ''}
       </div>
     </div></div>
     <div class="mf"><div><b>${buy.length} produit${buy.length > 1 ? 's' : ''}</b> à ajouter · <b>${fmt(total)}</b></div><span class="sp"></span>
@@ -1192,7 +1214,7 @@ function subBox(pid, compact = false) {
       ? `<button class="btn sm ghost" onclick="openSubEditor('${pid}')">Modifier</button><button class="btn sm soft" onclick="setSubStatus('${pid}','refused')">Ne pas remplacer</button>`
       : `<button class="btn sm ghost" onclick="reactivate('${pid}')">Proposer des remplacements</button>`;
   return `<div class="subbox ${s.status}">
-    <div class="top"><span class="t">${st}</span><span class="tag warn">rupture ${p.r} %</span></div>
+    <div class="top"><span class="t">${st}</span></div>
     ${s.status === 'refused' ? `<div class="muted" style="margin:6px 0">S’il manque, ce produit sera retiré de la commande et non facturé.</div>` : s.list.length ? `<div class="muted" style="margin-top:4px">Si indisponible, dans cet ordre :</div>` : `<div class="muted" style="margin:6px 0">Aucun remplacement compatible avec votre profil actuel.</div>`}
     ${list}<div class="acts">${acts}</div></div>`;
 }
@@ -1213,7 +1235,7 @@ function renderCart() {
   ids.sort((a, b) => (state.subs[b] ? 1 : 0) - (state.subs[a] ? 1 : 0));
   $('cartDr').innerHTML = `<div class="dh"><h3>Mon panier <span class="muted" style="font-size:18px">(${cartCount()} article${cartCount() > 1 ? 's' : ''})</span></h3><button class="xbtn" onclick="closeDrawers()">×</button></div>
     <div class="db">
-      ${pending ? `<div class="pending-note"><span>⚠ ${pending} produit${pending > 1 ? 's' : ''} souvent en rupture : remplacements à confirmer</span><button class="btn sm green" onclick="acceptAllPending()">Tout accepter</button></div>` : ''}
+      ${pending ? `<div class="pending-note"><span>⚠ ${pending} remplacement${pending > 1 ? 's' : ''} à confirmer</span><button class="btn sm green" onclick="acceptAllPending()">Tout accepter</button></div>` : ''}
       ${ids.map(id => {
         const p = P[id], q = state.cart[id];
         return `<div class="citem"><div class="row">
@@ -1296,7 +1318,6 @@ function card(p, why) {
     <div class="pbrand">${esc(brandLine(p))}</div>
     <div class="pname">${esc(p.n)}</div>
     <div class="punit">${esc(p.u)} · ${p.k}</div>
-    ${p.r >= RUPT ? `<div class="rwarn">⚠ Souvent en rupture en ligne</div>` : ''}
     <div class="pbot"><div class="price">${fmt(p.p)}</div>${q ? stepper(p.id, q) : `<button class="addbtn" onclick="event.stopPropagation();add('${p.id}')" aria-label="Ajouter au panier">${IC.cartplus}</button>`}</div>
   </div>`;
 }
@@ -1374,7 +1395,7 @@ function viewHome() {
       <div class="sec-h"><div><h2>Vos produits habituels</h2><p>Les produits que vous achetez le plus souvent en ligne.</p></div></div>
       ${carousel(usual.map(p => card(p, `🔁 Acheté ${HIST[p.id]} fois`)))}
     </section>
-    <p class="demo-note">Démo d’interface — produits, prix, taux de rupture et producteurs locaux sont fictifs.</p>`;
+    <p class="demo-note">Démo d’interface — produits, prix et producteurs locaux sont fictifs.</p>`;
 }
 
 function viewList() {
@@ -1418,7 +1439,6 @@ function viewProduct() {
   const p = P[state.pid], c = CATS.find(x => x.id === p.cat), q = state.cart[p.id] || 0;
   const alike = PRODUCTS.filter(x => x.id !== p.id && (x.g === p.g || x.sub === p.sub) && allowed(x)).sort((a, b) => prodScore(b) - prodScore(a));
   const more = PRODUCTS.filter(x => x.cat === p.cat && !alike.includes(x) && x.id !== p.id && allowed(x)).sort((a, b) => prodScore(b) - prodScore(a));
-  const subPrev = p.r >= RUPT ? rankSubs(p.id).slice(0, 3) : [];
   return `<div class="crumb">🏠 / <a onclick="go('list',{cat:'${c.id}'})">${c.n}</a> / <a onclick="go('list',{cat:'${c.id}',sub:'${esc(p.sub)}'})">${esc(p.sub)}</a> / <b>${esc(p.n)}</b></div>
     <div class="pd">
       <div class="big"><div class="art" style="background:${BG[p.cat]}">${p.e}</div><div style="position:absolute;left:18px;top:18px;display:flex;gap:6px">${badges(p)}</div></div>
@@ -1428,8 +1448,6 @@ function viewProduct() {
           ${nutri(p.ns)}
           <p style="margin:14px 0 0" class="muted">Produit également disponible en magasin</p></div>
         ${p.loc ? `<div class="localbox"><span style="font-size:20px">📍</span><span><b>Produit local</b> sélectionné par ${esc(STORE.name)} — ${esc(p.b)}. Circuit court, disponible uniquement dans les magasins de la région.</span></div>` : ''}
-        ${p.r >= RUPT ? `<div class="riskbox"><span class="ic">⚠️</span><div><b>Souvent en rupture sur le drive</b> (${p.r} % des commandes ces 30 derniers jours).<br>Dès l’ajout au panier, nous vous proposerons des remplacements :
-          <div style="margin-top:6px">${subPrev.map((id, i) => `${i + 1}. ${esc(P[id].b)} — ${esc(P[id].n)} (${fmt(P[id].p)})`).join('<br>')}</div></div></div>` : ''}
         <div class="buy"><div class="price">${fmt(p.p)}</div>${q ? stepper(p.id, q) : `<button class="btn red" style="padding:14px 26px;font-size:18px" onclick="add('${p.id}')">${IC.cartplus} Ajouter au panier</button>`}</div>
         <div class="acc"><span>Caractéristiques</span><span>⌄</span></div>
         <div class="acc"><span>En savoir plus</span><span>⌄</span></div>
@@ -1488,8 +1506,34 @@ function insights() {
   const byCat = CATS.map(c => [c.n, all.filter(p => p.cat === c.id).length]).sort((a, b) => b[1] - a[1]);
   const max = byCat[0][1];
   const avg = ORDERS.reduce((s, o) => s + o.total, 0) / ORDERS.length;
-  return { mdd: pct(p => p.mdd), loc: pct(p => p.loc), bio: pct(p => p.bio), avg, byCat, max,
+  return { n: all.length, mdd: pct(p => p.mdd), loc: pct(p => p.loc), bio: pct(p => p.bio), avg, byCat, max,
     prep: pct(p => p.cat === 'boul' && p.sub === 'Spécialités niçoises') };
+}
+// Une ligne par critère du profil actuel : déduit des achats (avec la preuve) ou choisi par l'utilisateur
+function traits(I) {
+  const pr = state.profile, D = DERIVED;
+  const ev = {
+    foyer: '6 L de lait, 12 œufs et ~1 kg de viande par commande, yaourts en pack de 16.',
+    local: 'Olives de Nice, blettes, huile d’olive AOP et pissaladière reviennent régulièrement.',
+    maison: 'Beaucoup de produits bruts (légumes, farine, pâtes), très peu de plats préparés.',
+    budget: `Panier moyen de ${I.avg.toFixed(0)} €, ${I.mdd} % de marques Intermarché et quelques grandes marques.`,
+    temps: 'Surtout des recettes de 20 à 45 min (pâtes, viande hachée, légumes à cuisiner).',
+  };
+  const row = (ic, title, src, txt) => `<div class="insight ${src === 'off' ? 'off' : ''}"><span class="ic">${ic}</span><div><b>${title}
+    <span class="src ${src}">${src === 'auto' ? 'déduit de vos achats' : src === 'edit' ? 'choisi par vous' : 'retiré par vous'}</span></b><span class="muted">${txt}</span></div></div>`;
+  const out = [];
+  const foyerTxt = `${label(FOYERS, pr.foyer)}, ${pr.personnes} personne${pr.personnes > 1 ? 's' : ''}`;
+  out.push(pr.foyer === D.foyer && pr.personnes === D.personnes ? row('👨‍👩‍👧‍👦', foyerTxt, 'auto', ev.foyer)
+    : row('👨‍👩‍👧‍👦', foyerTxt, 'edit', `Vos achats suggéraient : ${label(FOYERS, D.foyer)}, ${D.personnes} personnes.`));
+  pr.prefs.forEach(k => out.push(D.prefs.includes(k) ? row('✔️', label(PREFS, k), 'auto', ev[k] || '')
+    : row('✔️', label(PREFS, k), 'edit', 'Ajouté à votre profil : recommandations et recettes en tiennent compte.')));
+  D.prefs.filter(k => !pr.prefs.includes(k)).forEach(k => out.push(row('✖️', label(PREFS, k), 'off', 'N’est plus pris en compte, même si vos achats le suggéraient.')));
+  const bm = `Budget ${label(BUDGETS, pr.budget).toLowerCase()} · ${label(MARQUES, pr.marques)}`;
+  out.push(pr.budget === D.budget && pr.marques === D.marques ? row('⚖️', bm, 'auto', ev.budget)
+    : row('⚖️', bm, 'edit', `Vos achats suggéraient : budget ${label(BUDGETS, D.budget).toLowerCase()}, marques ${label(MARQUES, D.marques).toLowerCase()}.`));
+  out.push(pr.temps === D.temps ? row('⏱', `Cuisine : ${label(TEMPS, pr.temps).toLowerCase()}`, 'auto', ev.temps)
+    : row('⏱', `Cuisine : ${label(TEMPS, pr.temps).toLowerCase()}`, 'edit', `Vos achats suggéraient : ${label(TEMPS, D.temps).toLowerCase()}.`));
+  return out.join('');
 }
 function viewProfil() {
   const pr = state.profile, I = insights();
@@ -1498,21 +1542,23 @@ function viewProfil() {
   const recs = RECIPES.filter(recipeAllowed).sort((a, b) => recipeScore(b) - recipeScore(a)).slice(0, 3);
   const seg = (arr, key) => `<div class="seg">${arr.map(([k, t, d]) => `<button class="${pr[key] === k ? 'on' : ''}" onclick="setProf('${key}','${k}')"><b>${t}</b><span>${d}</span></button>`).join('')}</div>`;
   return `<div class="panel" style="display:flex;justify-content:space-between;align-items:center;gap:20px">
-      <div><h1>Mon profil de consommation</h1><p class="muted" style="margin:6px 0 0">Il personnalise vos recommandations, vos remplacements de produits en rupture et vos recettes. Modifiable à tout moment.</p></div>
+      <div><h1>Mon profil de consommation</h1><p class="muted" style="margin:6px 0 0">Il personnalise vos recommandations, vos propositions de remplacement et vos recettes. Modifiable à tout moment.</p></div>
       <div style="text-align:right;white-space:nowrap"><span class="pstatus ${isCustom() ? 'edit' : 'auto'}">${isCustom() ? '✎ Personnalisé par vous' : '⟲ Déduit de votre historique'}</span>
         ${isCustom() ? `<div style="margin-top:8px"><button class="link" onclick="resetProfile()">Revenir au profil déduit de mes achats</button></div>` : ''}</div>
     </div>
     <div class="grid2" style="margin-top:20px">
       <div>
         <div class="panel">
-          <h3>Ce que nous avons appris de vos achats</h3>
-          <p class="muted" style="margin:4px 0 0;font-size:14px">${ORDERS.length} commandes drive, du ${ORDERS[ORDERS.length - 1].date} au ${ORDERS[0].date}</p>
-          <div class="kpis"><div class="kpi"><b>${I.avg.toFixed(0)} €</b><span>panier moyen</span></div><div class="kpi"><b>${I.mdd} %</b><span>marques Intermarché</span></div>
-            <div class="kpi"><b>${I.loc} %</b><span>produits locaux</span></div><div class="kpi"><b>${I.bio} %</b><span>bio</span></div></div>
-          <div class="insight"><span class="ic">👨‍👩‍👧‍👦</span><div><b>Foyer d’environ 4 personnes</b><span class="muted">6 L de lait, 12 œufs et ~1 kg de viande par commande, yaourts en pack de 16.</span></div></div>
-          <div class="insight"><span class="ic">📍</span><div><b>Attaché aux produits locaux</b><span class="muted">Olives de Nice, blettes, huile d’olive AOP et pissaladière reviennent régulièrement.</span></div></div>
-          <div class="insight"><span class="ic">👩‍🍳</span><div><b>Cuisine maison</b><span class="muted">Beaucoup de produits bruts (légumes, farine, pâtes) et très peu de plats préparés.</span></div></div>
-          <div class="insight"><span class="ic">⚖️</span><div><b>Budget équilibré, marques mixtes</b><span class="muted">${I.mdd} % de marques Intermarché, quelques grandes marques (Petit Navire, Lactel…).</span></div></div>
+          <h3>Votre profil en détail</h3>
+          <p class="muted" style="margin:4px 0 0;font-size:14px">Pour chaque critère : déduit de vos achats, ou choisi par vous.</p>
+          ${traits(I)}
+        </div>
+        <div class="panel">
+          <h3>Vos achats en chiffres</h3>
+          <p class="muted" style="margin:4px 0 0;font-size:14px">Calculé sur vos ${ORDERS.length} dernières commandes drive (du ${ORDERS[ORDERS.length - 1].date} au ${ORDERS[0].date}), soit ${I.n} articles.</p>
+          <div class="kpis"><div class="kpi"><b>${I.avg.toFixed(0)} €</b><span>dépensés en moyenne par commande</span></div><div class="kpi"><b>${I.mdd} %</b><span>des articles sont des marques Intermarché</span></div>
+            <div class="kpi"><b>${I.loc} %</b><span>des articles sont des produits locaux</span></div><div class="kpi"><b>${I.bio} %</b><span>des articles sont bio</span></div></div>
+          <div style="font-weight:700;margin-top:14px">Articles achetés par rayon</div>
           <div class="bars">${I.byCat.map(([n, v]) => `<div class="bar"><span>${n}</span><div class="tr"><i style="width:${v / I.max * 100}%"></i></div><span class="v">${v}</span></div>`).join('')}</div>
         </div>
         <div class="panel">
@@ -1529,12 +1575,12 @@ function viewProfil() {
         <div class="fgroup"><div class="fl">Nombre de personnes</div><div class="fd">Utilisé pour les quantités des recettes</div>
           <div class="people"><div class="step sm"><button onclick="setProf('personnes',${Math.max(1, pr.personnes - 1)})">−</button><span>${pr.personnes}</span><button onclick="setProf('personnes',${Math.min(12, pr.personnes + 1)})">+</button></div>
           <span class="ico">${'👤'.repeat(Math.min(pr.personnes, 8))}</span></div></div>
-        <div class="fgroup"><div class="fl">Mes préférences de consommation</div><div class="fd">Plusieurs choix possibles. Végétarien, sans porc, sans gluten et sans lactose masquent les produits non compatibles.</div>
-          <div class="chips">${PREFS.map(([k, t]) => `<button class="chip ${has(k) ? 'on' : ''}" onclick="togglePref('${k}')">${t}</button>`).join('')}</div></div>
+        <div class="fgroup"><div class="fl">Mes préférences de consommation</div><div class="fd">Plusieurs choix possibles. Les régimes et exclusions masquent les produits non compatibles.</div>
+          ${PREF_GROUPS.map(([g, items]) => `<div class="pgl">${g}</div><div class="chips">${items.map(([k, t]) => `<button class="chip ${has(k) ? 'on' : ''}" onclick="togglePref('${k}')">${t}</button>`).join('')}</div>`).join('')}</div>
         <div class="fgroup"><div class="fl">Mon budget</div><div class="fd">Oriente les recommandations et l’ordre des remplacements</div>${seg(BUDGETS, 'budget')}</div>
         <div class="fgroup"><div class="fl">Mes marques</div><div class="fd">&nbsp;</div>${seg(MARQUES, 'marques')}</div>
         <div class="fgroup"><div class="fl">Mon temps de cuisine</div><div class="fd">Pour vous proposer des recettes réalistes</div>${seg(TEMPS, 'temps')}</div>
-        <div class="uses"><div><b>🛒 Recommandations</b>Accueil, rayons et recherche triés pour vous</div><div><b>🔄 Remplacements</b>Proposés quand un produit est souvent en rupture</div><div><b>🍲 Recettes</b>Adaptées à vos goûts et votre foyer</div></div>
+        <div class="uses"><div><b>🛒 Recommandations</b>Accueil, rayons et recherche triés pour vous</div><div><b>🔄 Remplacements</b>Proposés à l’ajout au panier, classés pour vous</div><div><b>🍲 Recettes</b>Adaptées à vos goûts et votre foyer</div></div>
       </div>
     </div>`;
 }
@@ -1563,7 +1609,7 @@ function viewCheckout() {
   const pending = risky.filter(id => state.subs[id].status === 'pending').length;
   return `<div class="crumb">🏠 / <b>Valider mon panier</b></div><h1 style="margin-bottom:16px">Valider mon panier</h1>
     <div class="co"><div>
-      ${risky.length ? `<div class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><h3>🔄 Produits à risque de rupture</h3><p class="muted" style="margin:4px 0 0">Vérifiez vos consignes : elles seront suivies par le préparateur si le produit manque en magasin.</p></div>
+      ${risky.length ? `<div class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><h3>🔄 Remplacements en cas d’indisponibilité</h3><p class="muted" style="margin:4px 0 0">Vérifiez vos consignes : elles seront suivies par le préparateur si le produit manque en magasin.</p></div>
         ${pending ? `<button class="btn sm green" onclick="acceptAllPending()">Tout accepter (${pending})</button>` : ''}</div>
         ${risky.map(id => `<div class="citem"><div class="row"><div class="thumb" style="background:${BG[P[id].cat]}">${P[id].e}</div><div><div class="nm">${esc(P[id].b)} — ${esc(P[id].n)}</div><div class="sub">Quantité : ${state.cart[id]}</div></div><div class="pr">${fmt(P[id].p * state.cart[id])}</div></div>${subBox(id)}</div>`).join('')}</div>` : ''}
       <div class="panel" style="margin-top:20px"><h3>Mes produits (${cartCount()})</h3>
@@ -1572,7 +1618,7 @@ function viewCheckout() {
       <div class="side2">
         <div class="panel"><h3 style="margin-bottom:12px">Mon créneau</h3>${SLOTS.map(([ic, t, d], i) => `<button class="slot ${state.slot === i ? 'on' : ''}" onclick="state.slot=${i};render()"><span class="ic">${ic}</span><span><b>${t}</b>${d}</span></button>`).join('')}</div>
         <div class="prep"><h3>📋 Consignes pour le préparateur</h3>
-          ${risky.length ? risky.map(id => { const s = state.subs[id]; return `<div class="l">${esc(P[id].n)} → ${s.status === 'refused' || !s.list.length ? '<b>ne pas remplacer</b>' : s.list.map((x, i) => `<b>${i + 1}.</b> ${esc(P[x].b)} ${esc(P[x].n)}`).join(' · ')}${s.status === 'pending' ? ' <span style="opacity:.6">(proposé)</span>' : ''}</div>`; }).join('') : '<div class="l">Aucun produit à risque dans ce panier.</div>'}</div>
+          ${risky.length ? risky.map(id => { const s = state.subs[id]; return `<div class="l">${esc(P[id].n)} → ${s.status === 'refused' || !s.list.length ? '<b>ne pas remplacer</b>' : s.list.map((x, i) => `<b>${i + 1}.</b> ${esc(P[x].b)} ${esc(P[x].n)}`).join(' · ')}${s.status === 'pending' ? ' <span style="opacity:.6">(proposé)</span>' : ''}</div>`; }).join('') : '<div class="l">Aucune consigne de remplacement.</div>'}</div>
         <div class="panel"><div class="tot"><span style="font-size:18px">Total estimé</span><span class="v">${fmt(cartTotal())}</span></div>
           <div class="muted" style="font-size:13px;margin-bottom:12px">Frais de livraison offerts sur votre 1<sup>re</sup> commande.</div>
           ${pending ? `<div class="pending-note"><span>${pending} remplacement${pending > 1 ? 's' : ''} encore à confirmer : ${pending > 1 ? 'ils seront appliqués' : 'il sera appliqué'} tel${pending > 1 ? 's' : ''} que proposé${pending > 1 ? 's' : ''}.</span></div>` : ''}

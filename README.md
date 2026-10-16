@@ -48,7 +48,7 @@ L'interface reprend le drive actuel (en-tête, menu Rayons, fiche produit, panie
 - **Profil de consommation** (Compte › *Mon profil conso*) : déduit des 6 dernières commandes (foyer, nombre de personnes,
   préférences de consommation, budget, marques, temps de cuisine), modifiable à tout moment, avec retour au profil déduit.
   Il pilote les recommandations, l'ordre des remplacements et les recettes (aperçu en direct sur la page).
-- **Remplacements anticipés** : quand on ajoute un produit dont le taux de rupture e-commerce est ≥ 20 %, la plateforme propose
+- **Remplacements anticipés** : quand on ajoute un produit souvent en rupture sur le drive (taux non affiché au client), la plateforme propose
   tout de suite 3 remplacements classés selon le profil. Le client peut les accepter, les refuser ou les modifier
   (retirer, réordonner, choisir d'autres produits). Les consignes apparaissent dans le panier et à la validation.
 - **Local & nouveautés du magasin** : spécialités de Nice (socca chips, olives de Nice AOP, blettes, pissaladière, tourte de blettes,
