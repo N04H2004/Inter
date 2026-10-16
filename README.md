@@ -36,3 +36,26 @@ Commande du jeudi 15/10/2026 pour livraison le vendredi 16/10/2026, qui couvre v
 
 Les dates de calendrier sont réelles ; les articles, stocks, prix et sensibilités sont fictifs
 et se modifient dans `PRODUCTS`, `MATCHES`, `WEATHER`… en tête du script.
+
+---
+
+# Démo — Drive Intermarché personnalisé (côté client)
+
+Ouvrir `drive.html` dans un navigateur (desktop, aucune installation). Client fictif **Jean**, magasin **Intermarché Express Nice Cessole**.
+
+L'interface reprend le drive actuel (en-tête, menu Rayons, fiche produit, panier, Mon compte) et ajoute :
+
+- **Profil de consommation** (Compte › *Mon profil conso*) : déduit des 6 dernières commandes (foyer, nombre de personnes,
+  préférences de consommation, budget, marques, temps de cuisine), modifiable à tout moment, avec retour au profil déduit.
+  Il pilote les recommandations, l'ordre des remplacements et les recettes (aperçu en direct sur la page).
+- **Remplacements anticipés** : quand on ajoute un produit dont le taux de rupture e-commerce est ≥ 20 %, la plateforme propose
+  tout de suite 3 remplacements classés selon le profil. Le client peut les accepter, les refuser ou les modifier
+  (retirer, réordonner, choisir d'autres produits). Les consignes apparaissent dans le panier et à la validation.
+- **Local & nouveautés du magasin** : spécialités de Nice (socca chips, olives de Nice AOP, blettes, pissaladière, tourte de blettes,
+  pan bagnat, vin de Bellet…) et nouveautés propres au magasin, sur l'accueil et dans le menu Rayons.
+- **Bandeau du magasin** sous « Livraison offerte » : messages qui défilent et lien Instagram, définis par le point de vente
+  dans `STORE_BANNER`, en tête du script.
+- **Recettes** : classiques, plus des recettes niçoises si le profil inclut « Produits locaux ». On choisit le nombre de personnes,
+  on coche ce qu'on a déjà, et la recette ajoute les produits au panier (avec remplacements si besoin).
+
+Produits, prix, taux de rupture et producteurs sont fictifs. Ils se modifient dans `RAW`, `ORDERS`, `RECIPES` et `DERIVED`.

@@ -1,0 +1,1633 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Intermarché Drive — démo profil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Barlow:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #e2001a;
+    --red-2: #c40016;
+    --red-soft: #fde6e8;
+    --ink: #1d1d1b;
+    --muted: #6d6d72;
+    --line: #e4e4e8;
+    --bg: #f3f3f5;
+    --card: #ffffff;
+    --green: #1f8f3a;
+    --green-2: #157a2e;
+    --yellow: #ffe94a;
+    --purple: #ece4fb;
+    --purple-ink: #4b2a9a;
+    --warn: #b65400;
+    --warn-bg: #fff3e4;
+    --warn-line: #f7c58e;
+    --ok: #1f8f3a;
+    --ok-bg: #e5f5ea;
+    --sea: #0b4f8a;
+    --sea-2: #1672b8;
+    --sun: #f6b73c;
+    --radius: 16px;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.4 "Barlow", "Segoe UI", Arial, sans-serif; padding-bottom: 96px; }
+  button { font: inherit; color: inherit; cursor: pointer; }
+  a { color: inherit; }
+  h1, h2, h3, .cond { font-family: "Barlow Condensed", "Arial Narrow", sans-serif; letter-spacing: .1px; }
+  h1 { font-size: 40px; margin: 0; font-weight: 700; }
+  h2 { font-size: 30px; margin: 0; font-weight: 700; }
+  h3 { font-size: 22px; margin: 0; font-weight: 700; }
+  .wrap { max-width: 1480px; margin: 0 auto; padding: 0 40px; }
+  .muted { color: var(--muted); }
+
+  /* ---------- En-tête ---------- */
+  .hdr { position: sticky; top: 0; z-index: 40; background: #fff; height: 92px; display: flex; align-items: center; gap: 6px; padding: 0 40px; box-shadow: 0 1px 0 var(--line); }
+  .logo { display: flex; flex-direction: column; line-height: .82; cursor: pointer; margin-right: 18px; user-select: none; }
+  .logo .l1 { font: italic 800 38px/0.85 "Barlow Condensed", sans-serif; color: var(--ink); letter-spacing: -1px; }
+  .logo .l2 { font: italic 800 22px/0.9 "Barlow Condensed", sans-serif; color: var(--red); padding-left: 2px; }
+  .nav { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 12px; border: 0; background: none; font-size: 14px; font-weight: 500; border-radius: 10px; min-width: 80px; position: relative; }
+  .nav:hover { background: var(--bg); }
+  .nav svg { width: 26px; height: 26px; }
+  .nav .promo-ic { width: 26px; height: 26px; border-radius: 6px; background: var(--yellow); display: grid; place-items: center; font-weight: 800; font-size: 14px; border: 1.5px solid var(--ink); }
+  .nav .pill-new { position: absolute; top: 0; right: 6px; background: var(--red); color: #fff; font-size: 9px; font-weight: 700; border-radius: 6px; padding: 1px 4px; }
+  .nav.on { color: var(--red); }
+  .nav .count[hidden] { display: none; }
+  .nav .count { position: absolute; top: 0; right: 16px; background: var(--red); color: #fff; font-size: 11px; font-weight: 700; border-radius: 10px; min-width: 19px; height: 19px; display: grid; place-items: center; padding: 0 4px; }
+  .search { flex: 1; display: flex; align-items: center; gap: 10px; background: var(--bg); border: 2px solid var(--line); border-radius: 30px; height: 58px; padding: 4px; margin: 0 18px; }
+  .search.on { border-color: var(--ink); background: #fff; }
+  .search .rayons { display: flex; align-items: center; gap: 6px; height: 46px; padding: 0 16px; border: 0; border-radius: 24px; background: #fff; font-weight: 700; font-size: 17px; }
+  .search .rayons.on { background: var(--red-soft); color: var(--red); }
+  .search input { flex: 1; border: 0; background: transparent; font: inherit; font-size: 18px; outline: none; }
+  .search .go { border: 0; background: none; padding: 0 12px; }
+  .search svg { width: 24px; height: 24px; }
+
+  /* ---------- Bandeaux ---------- */
+  .freeship { background: var(--bg); text-align: center; padding: 12px 0 10px; color: var(--red); font: italic 600 19px/1 "Barlow", sans-serif; text-transform: uppercase; letter-spacing: .3px; }
+  .freeship sup { font-size: 11px; }
+  .storebar { background: linear-gradient(90deg, var(--sea), var(--sea-2)); color: #fff; }
+  .storebar .wrap { display: flex; align-items: center; gap: 18px; height: 54px; }
+  .storebar .who { display: flex; align-items: center; gap: 10px; font-weight: 700; white-space: nowrap; padding-right: 18px; border-right: 1px solid rgba(255,255,255,.3); }
+  .storebar .who .dot { width: 30px; height: 30px; border-radius: 50%; background: var(--sun); color: var(--sea); display: grid; place-items: center; font-size: 16px; }
+  .storebar .who small { display: block; font-weight: 500; opacity: .8; font-size: 12px; }
+  .storebar .msg { flex: 1; display: flex; align-items: center; gap: 10px; font-size: 16px; transition: opacity .35s; min-width: 0; }
+  .storebar .msg .ic { font-size: 20px; }
+  .storebar .msg b { font-weight: 700; }
+  .storebar .msg.fade { opacity: 0; }
+  .storebar .dots { display: flex; gap: 6px; }
+  .storebar .dots button { width: 9px; height: 9px; padding: 0; border-radius: 50%; border: 0; background: rgba(255,255,255,.4); }
+  .storebar .dots button.on { background: #fff; }
+  .insta { display: inline-flex; align-items: center; gap: 8px; background: #fff; color: var(--ink); border-radius: 20px; padding: 7px 14px 7px 8px; font-weight: 700; font-size: 14px; text-decoration: none; white-space: nowrap; border: 0; }
+  .insta .ig { width: 24px; height: 24px; border-radius: 7px; background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%); display: grid; place-items: center; }
+  .insta .ig svg { width: 15px; height: 15px; }
+
+  /* ---------- Mise en page générale ---------- */
+  main { padding-top: 22px; min-height: 60vh; }
+  .panel { background: var(--card); border-radius: var(--radius); padding: 24px 28px; }
+  .sec { margin-top: 34px; }
+  .sec-h { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
+  .sec-h p { margin: 4px 0 0; color: var(--muted); }
+  .link { color: var(--red); background: none; border: 0; font-weight: 600; padding: 0; }
+  .link:hover { text-decoration: underline; }
+  .btn { border: 0; border-radius: 12px; padding: 12px 22px; font-weight: 700; font-size: 16px; display: inline-flex; align-items: center; gap: 10px; justify-content: center; }
+  .btn.red { background: var(--red); color: #fff; }
+  .btn.red:hover { background: var(--red-2); }
+  .btn.ghost { background: #fff; border: 1.5px solid var(--ink); }
+  .btn.soft { background: var(--bg); }
+  .btn.green { background: var(--green); color: #fff; }
+  .btn.sm { padding: 8px 14px; font-size: 14px; border-radius: 10px; }
+  .btn svg { width: 20px; height: 20px; }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .chip { display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid var(--line); background: #fff; border-radius: 10px; padding: 8px 14px; font-weight: 500; font-size: 15px; }
+  .chip.on { border-color: var(--red); color: var(--red); background: #fff; font-weight: 600; }
+  .tag { display: inline-flex; align-items: center; gap: 4px; border-radius: 6px; padding: 2px 8px; font-size: 12px; font-weight: 600; background: var(--bg); color: var(--ink); white-space: nowrap; }
+  .tag.loc { background: #e3f0fb; color: var(--sea); }
+  .tag.bio { background: var(--ok-bg); color: var(--green-2); }
+  .tag.new { background: var(--red-soft); color: var(--red); }
+  .tag.mdd { background: #fff4c7; color: #7a5b00; }
+  .tag.warn { background: var(--warn-bg); color: var(--warn); }
+  .tag.ok { background: var(--ok-bg); color: var(--green-2); }
+
+  /* ---------- Accueil ---------- */
+  .hello { display: grid; grid-template-columns: 1fr auto; gap: 24px; align-items: center; }
+  .hello h2 { font-size: 30px; }
+  .hello .prof { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; }
+  .hello .prof .lbl { font-weight: 600; margin-right: 4px; }
+  .fid { text-align: right; display: flex; align-items: center; gap: 16px; cursor: pointer; }
+  .fid .t { color: var(--green); font-weight: 700; font-size: 17px; }
+  .fid .d { color: var(--muted); font-size: 14px; }
+  .fid .v { color: var(--green); font: 700 40px/1 "Barlow Condensed", sans-serif; }
+  .pa-banner { margin-top: 26px; background: var(--red); color: #fff; border-radius: 12px; text-align: center; padding: 18px; font: 800 44px/1 "Barlow Condensed", sans-serif; text-transform: uppercase; letter-spacing: .5px; }
+  .nice-sec { margin-top: 34px; border-radius: 22px; background: linear-gradient(180deg, #e6f1fa 0%, #f6fbff 100%); padding: 26px 28px 30px; position: relative; overflow: hidden; }
+  .nice-sec::after { content: ""; position: absolute; right: -60px; top: -80px; width: 260px; height: 260px; border-radius: 50%; background: radial-gradient(circle, rgba(246,183,60,.55), rgba(246,183,60,0) 70%); pointer-events: none; }
+  .nice-sec h2 { color: var(--sea); }
+  .nice-sec .eyebrow { display: inline-flex; gap: 6px; align-items: center; font-weight: 700; color: var(--sea); background: #fff; border-radius: 20px; padding: 4px 12px; font-size: 13px; margin-bottom: 8px; }
+  .tabs { display: flex; gap: 10px; margin: 14px 0 16px; flex-wrap: wrap; }
+
+  /* ---------- Cartes produit ---------- */
+  .car { position: relative; }
+  .crow { display: grid; grid-auto-flow: column; grid-auto-columns: calc((100% - 4 * 16px) / 5); gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory; scrollbar-width: none; padding: 2px; }
+  .crow::-webkit-scrollbar { display: none; }
+  .crow > * { scroll-snap-align: start; }
+  .cnav { position: absolute; top: -58px; width: 46px; height: 46px; border-radius: 50%; border: 0; background: #f08d97; color: #fff; font-size: 26px; line-height: 1; display: grid; place-items: center; }
+  .cnav:hover { background: var(--red); }
+  .cnav.l { right: 56px; } .cnav.r { right: 0; }
+  .grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+  .pcard { background: var(--card); border-radius: var(--radius); padding: 14px 16px 16px; display: flex; flex-direction: column; cursor: pointer; position: relative; transition: box-shadow .15s; min-width: 0; }
+  .pcard:hover { box-shadow: 0 4px 18px rgba(0,0,0,.08); }
+  .ptop { display: flex; align-items: center; gap: 6px; min-height: 32px; flex-wrap: wrap; padding-right: 34px; }
+  .badge { border-radius: 20px; padding: 4px 11px; font-weight: 700; font-size: 13px; }
+  .badge.pp { background: var(--purple); color: var(--purple-ink); }
+  .badge.qp { background: #d0157a; color: #fff; }
+  .badge.loc { background: var(--sea); color: #fff; }
+  .badge.new { background: var(--red); color: #fff; }
+  .badge.bio { background: var(--green); color: #fff; }
+  .fav { position: absolute; top: 12px; right: 12px; width: 34px; height: 34px; border: 0; background: none; display: grid; place-items: center; padding: 0; }
+  .fav svg { width: 26px; height: 26px; }
+  .fav.on svg { fill: var(--red); stroke: var(--red); }
+  .pimg { height: 150px; border-radius: 12px; display: grid; place-items: center; font-size: 76px; margin: 8px 0 12px; position: relative; }
+  .pimg .remise { position: absolute; right: 8px; bottom: 8px; width: 74px; height: 74px; border-radius: 50%; background: var(--yellow); color: var(--red); display: grid; place-items: center; text-align: center; font: 800 20px/0.9 "Barlow Condensed", sans-serif; }
+  .pimg .remise small { display: block; color: var(--ink); font-size: 9px; }
+  .why { font-size: 12px; font-weight: 600; color: var(--sea); margin: -4px 0 6px; display: flex; gap: 4px; align-items: center; }
+  .pbrand { font-weight: 700; font-size: 15px; line-height: 1.2; }
+  .pname { font-size: 15px; line-height: 1.25; margin-top: 2px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .punit { color: var(--muted); font-size: 13px; margin-top: 4px; }
+  .rwarn { margin-top: 6px; font-size: 12px; font-weight: 600; color: var(--warn); }
+  .pbot { margin-top: auto; padding-top: 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .price { font: 700 28px/1 "Barlow Condensed", sans-serif; }
+  .addbtn { width: 50px; height: 50px; border-radius: 50%; border: 0; background: var(--red); color: #fff; display: grid; place-items: center; flex: none; }
+  .addbtn:hover { background: var(--red-2); }
+  .addbtn svg { width: 24px; height: 24px; }
+  .step { display: inline-flex; align-items: center; background: var(--red); color: #fff; border-radius: 26px; height: 46px; overflow: hidden; flex: none; }
+  .step button { border: 0; background: none; color: #fff; width: 40px; height: 46px; font-size: 22px; font-weight: 600; }
+  .step button:hover { background: rgba(0,0,0,.12); }
+  .step span { min-width: 22px; text-align: center; font-weight: 700; font-size: 17px; }
+  .step.sm { height: 36px; } .step.sm button { height: 36px; width: 32px; font-size: 18px; } .step.sm span { font-size: 15px; }
+
+  /* ---------- Recettes ---------- */
+  .rgrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+  .rcard { background: var(--card); border-radius: var(--radius); overflow: hidden; cursor: pointer; display: flex; flex-direction: column; transition: box-shadow .15s; }
+  .rcard:hover { box-shadow: 0 4px 18px rgba(0,0,0,.1); }
+  .rart { height: 150px; display: grid; place-items: center; font-size: 70px; position: relative; }
+  .rart .loc { position: absolute; left: 12px; top: 12px; }
+  .rbody { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 8px; flex: 1; }
+  .rbody h3 { font-size: 23px; line-height: 1.05; }
+  .rmeta { display: flex; gap: 12px; color: var(--muted); font-size: 14px; flex-wrap: wrap; }
+  .rtags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .rfoot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; padding-top: 6px; }
+  .rfoot b { font-size: 15px; }
+  .hint { display: flex; gap: 14px; align-items: center; background: #e6f1fa; color: var(--sea); border-radius: 14px; padding: 14px 18px; margin-bottom: 18px; }
+  .hint .t { flex: 1; }
+
+  /* ---------- Fiche produit ---------- */
+  .crumb { font-size: 15px; margin-bottom: 14px; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+  .crumb a { cursor: pointer; text-decoration: underline; }
+  .crumb b { font-weight: 600; }
+  .pd { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+  .pd .big { background: #fff; border-radius: var(--radius); height: 560px; display: grid; place-items: center; position: relative; }
+  .pd .big .art { width: 70%; height: 70%; border-radius: 24px; display: grid; place-items: center; font-size: 200px; }
+  .pd .col { display: flex; flex-direction: column; gap: 12px; }
+  .pd .info { background: #fff; border-radius: var(--radius); padding: 22px 24px; position: relative; }
+  .pd .info .brand { font-weight: 700; font-size: 21px; }
+  .pd .info .nm { font-size: 19px; margin-top: 2px; }
+  .pd .info .unit { color: var(--muted); }
+  .ns { display: inline-flex; flex-direction: column; gap: 2px; margin-top: 14px; }
+  .ns small { font-size: 9px; font-weight: 700; letter-spacing: .5px; color: #555; }
+  .ns .row { display: flex; align-items: center; background: #ddd; border-radius: 6px; padding: 2px; }
+  .ns .row span { width: 18px; height: 26px; display: grid; place-items: center; font-weight: 800; color: rgba(255,255,255,.65); font-size: 14px; }
+  .ns .row span.on { width: 28px; height: 34px; border-radius: 50%; color: #fff; font-size: 20px; border: 2px solid #fff; margin: -4px 0; }
+  .pd .buy { background: #fff; border-radius: var(--radius); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .pd .buy .price { font-size: 38px; }
+  .acc { background: #fff; border-radius: var(--radius); padding: 18px 24px; font-size: 19px; display: flex; justify-content: space-between; cursor: pointer; }
+  .riskbox { border: 1.5px solid var(--warn-line); background: var(--warn-bg); border-radius: 12px; padding: 12px 14px; color: #5a3200; font-size: 14px; display: flex; gap: 10px; }
+  .riskbox .ic { font-size: 20px; line-height: 1; }
+  .localbox { border: 1.5px solid #b9d6ef; background: #eef6fd; border-radius: 12px; padding: 12px 14px; color: var(--sea); font-size: 14px; display: flex; gap: 10px; }
+
+  /* ---------- Listes rayon ---------- */
+  .lhead { display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; margin-bottom: 16px; }
+  .lhead select { font: inherit; padding: 10px 12px; border-radius: 10px; border: 1.5px solid var(--line); background: #fff; }
+  .subchips { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+
+  /* ---------- Méga-menu Rayons ---------- */
+  .mm-bg { position: fixed; inset: 92px 0 0 0; background: rgba(0,0,0,.45); z-index: 35; display: none; }
+  .mm-bg.on { display: block; }
+  .mm { position: fixed; top: 92px; left: 0; bottom: 0; z-index: 36; display: none; background: #fff; box-shadow: 4px 0 24px rgba(0,0,0,.15); }
+  .mm.on { display: flex; }
+  .mm .c1 { width: 380px; overflow-y: auto; padding: 26px 18px 30px 22px; border-right: 1px solid var(--line); }
+  .mm .c2 { width: 420px; overflow-y: auto; padding: 30px 26px; }
+  .mm h3 { font-size: 24px; margin: 6px 0 14px; }
+  .mm .it { display: flex; align-items: center; gap: 16px; width: 100%; border: 0; background: none; text-align: left; padding: 10px 12px; border-radius: 8px; font-size: 19px; }
+  .mm .it .e { width: 34px; font-size: 24px; text-align: center; }
+  .mm .it .chev { margin-left: auto; opacity: .6; }
+  .mm .it:hover, .mm .it.on { background: var(--red); color: #fff; }
+  .mm .it.hl span.t { background: linear-gradient(transparent 55%, var(--yellow) 55%); font-weight: 700; }
+  .mm .it.hl:hover span.t { background: none; }
+  .mm .c2 .it { font-size: 18px; padding: 12px 14px; }
+  .mm .c2 .all { color: var(--red); background: none; border: 0; padding: 0; font-size: 17px; margin-bottom: 14px; }
+
+  /* ---------- Tiroirs ---------- */
+  .dr-bg { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 60; opacity: 0; pointer-events: none; transition: opacity .2s; }
+  .dr-bg.on { opacity: 1; pointer-events: auto; }
+  .drawer { position: fixed; top: 0; right: 0; bottom: 0; width: 540px; max-width: 100vw; background: #fff; z-index: 61; transform: translateX(100%); transition: transform .25s ease; display: flex; flex-direction: column; }
+  .drawer.on { transform: none; }
+  .drawer .dh { display: flex; align-items: center; justify-content: space-between; padding: 22px 28px; border-bottom: 1px solid var(--line); }
+  .drawer .dh h3 { font-size: 26px; }
+  .xbtn { border: 0; background: none; font-size: 30px; line-height: 1; padding: 4px 8px; }
+  .drawer .db { flex: 1; overflow-y: auto; padding: 18px 24px; }
+  .drawer .df { border-top: 1px solid var(--line); padding: 16px 24px 20px; }
+  .empty { text-align: center; padding: 40px 20px; }
+  .empty .basket { font-size: 110px; }
+  .empty h2 { font-size: 38px; margin: 10px 0; }
+  .citem { border-bottom: 1px solid var(--line); padding: 14px 0; }
+  .citem .row { display: grid; grid-template-columns: 64px 1fr auto; gap: 14px; align-items: center; }
+  .thumb { width: 64px; height: 64px; border-radius: 10px; display: grid; place-items: center; font-size: 34px; }
+  .thumb.sm { width: 44px; height: 44px; font-size: 24px; border-radius: 8px; }
+  .citem .nm { font-weight: 600; line-height: 1.2; }
+  .citem .sub { color: var(--muted); font-size: 13px; }
+  .citem .pr { font-weight: 700; margin-top: 2px; }
+  .subbox { margin-top: 10px; border: 1.5px solid var(--warn-line); background: var(--warn-bg); border-radius: 12px; padding: 10px 12px; font-size: 14px; }
+  .subbox.accepted { border-color: #a9dcb7; background: #f0faf3; }
+  .subbox.refused { border-color: var(--line); background: #f7f7f8; }
+  .subbox .top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+  .subbox .top .t { font-weight: 700; color: var(--warn); }
+  .subbox.accepted .top .t { color: var(--green-2); }
+  .subbox.refused .top .t { color: var(--muted); }
+  .subbox ol { margin: 8px 0 8px; padding-left: 0; list-style: none; counter-reset: s; }
+  .subbox li { counter-increment: s; display: flex; gap: 8px; align-items: center; padding: 3px 0; }
+  .subbox li::before { content: counter(s); width: 20px; height: 20px; border-radius: 50%; background: #fff; border: 1.5px solid currentColor; font-size: 11px; font-weight: 700; display: grid; place-items: center; flex: none; color: var(--muted); }
+  .subbox li .n { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .subbox li .d { font-weight: 600; font-size: 13px; color: var(--muted); }
+  .subbox .acts { display: flex; gap: 8px; flex-wrap: wrap; }
+  .subbox .acts .btn { padding: 6px 12px; font-size: 13px; border-radius: 8px; }
+  .tot { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px; }
+  .tot .v { font: 700 30px/1 "Barlow Condensed", sans-serif; }
+  .pending-note { background: var(--warn-bg); color: #5a3200; border-radius: 10px; padding: 8px 12px; font-size: 13px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+
+  /* Tiroir compte */
+  .accard { margin: 22px 24px 8px; border-radius: 18px; background: linear-gradient(135deg, #1e9a3e, #127a2b); color: #fff; padding: 20px 22px 0; position: relative; }
+  .accard .nm { font: 700 23px/1 "Barlow Condensed", sans-serif; }
+  .accard .sd { margin-top: 10px; }
+  .accard .bc { background: #fff; color: var(--ink); border-radius: 14px; margin: 16px 0 -40px; padding: 16px 16px 12px; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,.12); }
+  .accard .bc svg { width: 100%; height: 62px; }
+  .accard .bc div { letter-spacing: 3px; font-size: 18px; margin-top: 6px; }
+  .acmenu { margin-top: 58px; padding: 0 24px; }
+  .acmenu button { display: flex; width: 100%; align-items: center; gap: 16px; border: 0; background: none; padding: 20px 10px; font-size: 20px; font-weight: 600; text-align: left; border-radius: 10px; }
+  .acmenu button:hover { background: var(--bg); }
+  .acmenu .chev { margin-left: auto; font-size: 22px; }
+  .acmenu .ic { width: 26px; text-align: center; font-size: 20px; }
+
+  /* ---------- Modales ---------- */
+  .md-bg { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 80; display: none; align-items: center; justify-content: center; padding: 30px; }
+  .md-bg.on { display: flex; }
+  .md { background: #fff; border-radius: 20px; width: 820px; max-width: 100%; max-height: calc(100vh - 60px); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,.25); }
+  .md.wide { width: 980px; }
+  .md .mh { padding: 22px 26px 16px; display: flex; gap: 16px; align-items: flex-start; border-bottom: 1px solid var(--line); }
+  .md .mh .t { flex: 1; }
+  .md .mh h2 { font-size: 28px; line-height: 1.05; }
+  .md .mb { padding: 20px 26px; overflow-y: auto; }
+  .md .mf { padding: 16px 26px; border-top: 1px solid var(--line); display: flex; gap: 10px; justify-content: flex-end; align-items: center; flex-wrap: wrap; }
+  .md .mf .sp { flex: 1; }
+  .orig { display: flex; gap: 14px; align-items: center; background: var(--bg); border-radius: 14px; padding: 12px 14px; }
+  .orig .nm { font-weight: 700; }
+  .meter { height: 8px; border-radius: 4px; background: #eee; overflow: hidden; width: 160px; }
+  .meter i { display: block; height: 100%; background: linear-gradient(90deg, #f2a33a, #e2541a); }
+  .subgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 16px; }
+  .scard { border: 1.5px solid var(--line); border-radius: 14px; padding: 12px 14px; position: relative; display: flex; flex-direction: column; gap: 6px; }
+  .scard .rank { position: absolute; top: -11px; left: 12px; background: var(--ink); color: #fff; font-size: 12px; font-weight: 700; padding: 2px 9px; border-radius: 10px; }
+  .scard .rm { position: absolute; top: 6px; right: 6px; border: 0; background: none; font-size: 20px; color: var(--muted); }
+  .scard .img { height: 84px; border-radius: 10px; display: grid; place-items: center; font-size: 46px; }
+  .scard .nm { font-weight: 600; line-height: 1.2; font-size: 14px; }
+  .scard .pr { display: flex; justify-content: space-between; align-items: baseline; }
+  .scard .pr b { font: 700 22px/1 "Barlow Condensed", sans-serif; }
+  .delta { font-size: 13px; font-weight: 700; }
+  .delta.up { color: var(--warn); } .delta.down { color: var(--green-2); } .delta.eq { color: var(--muted); }
+  .explain { margin-top: 16px; font-size: 13px; color: var(--muted); display: flex; gap: 8px; align-items: flex-start; }
+  .edlist { display: flex; flex-direction: column; gap: 8px; }
+  .edrow { display: grid; grid-template-columns: 30px 48px 1fr auto auto; gap: 12px; align-items: center; border: 1.5px solid var(--line); border-radius: 12px; padding: 8px 10px; }
+  .edrow .num { width: 26px; height: 26px; border-radius: 50%; background: var(--ink); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+  .edrow .ctl { display: flex; gap: 4px; }
+  .edrow .ctl button { width: 32px; height: 32px; border-radius: 8px; border: 1.5px solid var(--line); background: #fff; }
+  .edrow .ctl button:disabled { opacity: .3; }
+  .edrow .nm { font-weight: 600; line-height: 1.2; }
+  .edrow .meta { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 3px; }
+  .edrow.cand { border-style: dashed; }
+  .mlabel { font-weight: 700; margin: 18px 0 10px; display: flex; justify-content: space-between; }
+  .mlabel:first-child { margin-top: 0; }
+
+  /* Recette (modale) */
+  .rhero { height: 170px; display: grid; grid-template-columns: 170px 1fr; }
+  .rhero .art { display: grid; place-items: center; font-size: 90px; }
+  .rhero .t { padding: 22px 26px; display: flex; flex-direction: column; gap: 8px; justify-content: center; }
+  .rhero h2 { font-size: 34px; }
+  .rhero .xbtn { position: absolute; right: 14px; top: 10px; }
+  .rcols { display: grid; grid-template-columns: 1.5fr 1fr; gap: 26px; }
+  .portions { display: flex; align-items: center; gap: 14px; background: var(--bg); border-radius: 12px; padding: 10px 14px; margin-bottom: 14px; }
+  .portions .lbl { flex: 1; font-weight: 600; }
+  .ingr { display: grid; grid-template-columns: 26px 1fr auto; gap: 12px; align-items: center; padding: 10px 4px; border-bottom: 1px solid var(--line); }
+  .ingr input { width: 20px; height: 20px; accent-color: var(--red); }
+  .ingr .q { font-weight: 600; }
+  .ingr .p { color: var(--muted); font-size: 13px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .ingr .pp { text-align: right; font-weight: 600; white-space: nowrap; }
+  .ingr.have .q, .ingr.have .pp { color: #aaa; text-decoration: line-through; }
+  .ingr.have .p { opacity: .55; }
+  .steps { margin: 0; padding-left: 20px; }
+  .steps li { margin-bottom: 8px; }
+  .colhead { font-weight: 700; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+
+  /* ---------- Compte ---------- */
+  .acc-layout { display: grid; grid-template-columns: 420px 1fr; gap: 30px; align-items: start; }
+  .side { background: #fff; border-radius: 22px; padding: 24px 28px; position: sticky; top: 112px; }
+  .fidcard { border-radius: 20px; overflow: hidden; box-shadow: 0 6px 22px rgba(0,0,0,.12); margin-bottom: 26px; }
+  .fidcard .g { background: linear-gradient(135deg, #1e9a3e, #127a2b); color: #fff; font: 700 22px/1.1 "Barlow Condensed", sans-serif; padding: 22px 22px 34px; }
+  .fidcard .w { display: grid; grid-template-columns: 1fr 1fr; padding: 20px 6px 14px; text-align: center; }
+  .fidcard .w b { font: 700 32px/1 "Barlow Condensed", sans-serif; display: block; }
+  .fidcard .w span { color: var(--muted); font-size: 15px; }
+  .fidcard .w > div + div { border-left: 1px solid var(--line); }
+  .side .mi { display: flex; align-items: center; gap: 14px; width: 100%; border: 0; background: none; padding: 20px 18px; font-size: 20px; font-weight: 600; border-radius: 12px; text-align: left; }
+  .side .mi:hover, .side .mi.on { background: var(--bg); }
+  .side .mi .chev { margin-left: auto; }
+  .side .mi .tag { margin-left: 4px; }
+  .acc-main .panel + .panel, .acc-main .panel + .grid2 { margin-top: 20px; }
+  .acc-main h1 { font-size: 42px; }
+  .order { background: #fff; border-radius: 14px; border-left: 6px solid var(--green); margin-top: 16px; }
+  .order .oh { display: grid; grid-template-columns: 1fr auto auto; gap: 30px; align-items: center; padding: 18px 26px; }
+  .order .st { color: var(--green); font-weight: 700; margin-left: 20px; }
+  .order .amt { font: 700 26px/1 "Barlow Condensed", sans-serif; }
+  .order .ob { border-top: 1px solid var(--line); padding: 14px 26px 18px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .order .ob .chip { font-size: 14px; padding: 5px 10px; }
+  .grid2 { display: grid; grid-template-columns: 1fr 1.25fr; gap: 20px; align-items: start; }
+  .insight { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .insight:last-child { border-bottom: 0; }
+  .insight .ic { font-size: 22px; width: 30px; text-align: center; }
+  .insight b { display: block; }
+  .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0 6px; }
+  .kpi { background: var(--bg); border-radius: 12px; padding: 12px; text-align: center; }
+  .kpi b { font: 700 28px/1 "Barlow Condensed", sans-serif; display: block; }
+  .kpi span { font-size: 12px; color: var(--muted); }
+  .bars { margin-top: 12px; }
+  .bar { display: grid; grid-template-columns: 150px 1fr 44px; gap: 10px; align-items: center; font-size: 14px; margin: 6px 0; }
+  .bar .tr { height: 10px; border-radius: 5px; background: var(--bg); overflow: hidden; }
+  .bar .tr i { display: block; height: 100%; background: var(--red); border-radius: 5px; }
+  .bar .v { text-align: right; color: var(--muted); }
+  .fgroup { padding: 16px 0; border-bottom: 1px solid var(--line); }
+  .fgroup:last-child { border-bottom: 0; }
+  .fgroup .fl { font-weight: 700; font-size: 17px; margin-bottom: 4px; }
+  .fgroup .fd { color: var(--muted); font-size: 14px; margin-bottom: 10px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .seg { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .seg button { border: 1.5px solid var(--line); background: #fff; border-radius: 12px; padding: 12px; text-align: left; }
+  .seg button b { display: block; font-size: 16px; }
+  .seg button span { font-size: 13px; color: var(--muted); }
+  .seg button.on { border-color: var(--red); box-shadow: inset 0 0 0 1px var(--red); }
+  .seg button.on b { color: var(--red); }
+  .people { display: flex; align-items: center; gap: 16px; }
+  .people .step { background: var(--ink); }
+  .people .ico { font-size: 22px; letter-spacing: 2px; }
+  .pstatus { display: inline-flex; align-items: center; gap: 6px; border-radius: 20px; padding: 5px 12px; font-weight: 700; font-size: 14px; }
+  .pstatus.auto { background: #e6f1fa; color: var(--sea); }
+  .pstatus.edit { background: #fff4c7; color: #7a5b00; }
+  .preview { background: var(--bg); border-radius: 14px; padding: 14px 16px; margin-top: 10px; }
+  .preview .pi { display: flex; gap: 10px; align-items: center; padding: 6px 0; font-size: 14px; }
+  .preview .pi .n { flex: 1; }
+  .uses { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 12px; }
+  .uses div { background: var(--bg); border-radius: 12px; padding: 12px; font-size: 14px; }
+  .uses b { display: block; margin-bottom: 2px; }
+
+  /* ---------- Validation ---------- */
+  .co { display: grid; grid-template-columns: 1fr 420px; gap: 24px; align-items: start; }
+  .co .side2 { position: sticky; top: 112px; display: flex; flex-direction: column; gap: 16px; }
+  .slot { display: flex; gap: 12px; align-items: center; border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 14px; width: 100%; background: #fff; text-align: left; margin-bottom: 8px; }
+  .slot.on { border-color: var(--red); box-shadow: inset 0 0 0 1px var(--red); }
+  .slot .ic { font-size: 22px; }
+  .slot b { display: block; }
+  .prep { background: #1d1d1b; color: #fff; border-radius: 14px; padding: 16px 18px; font-size: 14px; }
+  .prep h3 { font-size: 20px; margin-bottom: 8px; }
+  .prep .l { padding: 6px 0; border-top: 1px solid rgba(255,255,255,.15); }
+  .prep .l:first-of-type { border-top: 0; }
+  .prep .l b { color: var(--sun); }
+  .success { text-align: center; padding: 60px 30px; }
+  .success .big { font-size: 80px; }
+
+  /* ---------- Divers ---------- */
+  .bottombar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; background: #fff; box-shadow: 0 -2px 14px rgba(0,0,0,.08); }
+  .bottombar .wrap { display: flex; align-items: center; gap: 34px; height: 76px; }
+  .bottombar .t b { font-size: 18px; display: block; }
+  .bottombar .t span { color: var(--muted); font-size: 14px; }
+  .bottombar .s { display: flex; align-items: center; gap: 10px; font-size: 17px; }
+  .bottombar .s b { font-weight: 700; }
+  .bottombar .x { margin-left: auto; width: 26px; height: 26px; border-radius: 50%; border: 0; background: var(--ink); color: #fff; font-size: 14px; }
+  .avis { position: fixed; left: 0; top: 50%; z-index: 29; background: var(--red); color: #fff; writing-mode: vertical-rl; transform: rotate(180deg) translateY(50%); padding: 20px 12px; border-radius: 0 8px 8px 0; font-size: 18px; }
+  .toast { position: fixed; left: 50%; bottom: 100px; transform: translate(-50%, 20px); background: var(--ink); color: #fff; padding: 12px 20px; border-radius: 12px; z-index: 100; opacity: 0; transition: all .25s; pointer-events: none; font-weight: 500; max-width: 640px; text-align: center; }
+  .toast.on { opacity: 1; transform: translate(-50%, 0); }
+  .demo-note { font-size: 13px; color: var(--muted); text-align: center; margin: 40px 0 10px; }
+
+  @media (max-width: 1280px) {
+    .crow { grid-auto-columns: calc((100% - 3 * 16px) / 4); }
+    .grid { grid-template-columns: repeat(4, 1fr); }
+    .rgrid { grid-template-columns: repeat(3, 1fr); }
+    .nav { min-width: 64px; padding: 6px 6px; font-size: 13px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="logo" onclick="go('home')" title="Accueil"><span class="l1">Inter</span><span class="l2">marché</span></div>
+  <button class="nav" onclick="toast('Magasin : ' + STORE.name + ' — le changement de magasin viendra dans une prochaine version de la démo.')"><span id="ic-store"></span><span>Nice ⌄</span></button>
+  <button class="nav" onclick="go('list',{cat:'promo'})"><span class="promo-ic">%</span><span>Promotions</span></button>
+  <button class="nav" onclick="toast('Prospectus : écran non repris dans la démo.')"><span id="ic-book"></span><span>Prospectus</span></button>
+  <button class="nav" id="nav-rec" onclick="go('recipes')"><span class="pill-new">Nouveau</span><span id="ic-chef"></span><span>Recettes</span></button>
+  <div class="search" id="searchBox">
+    <button class="rayons" id="rayBtn" onclick="toggleMenu()"><span id="ic-ray"></span>Rayons</button>
+    <input id="q" placeholder="Lait, oeuf, pain…" autocomplete="off" onkeydown="if(event.key==='Enter')doSearch()" onfocus="searchFocus(true)" onblur="searchFocus(false)">
+    <button class="go" onclick="doSearch()" aria-label="Rechercher"><span id="ic-search"></span></button>
+  </div>
+  <button class="nav" onclick="toast('Aide et contact : écran non repris dans la démo.')"><span id="ic-help"></span><span>Aide et contact</span></button>
+  <button class="nav" onclick="go('list',{cat:'favs'})"><span id="ic-heart"></span><span>Mes produits</span></button>
+  <button class="nav" id="nav-acc" onclick="openAccount()"><span id="ic-user"></span><span>Compte</span></button>
+  <button class="nav" onclick="openCart()"><span id="ic-cart"></span><span>Panier</span><span class="count" id="cartCount" hidden>0</span></button>
+</header>
+
+<div class="freeship">🚚&nbsp; Livraison offerte sur votre 1<sup>re</sup> commande &nbsp;ⓘ</div>
+<div class="storebar" id="storebar"></div>
+
+<div class="mm-bg" id="mmBg" onclick="toggleMenu(false)"></div>
+<div class="mm" id="mm"></div>
+
+<main><div class="wrap" id="main"></div></main>
+
+<div class="avis">Votre avis ?</div>
+
+<div class="bottombar" id="bottombar">
+  <div class="wrap">
+    <div class="t"><b>Retrait &amp; Livraison ⓘ</b><span>Prochains créneaux disponibles</span></div>
+    <div class="s">🏪 <b>Samedi 17 Octobre</b> 08h00 - 12h00</div>
+    <div class="s">🚚 <b>Samedi 17 Octobre</b> 10h00 - 12h00</div>
+    <div class="s">🚶 <b>Vendredi 16 Octobre</b> 16h00 - 17h00</div>
+    <button class="x" onclick="document.getElementById('bottombar').hidden=true">✕</button>
+  </div>
+</div>
+
+<div class="dr-bg" id="drBg" onclick="closeDrawers()"></div>
+<aside class="drawer" id="cartDr"></aside>
+<aside class="drawer" id="accDr"></aside>
+
+<div class="md-bg" id="mdBg" onclick="if(event.target===this)closeModal()"><div class="md" id="md"></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* =====================================================================
+   CONFIGURATION DU MAGASIN (bandeau personnalisable par le point de vente)
+   ===================================================================== */
+const STORE = {
+  name: 'Intermarché Express Nice Cessole',
+  short: 'Nice Cessole',
+  city: 'Nice',
+  address: '143 boulevard de Cessole, 06100 Nice',
+  instagram: '@intermarche.nicecessole',
+};
+// Messages saisis par le magasin : ils défilent dans le bandeau sous « Livraison offerte ».
+const STORE_BANNER = [
+  { ic: '📸', html: `Suivez votre magasin sur Instagram : <b>${STORE.instagram}</b> — arrivages, coulisses et jeux concours`, cta: 'insta' },
+  { ic: '🔥', html: `<b>Samedi 17/10, 10h – 12h</b> : dégustation de socca chaude devant le magasin` },
+  { ic: '🌿', html: `<b>Nouveau</b> : 12 producteurs de l’arrière-pays niçois disponibles dans votre drive` },
+  { ic: '🍋', html: `Citrons de Menton IGP : <b>arrivage direct ce vendredi</b>` },
+];
+
+/* =====================================================================
+   CATALOGUE (fictif) — r = taux de rupture e-commerce sur 30 jours (%)
+   flags : mdd (marque Intermarché), bio, loc (local/régional), nw (nouveauté magasin),
+           meat, fish, porc, gluten, lactose
+   ===================================================================== */
+const RUPT = 20; // au-delà, la plateforme prépare des remplacements
+const CATS = [
+  { id: 'fl', n: 'Fruits et Légumes', e: '🍏' },
+  { id: 'viande', n: 'Viandes et Poissons', e: '🥩' },
+  { id: 'cremerie', n: 'Crèmerie', e: '🧀' },
+  { id: 'boul', n: 'Boulangerie & Traiteur', e: '🥖' },
+  { id: 'epsal', n: 'Épicerie salée', e: '🥫' },
+  { id: 'epsuc', n: 'Épicerie sucrée', e: '🍪' },
+  { id: 'boi', n: 'Boissons', e: '🍷' },
+];
+const BG = { fl: '#eef7e6', viande: '#fbeaea', cremerie: '#fdf6e3', epsal: '#fff1e0', epsuc: '#f7ecf9', boi: '#e8f1fb', boul: '#f8efe2' };
+
+const RAW = [
+  // id, cat, sous-rayon, groupe de substitution, emoji, marque, libellé, conditionnement, prix/kg, prix, nutri, flags, rupture %
+  ['v1','viande','Viandes hachées','hache','🥩','Jean Rozé','Viande hachée pur bœuf 5% MG','la barquette de 350 g','17,40 €/kg',6.09,'A','mdd meat',34],
+  ['v2','viande','Viandes hachées','hache','🍔','Charal','Steaks hachés pur bœuf 5% MG x4','la boîte de 400 g','18,73 €/kg',7.49,'A','meat',8],
+  ['v3','viande','Viandes hachées','hache','🥩','Jean Rozé','Viande hachée pur bœuf bio 5% MG','la barquette de 350 g','20,71 €/kg',7.25,'A','mdd bio meat',12],
+  ['v4','viande','Viandes hachées','hache','🍔','Petit prix','Steaks hachés 15% MG x10','la boîte de 1 kg','9,90 €/kg',9.90,'B','mdd meat',6],
+  ['v5','viande','Viandes hachées','hache','🥩','Bigard','Viande hachée pur bœuf 5% MG','la barquette de 500 g','17,18 €/kg',8.59,'A','meat',10],
+  ['v6','viande','Volaille','poulet','🍗','Jean Rozé','Filets de poulet Label Rouge x2','la barquette de 280 g','23,18 €/kg',6.49,'A','mdd meat',27],
+  ['v7','viande','Volaille','poulet','🍗','Le Gaulois','Filets de poulet x4','la barquette de 500 g','15,98 €/kg',7.99,'A','meat',9],
+  ['v8','viande','Volaille','poulet','🍗','Jean Rozé','Filets de poulet bio x2','la barquette de 260 g','27,50 €/kg',7.15,'A','mdd bio meat',11],
+  ['v9','viande','Volaille','poulet','🍗','Petit prix','Aiguillettes de poulet','la barquette de 500 g','10,98 €/kg',5.49,'A','mdd meat',5],
+  ['v10','viande','Charcuterie & lardons','lardons','🥓','Monique Ranou','Lardons fumés','2 x 100 g','11,95 €/kg',2.39,'D','mdd meat porc',4],
+  ['v11','viande','Charcuterie & lardons','lardons','🥓','Herta','Lardons nature','2 x 75 g','17,27 €/kg',2.59,'D','meat porc',3],
+  ['v12','viande','Poissonnerie','poisson','🐟','Capitaine Cook','Pavés de saumon x2','la barquette de 250 g','31,80 €/kg',7.95,'B','mdd fish',24],
+  ['v13','viande','Poissonnerie','poisson','🐟','Delpierre','Pavés de saumon ASC x2','la barquette de 260 g','32,65 €/kg',8.49,'B','fish',7],
+  ['v14','viande','Poissonnerie','poisson','🐠','Capitaine Cook','Pavés de cabillaud x2','la barquette de 250 g','27,80 €/kg',6.95,'A','mdd fish',9],
+  ['v16','viande','Poissonnerie','poisson','🐠','Petit prix','Filets de colin d’Alaska','le sachet de 400 g','11,23 €/kg',4.49,'A','mdd fish',4],
+  ['v17','viande','Viandes à cuisiner','boeuf','🥩','Jean Rozé','Bœuf à braiser (paleron)','la barquette de 800 g','17,38 €/kg',13.90,'A','mdd meat',9],
+  ['v15','viande','Traiteur niçois','plat','🍲','Traiteur du magasin','Daube à la niçoise','la barquette de 600 g','21,50 €/kg',12.90,'B','loc meat',6],
+
+  ['c1','cremerie','Lait','lait','🥛','Pâturages','Lait demi-écrémé UHT','le pack de 6 x 1 L','0,99 €/L',5.94,'A','mdd lactose',21],
+  ['c2','cremerie','Lait','lait','🥛','Lactel','Lait demi-écrémé UHT','le pack de 6 x 1 L','1,19 €/L',7.14,'A','lactose',6],
+  ['c3','cremerie','Lait','lait','🥛','Candia','Grandlait demi-écrémé','le pack de 6 x 1 L','1,23 €/L',7.38,'A','lactose',5],
+  ['c4','cremerie','Lait','lait','🥛','Pâturages','Lait demi-écrémé bio','le pack de 6 x 1 L','1,29 €/L',7.74,'A','mdd bio lactose',9],
+  ['c5','cremerie','Œufs','oeufs','🥚','Pâturages','Œufs frais de poules élevées en plein air x12','la boîte de 12','0,32 €/pièce',3.79,'A','mdd',29],
+  ['c6','cremerie','Œufs','oeufs','🥚','Cocorette','Œufs plein air x12','la boîte de 12','0,37 €/pièce',4.49,'A','',12],
+  ['c7','cremerie','Œufs','oeufs','🥚','Pâturages','Œufs bio x6','la boîte de 6','0,49 €/pièce',2.95,'A','mdd bio',15],
+  ['c8','cremerie','Œufs','oeufs','🥚','Loué','Œufs fermiers Label Rouge x6','la boîte de 6','0,57 €/pièce',3.39,'A','',7],
+  ['c9','cremerie','Yaourts','yaourt','🥣','Pâturages','Yaourts nature x16','16 x 125 g','1,50 €/kg',2.99,'A','mdd lactose',4],
+  ['c10','cremerie','Yaourts','yaourt','🥣','Danone','Yaourts nature x16','16 x 125 g','2,13 €/kg',4.25,'A','lactose',3],
+  ['c11','cremerie','Beurre & crème','beurre','🧈','Pâturages','Beurre doux','la plaquette de 250 g','10,60 €/kg',2.65,'E','mdd lactose',18],
+  ['c12','cremerie','Beurre & crème','beurre','🧈','Président','Beurre doux','la plaquette de 250 g','12,60 €/kg',3.15,'E','lactose',6],
+  ['c15','cremerie','Beurre & crème','creme','🥛','Pâturages','Crème fraîche épaisse 30% MG','le pot de 20 cl','6,75 €/L',1.35,'D','mdd lactose',4],
+  ['c13','cremerie','Fromages','fromage','🧀','Pâturages','Emmental râpé','le sachet de 200 g','10,95 €/kg',2.19,'D','mdd lactose',5],
+  ['c14','cremerie','Fromages','fromage','🧀','Itinéraires des Saveurs','Parmigiano Reggiano AOP râpé','le sachet de 100 g','29,90 €/kg',2.99,'D','mdd lactose',6],
+  ['c16','cremerie','Fromages','fromage','🧀','Fromagerie de la Vésubie','Tomme de brebis des Alpes-Maritimes','la pointe de 250 g','27,60 €/kg',6.90,'D','loc lactose',8],
+
+  ['f1','fl','Légumes','tomate','🍅','France','Tomates grappe','le filet de 1 kg','2,99 €/kg',2.99,'A','',9],
+  ['f2','fl','Légumes','tomate','🍅','France','Tomates cerises','la barquette de 250 g','7,56 €/kg',1.89,'A','',23],
+  ['f3','fl','Légumes','tomate','🍅','France','Tomates rondes bio','la barquette de 500 g','5,58 €/kg',2.79,'A','bio',10],
+  ['f4','fl','Légumes','tomate','🍅','Provence','Tomates cœur de bœuf','le kg','3,99 €/kg',3.99,'A','loc',12],
+  ['f5','fl','Légumes','courgette','🥒','France','Courgettes','le kg','2,49 €/kg',2.49,'A','',5],
+  ['f6','fl','Légumes','aubergine','🍆','France','Aubergines','le lot de 2','2,58 €/kg',1.98,'A','',6],
+  ['f7','fl','Légumes','poivron','🫑','Espagne','Poivrons tricolores','le sachet de 3','5,58 €/kg',2.79,'A','',7],
+  ['f8','fl','Légumes','oignon','🧅','France','Oignons jaunes','le filet de 1 kg','1,69 €/kg',1.69,'A','',3],
+  ['f9','fl','Légumes','ail','🧄','France','Ail blanc','le filet de 3 têtes','7,45 €/kg',1.49,'A','',3],
+  ['f10','fl','Légumes','pdt','🥔','France','Pommes de terre de consommation','le sac de 2,5 kg','1,40 €/kg',3.49,'A','',4],
+  ['f26','fl','Légumes','carotte','🥕','France','Carottes','le sachet de 1 kg','1,29 €/kg',1.29,'A','',3],
+  ['f22','fl','Légumes','hv','🫛','France','Haricots verts extra-fins','la barquette de 500 g','4,98 €/kg',2.49,'A','',8],
+  ['f11','fl','Légumes','blettes','🥬','Producteur de Saint-Isidore','Blettes de Nice','la botte de 1 kg','2,20 €/kg',2.20,'A','loc',31],
+  ['f13','fl','Légumes','blettes','🥬','France','Blettes','la botte de 1 kg','1,99 €/kg',1.99,'A','',8],
+  ['f12','fl','Légumes','blettes','🥬','France','Épinards frais','le sachet de 500 g','4,98 €/kg',2.49,'A','',6],
+  ['f14','fl','Légumes','blettes','🥬','France','Pousses d’épinards bio','le sachet de 125 g','12,72 €/kg',1.59,'A','bio',9],
+  ['f15','fl','Salades','salade','🥗','Producteur de Saint-Isidore','Mesclun niçois','le sachet de 150 g','14,00 €/kg',2.10,'A','loc',26],
+  ['f16','fl','Salades','salade','🥗','Florette','Mélange de jeunes pousses','le sachet de 125 g','11,92 €/kg',1.49,'A','',7],
+  ['f17','fl','Salades','salade','🥬','France','Laitue batavia','la pièce','0,99 €/pièce',0.99,'A','',3],
+  ['f18','fl','Salades','salade','🥗','Florette','Mesclun bio','le sachet de 125 g','15,92 €/kg',1.99,'A','bio',9],
+  ['f21','fl','Herbes & citrons','herbe','🌿','Provence','Basilic en pot','le pot','1,99 €/pièce',1.99,'A','loc',5],
+  ['f19','fl','Herbes & citrons','citron','🍋','Menton','Citrons de Menton IGP','le sachet de 500 g','7,80 €/kg',3.90,'A','loc',14],
+  ['f20','fl','Herbes & citrons','citron','🍋','Espagne','Citrons jaunes','le filet de 500 g','3,58 €/kg',1.79,'A','',4],
+  ['f24','fl','Fruits','pomme','🍎','France','Pommes Golden','le sachet de 1,5 kg','1,86 €/kg',2.79,'A','',4],
+  ['f25','fl','Fruits','banane','🍌','Antilles','Bananes','le kg','1,99 €/kg',1.99,'A','',3],
+
+  ['e1','epsal','Pâtes & riz','pates','🍝','Fiorini','Spaghetti','le paquet de 500 g','1,78 €/kg',0.89,'A','mdd gluten',4],
+  ['e2','epsal','Pâtes & riz','pates','🍝','Barilla','Spaghetti n°5','le paquet de 500 g','2,90 €/kg',1.45,'A','gluten',3],
+  ['e3','epsal','Pâtes & riz','pates','🍝','Panzani','Spaghetti','le paquet de 500 g','2,50 €/kg',1.25,'A','gluten',3],
+  ['e4','epsal','Pâtes & riz','pates','🍝','Fiorini','Spaghetti bio','le paquet de 500 g','2,58 €/kg',1.29,'A','mdd bio gluten',5],
+  ['e26','epsal','Pâtes & riz','riz','🍚','Taureau Ailé','Riz basmati','le paquet de 1 kg','2,99 €/kg',2.99,'A','',4],
+  ['e5','epsal','Huiles & condiments','huile','🫒','Moulin de la Brague','Huile d’olive de Nice AOP','la bouteille de 50 cl','29,80 €/L',14.90,'B','loc',41],
+  ['e6','epsal','Huiles & condiments','huile','🫒','Puget','Huile d’olive vierge extra','la bouteille de 1 L','9,99 €/L',9.99,'B','',9],
+  ['e7','epsal','Huiles & condiments','huile','🫒','Itinéraires des Saveurs','Huile d’olive vierge extra','la bouteille de 75 cl','9,99 €/L',7.49,'B','mdd',6],
+  ['e8','epsal','Huiles & condiments','huile','🫒','Itinéraires des Saveurs','Huile d’olive vierge extra bio','la bouteille de 75 cl','11,93 €/L',8.95,'B','mdd bio',8],
+  ['e9','epsal','Huiles & condiments','huile','🫒','Moulin de Provence','Huile d’olive de Provence AOP','la bouteille de 50 cl','23,00 €/L',11.50,'B','loc',10],
+  ['e10','epsal','Conserves','thon','🥫','Petit Navire','Thon entier au naturel','2 x 140 g','17,68 €/kg',4.95,'A','fish',22],
+  ['e11','epsal','Conserves','thon','🥫','Capitaine Cook','Thon albacore au naturel','2 x 140 g','13,54 €/kg',3.79,'A','mdd fish',7],
+  ['e12','epsal','Conserves','thon','🥫','Saupiquet','Thon au naturel','2 x 140 g','16,75 €/kg',4.69,'A','fish',6],
+  ['e13','epsal','Conserves','thon','🥫','Petit prix','Thon listao au naturel','3 x 80 g','10,38 €/kg',2.49,'A','mdd fish',4],
+  ['e18','epsal','Conserves','anchois','🐟','Capitaine Cook','Filets d’anchois à l’huile d’olive','la boîte de 100 g','24,90 €/kg',2.49,'C','mdd fish',8],
+  ['e14','epsal','Olives & apéritif','olives','🫒','Coopérative de Nice','Olives de Nice AOP','le pot de 200 g','24,50 €/kg',4.90,'C','loc',33],
+  ['e15','epsal','Olives & apéritif','olives','🫒','Tramier','Olives noires de Provence','le sachet de 200 g','9,95 €/kg',1.99,'C','loc',6],
+  ['e16','epsal','Olives & apéritif','olives','🫒','Itinéraires des Saveurs','Olives noires Kalamata','le pot de 150 g','15,27 €/kg',2.29,'C','mdd',5],
+  ['e17','epsal','Olives & apéritif','olives','🫒','Itinéraires des Saveurs','Olives noires bio','le sachet de 200 g','13,95 €/kg',2.79,'C','mdd bio',7],
+  ['e30','epsal','Olives & apéritif','chips','🥨','La Socca de Nissa','Socca chips à l’huile d’olive','le sachet de 100 g','32,00 €/kg',3.20,'B','loc nw',18],
+  ['e31','epsal','Olives & apéritif','chips','🥔','Lay’s','Chips nature','le sachet de 145 g','13,72 €/kg',1.99,'D','',3],
+  ['e32','epsal','Olives & apéritif','chips','🥔','Itinéraires des Saveurs','Chips à l’huile d’olive bio','le sachet de 125 g','19,92 €/kg',2.49,'C','mdd bio',5],
+  ['e20','epsal','Farines & pâtes à tarte','pchiche','🌾','Moulin de la Brague','Farine de pois chiches (spéciale socca)','le sachet de 500 g','5,90 €/kg',2.95,'A','loc',28],
+  ['e21','epsal','Farines & pâtes à tarte','pchiche','🌾','Saint Éloi','Farine de pois chiches','le sachet de 500 g','4,58 €/kg',2.29,'A','mdd',7],
+  ['e22','epsal','Farines & pâtes à tarte','pchiche','🌾','Saint Éloi','Farine de pois chiches bio','le sachet de 1 kg','5,90 €/kg',5.90,'A','mdd bio',9],
+  ['e23','epsal','Farines & pâtes à tarte','farine','🌾','Saint Éloi','Farine de blé T55','le paquet de 1 kg','0,89 €/kg',0.89,'A','mdd gluten',4],
+  ['e24','epsal','Farines & pâtes à tarte','pate','🥧','Herta','Pâte brisée','le rouleau de 230 g','6,48 €/kg',1.49,'D','gluten',5],
+  ['e25','epsal','Farines & pâtes à tarte','pate','🍕','Herta','Pâte à pizza','le rouleau de 265 g','6,38 €/kg',1.69,'C','gluten',5],
+  ['e27','epsal','Conserves','legsec','🫘','Saint Éloi','Pois chiches cuits','la boîte de 400 g','3,58 €/kg',0.95,'A','mdd',4],
+  ['e28','epsal','Conserves','coco','🥥','Itinéraires des Saveurs','Lait de coco','la brique de 40 cl','3,73 €/L',1.49,'D','mdd',6],
+  ['e29','epsal','Conserves','sauce','🥫','Mutti','Passata (coulis de tomates)','la bouteille de 700 g','2,84 €/kg',1.99,'A','',4],
+
+  ['b5','boul','Pains','pain','🥖','Boulangerie du magasin','Baguette tradition','la pièce de 250 g','4,40 €/kg',1.10,'A','gluten',4],
+  ['b1','boul','Spécialités niçoises','nicoise','🍕','Boulangerie du magasin','Pissaladière','la part de 180 g','13,89 €/kg',2.50,'B','loc gluten',7],
+  ['b2','boul','Spécialités niçoises','nicoise','🥧','Boulangerie du magasin','Tourte de blettes sucrée','la tourte de 400 g','17,25 €/kg',6.90,'C','loc gluten',9],
+  ['b3','boul','Spécialités niçoises','nicoise','🥪','Traiteur du magasin','Pan bagnat traditionnel','la pièce de 300 g','16,33 €/kg',4.90,'B','loc gluten fish',8],
+  ['b4','boul','Spécialités niçoises','nicoise','🥯','Boulangerie du magasin','Fougassette niçoise à la fleur d’oranger','la pièce de 250 g','14,00 €/kg',3.50,'C','loc nw gluten',6],
+  ['b7','boul','Pains','pain','🍞','Boulangerie du magasin','Pains ronds pour pan bagnat x4','le sachet de 4','0,55 €/pièce',2.20,'B','loc gluten',5],
+
+  ['d1','boi','Jus','jus','🧃','Paquito','Pur jus d’orange','la bouteille de 1 L','1,79 €/L',1.79,'C','mdd',4],
+  ['d5','boi','Eaux','eau','💧','Cristaline','Eau de source','6 x 1,5 L','0,19 €/L',1.74,'A','',3],
+  ['d2','boi','Vins','vin','🍷','Domaine de Bellet','Vin de Bellet AOP rouge','la bouteille de 75 cl','29,33 €/L',22.00,'','loc',8],
+  ['d3','boi','Vins','vin','🍷','Les Vignerons de Provence','Côtes de Provence AOP rosé','la bouteille de 75 cl','9,20 €/L',6.90,'','loc',5],
+  ['d6','boi','Vins','vin','🍷','Les Vignerons de Provence','Côtes de Provence AOP rouge','la bouteille de 75 cl','8,67 €/L',6.50,'','loc',5],
+  ['d4','boi','Bières','biere','🍺','Brasserie de la Baie des Anges','Bière blonde artisanale','la bouteille de 33 cl','7,27 €/L',2.40,'','loc nw gluten',7],
+
+  ['s1','epsuc','Biscuits','biscuit','🍪','Chabrior','Petits beurre','le paquet de 200 g','5,75 €/kg',1.15,'D','mdd gluten lactose',3],
+  ['s2','epsuc','Biscuits','biscuit','🍪','Biscuiterie de Menton','Biscuits au citron de Menton','la boîte de 150 g','30,00 €/kg',4.50,'D','loc nw gluten',7],
+  ['s3','epsuc','Confitures & miels','confit','🍯','Confiturerie de Provence','Confiture de figues','le pot de 320 g','13,13 €/kg',4.20,'D','loc',5],
+  ['s5','epsuc','Confitures & miels','confit','🍯','Rucher de la Vésubie','Miel de montagne des Alpes-Maritimes','le pot de 250 g','31,60 €/kg',7.90,'D','loc nw',9],
+  ['s4','epsuc','Pâtes à tartiner','tartiner','🍫','Nutella','Pâte à tartiner','le pot de 750 g','6,65 €/kg',4.99,'E','lactose',4],
+];
+const PRODUCTS = RAW.map(([id, cat, sub, g, e, b, n, u, k, p, ns, fl, r]) => {
+  const f = fl.split(' ');
+  return { id, cat, sub, g, e, b, n, u, k, p, ns, r,
+    mdd: f.includes('mdd'), bio: f.includes('bio'), loc: f.includes('loc'), nw: f.includes('nw'),
+    meat: f.includes('meat'), fish: f.includes('fish'), porc: f.includes('porc'),
+    gluten: f.includes('gluten'), lactose: f.includes('lactose') };
+});
+const P = Object.fromEntries(PRODUCTS.map(p => [p.id, p]));
+const PROMO = { v4: 'pp', v9: 'pp', e13: 'pp', v16: 'pp', c9: 'qp', e1: 'qp', d5: 'qp', c1: 'qp', e7: '-40%', c13: '-40%', f24: '-30%', e12: '-30%' };
+
+/* =====================================================================
+   HISTORIQUE DE COMMANDES (fictif) — sert à déduire le profil
+   ===================================================================== */
+const ORDERS = [
+  { no: '826092632', date: '12/10/2026', total: 68.08, items: ['v1','c1','c5','f1','e1','e14','f15','b5','d1','c13','f24'] },
+  { no: '825871104', date: '03/10/2026', total: 112.40, items: ['v1','v6','c1','c5','c9','f10','f8','e5','e10','f2','b1','d3','c11','f26','f25','e29'] },
+  { no: '825640217', date: '24/09/2026', total: 94.15, items: ['v17','c1','c5','c9','f11','f5','f6','e20','e14','b5','d1','c14','f9'] },
+  { no: '825402981', date: '12/09/2026', total: 101.72, items: ['v1','v12','c1','c5','f15','f1','e10','e18','e1','b7','c11','d5','f19'] },
+  { no: '825170455', date: '30/08/2026', total: 87.30, items: ['v6','c1','c9','f2','f7','e26','e27','b5','d1','s1','f24','c15'] },
+  { no: '824938312', date: '16/08/2026', total: 109.55, items: ['v1','v10','c1','c5','f10','f8','e5','e24','b2','d3','c13','f25','s3'] },
+];
+
+/* =====================================================================
+   PROFIL DE CONSOMMATION
+   ===================================================================== */
+const FOYERS = [
+  ['solo', 'Personne seule'], ['couple', 'Couple'], ['famille', 'Famille avec enfants'], ['coloc', 'Colocation'], ['senior', 'Seniors'],
+];
+const PREFS = [
+  ['local', '📍 Produits locaux & régionaux'], ['maison', '👩‍🍳 Fait maison'], ['bio', '🌱 Bio'], ['rapide', '⏱ Rapide & pratique'],
+  ['flexi', '🥕 Moins de viande'], ['veg', '🥦 Végétarien'], ['sansporc', '🚫 Sans porc'], ['sansgluten', '🌾 Sans gluten'], ['sanslactose', '🥛 Sans lactose'],
+];
+const BUDGETS = [['petit', 'Petit prix', 'Le moins cher d’abord, marques Intermarché'], ['equilibre', 'Équilibré', 'Bon rapport qualité / prix'], ['premium', 'Premium', 'Qualité et labels avant tout']];
+const MARQUES = [['mdd', 'Marques Intermarché', 'Pâturages, Jean Rozé, Fiorini…'], ['mixte', 'Mixte', 'Selon les produits'], ['marques', 'Grandes marques', 'Charal, Président, Barilla…']];
+const TEMPS = [['court', 'Moins de 20 min', 'En semaine, ça doit aller vite'], ['moyen', '20 à 45 min', 'Un peu de cuisine au quotidien'], ['long', 'J’aime cuisiner', 'Plats mijotés, recettes du week-end']];
+// Profil déduit des 6 dernières commandes (voir « Mon profil conso »)
+const DERIVED = { foyer: 'famille', personnes: 4, prefs: ['local', 'maison'], budget: 'equilibre', marques: 'mixte', temps: 'moyen' };
+
+/* =====================================================================
+   RECETTES — quantités pour `base` personnes ; pack = contenance d’un produit
+   ===================================================================== */
+const RECIPES = [
+  { id: 'r1', n: 'Salade niçoise', e: '🥗', bg: '#e6f1fa', t: 25, base: 4, tags: ['local', 'fish', 'rapide'],
+    ing: [
+      { pid: 'f15', q: 150, u: 'g', n: 'mesclun', pack: 150 },
+      { pid: 'f1', q: 6, u: '', n: 'tomates', pack: 8 },
+      { pid: 'c5', q: 4, u: '', n: 'œufs durs', pack: 12 },
+      { pid: 'e10', q: 280, u: 'g', n: 'thon au naturel', pack: 280 },
+      { pid: 'e14', q: 100, u: 'g', n: 'olives de Nice', pack: 200 },
+      { pid: 'e18', q: 8, u: '', n: 'filets d’anchois', pack: 12 },
+      { pid: 'f21', q: 1, u: '', n: 'bouquet de basilic', pack: 1 },
+      { pid: 'e5', q: 4, u: 'c. à s.', n: 'huile d’olive', pack: 33, have: true },
+      { q: 1, u: 'pincée', n: 'sel, poivre', pantry: true },
+    ],
+    steps: ['Cuire les œufs 10 min, les écaler et les couper en quartiers.', 'Couper les tomates en quartiers et les saler légèrement.', 'Disposer le mesclun, les tomates, le thon émietté, les œufs, les olives et les anchois.', 'Arroser d’huile d’olive, parsemer de basilic. Pas de vinaigre dans la vraie niçoise !'] },
+  { id: 'r2', n: 'Socca maison', e: '🫓', bg: '#fbf0d9', t: 20, base: 4, tags: ['local', 'veg', 'rapide'],
+    ing: [
+      { pid: 'e20', q: 250, u: 'g', n: 'farine de pois chiches', pack: 500 },
+      { q: 50, u: 'cl', n: 'eau', pantry: true },
+      { pid: 'e5', q: 6, u: 'c. à s.', n: 'huile d’olive', pack: 33, have: true },
+      { q: 1, u: 'pincée', n: 'sel, poivre du moulin', pantry: true },
+    ],
+    steps: ['Fouetter la farine, l’eau, 3 c. à s. d’huile et le sel jusqu’à obtenir une pâte lisse.', 'Laisser reposer 1 h si possible.', 'Huiler une grande plaque, verser une fine couche de pâte.', 'Cuire 8 à 10 min sous le gril à 250 °C, poivrer généreusement et déguster chaud.'] },
+  { id: 'r3', n: 'Pissaladière', e: '🍕', bg: '#f8efe2', t: 60, base: 4, tags: ['local', 'fish', 'gluten'],
+    ing: [
+      { pid: 'e25', q: 1, u: '', n: 'pâte à pizza', pack: 1 },
+      { pid: 'f8', q: 1, u: 'kg', n: 'oignons', pack: 1 },
+      { pid: 'e14', q: 60, u: 'g', n: 'olives de Nice', pack: 200 },
+      { pid: 'e18', q: 10, u: '', n: 'filets d’anchois', pack: 12 },
+      { pid: 'e5', q: 4, u: 'c. à s.', n: 'huile d’olive', pack: 33, have: true },
+      { q: 2, u: 'brins', n: 'thym', pantry: true },
+    ],
+    steps: ['Émincer les oignons et les faire confire 40 min à feu doux dans l’huile d’olive avec le thym.', 'Étaler la pâte sur une plaque, la recouvrir des oignons.', 'Disposer les anchois en croisillons et les olives.', 'Cuire 20 min à 200 °C.'] },
+  { id: 'r4', n: 'Tourte de blettes salée', e: '🥧', bg: '#eef7e6', t: 70, base: 4, tags: ['local', 'veg', 'gluten', 'lactose'],
+    ing: [
+      { pid: 'e24', q: 2, u: '', n: 'pâtes brisées', pack: 1 },
+      { pid: 'f11', q: 1, u: 'kg', n: 'blettes', pack: 1 },
+      { pid: 'c5', q: 3, u: '', n: 'œufs', pack: 12 },
+      { pid: 'c14', q: 80, u: 'g', n: 'parmesan râpé', pack: 100 },
+      { pid: 'f8', q: 1, u: '', n: 'oignon', pack: 6 },
+      { pid: 'e5', q: 2, u: 'c. à s.', n: 'huile d’olive', pack: 33, have: true },
+      { q: 1, u: 'pincée', n: 'sel, poivre, muscade', pantry: true },
+    ],
+    steps: ['Laver et émincer finement les verts de blettes, les faire tomber à la poêle avec l’oignon.', 'Mélanger avec les œufs battus et le parmesan, assaisonner.', 'Foncer un moule avec une pâte, garnir, recouvrir de la seconde pâte.', 'Cuire 40 min à 180 °C.'] },
+  { id: 'r5', n: 'Daube niçoise', e: '🍲', bg: '#fbeaea', t: 180, base: 4, tags: ['local', 'meat'],
+    ing: [
+      { pid: 'v17', q: 800, u: 'g', n: 'bœuf à braiser', pack: 800 },
+      { pid: 'd6', q: 75, u: 'cl', n: 'vin rouge de Provence', pack: 75 },
+      { pid: 'f26', q: 4, u: '', n: 'carottes', pack: 8 },
+      { pid: 'f8', q: 2, u: '', n: 'oignons', pack: 6 },
+      { pid: 'f9', q: 3, u: 'gousses', n: 'd’ail', pack: 30 },
+      { pid: 'e29', q: 200, u: 'g', n: 'coulis de tomates', pack: 700 },
+      { pid: 'e15', q: 80, u: 'g', n: 'olives noires', pack: 200 },
+      { q: 1, u: '', n: 'bouquet garni, zeste d’orange', pantry: true },
+    ],
+    steps: ['La veille, faire mariner la viande dans le vin avec les légumes et le bouquet garni.', 'Égoutter et faire revenir la viande, ajouter les légumes.', 'Mouiller avec la marinade et le coulis, laisser mijoter 2 h 30 à couvert.', 'Ajouter les olives 15 min avant la fin. Servir avec des pâtes ou des raviolis.'] },
+  { id: 'r6', n: 'Ratatouille niçoise', e: '🍆', bg: '#f3eafb', t: 60, base: 4, tags: ['local', 'veg'],
+    ing: [
+      { pid: 'f5', q: 2, u: '', n: 'courgettes', pack: 4 },
+      { pid: 'f6', q: 2, u: '', n: 'aubergines', pack: 2 },
+      { pid: 'f7', q: 2, u: '', n: 'poivrons', pack: 3 },
+      { pid: 'f1', q: 4, u: '', n: 'tomates', pack: 8 },
+      { pid: 'f8', q: 2, u: '', n: 'oignons', pack: 6 },
+      { pid: 'f9', q: 3, u: 'gousses', n: 'd’ail', pack: 30 },
+      { pid: 'f21', q: 1, u: '', n: 'bouquet de basilic', pack: 1 },
+      { pid: 'e5', q: 6, u: 'c. à s.', n: 'huile d’olive', pack: 33, have: true },
+    ],
+    steps: ['Couper tous les légumes en dés.', 'Les faire revenir séparément à l’huile d’olive (c’est le secret niçois).', 'Réunir dans une cocotte avec l’ail et les tomates, mijoter 30 min.', 'Ajouter le basilic ciselé hors du feu.'] },
+  { id: 'r7', n: 'Spaghetti bolognaise', e: '🍝', bg: '#fff1e0', t: 35, base: 4, tags: ['meat', 'gluten', 'lactose', 'famille'],
+    ing: [
+      { pid: 'e1', q: 400, u: 'g', n: 'spaghetti', pack: 500 },
+      { pid: 'v1', q: 350, u: 'g', n: 'viande hachée', pack: 350 },
+      { pid: 'e29', q: 500, u: 'g', n: 'coulis de tomates', pack: 700 },
+      { pid: 'f8', q: 1, u: '', n: 'oignon', pack: 6 },
+      { pid: 'f26', q: 1, u: '', n: 'carotte', pack: 8 },
+      { pid: 'c13', q: 80, u: 'g', n: 'emmental râpé', pack: 200 },
+      { q: 1, u: 'c. à s.', n: 'huile, sel, poivre', pantry: true },
+    ],
+    steps: ['Faire revenir l’oignon et la carotte hachés.', 'Ajouter la viande, la faire dorer.', 'Verser le coulis, laisser mijoter 20 min.', 'Cuire les pâtes, servir avec le fromage râpé.'] },
+  { id: 'r8', n: 'Hachis parmentier', e: '🥔', bg: '#fdf6e3', t: 60, base: 4, tags: ['meat', 'lactose', 'famille'],
+    ing: [
+      { pid: 'f10', q: 1, u: 'kg', n: 'pommes de terre', pack: 2.5 },
+      { pid: 'v1', q: 500, u: 'g', n: 'viande hachée', pack: 350 },
+      { pid: 'c1', q: 20, u: 'cl', n: 'lait', pack: 600 },
+      { pid: 'c11', q: 50, u: 'g', n: 'beurre', pack: 250 },
+      { pid: 'c13', q: 80, u: 'g', n: 'emmental râpé', pack: 200 },
+      { pid: 'f8', q: 1, u: '', n: 'oignon', pack: 6 },
+    ],
+    steps: ['Cuire les pommes de terre et les écraser en purée avec le lait et le beurre.', 'Faire revenir l’oignon et la viande.', 'Monter en couches dans un plat, parsemer de fromage.', 'Gratiner 20 min à 200 °C.'] },
+  { id: 'r9', n: 'Poulet au citron & riz basmati', e: '🍋', bg: '#fffbd9', t: 30, base: 4, tags: ['meat', 'rapide', 'lactose'],
+    ing: [
+      { pid: 'v6', q: 4, u: '', n: 'filets de poulet', pack: 2 },
+      { pid: 'f20', q: 2, u: '', n: 'citrons', pack: 4 },
+      { pid: 'e26', q: 300, u: 'g', n: 'riz basmati', pack: 1000 },
+      { pid: 'c15', q: 20, u: 'cl', n: 'crème fraîche', pack: 20 },
+      { pid: 'f9', q: 2, u: 'gousses', n: 'd’ail', pack: 30 },
+    ],
+    steps: ['Dorer les filets coupés en morceaux avec l’ail.', 'Ajouter le jus et le zeste des citrons, puis la crème.', 'Laisser réduire 10 min pendant la cuisson du riz.'] },
+  { id: 'r10', n: 'Curry de pois chiches', e: '🍛', bg: '#fff1e0', t: 25, base: 4, tags: ['veg', 'rapide'],
+    ing: [
+      { pid: 'e27', q: 800, u: 'g', n: 'pois chiches cuits', pack: 400 },
+      { pid: 'e28', q: 40, u: 'cl', n: 'lait de coco', pack: 40 },
+      { pid: 'e29', q: 300, u: 'g', n: 'coulis de tomates', pack: 700 },
+      { pid: 'f8', q: 1, u: '', n: 'oignon', pack: 6 },
+      { pid: 'e26', q: 300, u: 'g', n: 'riz basmati', pack: 1000 },
+      { q: 2, u: 'c. à c.', n: 'curry en poudre', pantry: true },
+    ],
+    steps: ['Faire revenir l’oignon avec le curry.', 'Ajouter pois chiches, coulis et lait de coco.', 'Mijoter 15 min, servir avec le riz.'] },
+  { id: 'r11', n: 'Quiche lorraine', e: '🥧', bg: '#fdf6e3', t: 50, base: 4, tags: ['meat', 'porc', 'gluten', 'lactose', 'famille'],
+    ing: [
+      { pid: 'e24', q: 1, u: '', n: 'pâte brisée', pack: 1 },
+      { pid: 'v10', q: 200, u: 'g', n: 'lardons', pack: 200 },
+      { pid: 'c5', q: 3, u: '', n: 'œufs', pack: 12 },
+      { pid: 'c15', q: 20, u: 'cl', n: 'crème fraîche', pack: 20 },
+      { pid: 'c1', q: 20, u: 'cl', n: 'lait', pack: 600 },
+      { pid: 'c13', q: 60, u: 'g', n: 'emmental râpé', pack: 200 },
+    ],
+    steps: ['Faire dorer les lardons.', 'Battre œufs, crème et lait, assaisonner.', 'Garnir la pâte, verser l’appareil, parsemer de fromage.', 'Cuire 35 min à 180 °C.'] },
+  { id: 'r12', n: 'Saumon & haricots verts', e: '🐟', bg: '#e8f1fb', t: 20, base: 4, tags: ['fish', 'rapide', 'lactose'],
+    ing: [
+      { pid: 'v12', q: 4, u: '', n: 'pavés de saumon', pack: 2 },
+      { pid: 'f22', q: 600, u: 'g', n: 'haricots verts', pack: 500 },
+      { pid: 'f20', q: 1, u: '', n: 'citron', pack: 4 },
+      { pid: 'c11', q: 30, u: 'g', n: 'beurre', pack: 250 },
+    ],
+    steps: ['Cuire les haricots verts 8 min à l’eau bouillante salée.', 'Saisir les pavés 4 min côté peau, 2 min de l’autre.', 'Servir avec un filet de citron et une noix de beurre.'] },
+];
+
+/* =====================================================================
+   ÉTAT
+   ===================================================================== */
+const state = {
+  view: 'home', cat: null, sub: null, q: '', pid: null, compte: 'profil', sort: 'profil',
+  homeTab: 'nice', recFilter: 'all',
+  profile: JSON.parse(JSON.stringify(DERIVED)),
+  cart: {},       // pid -> quantité
+  subs: {},       // pid -> { status: 'pending' | 'accepted' | 'refused', list: [pid…] }
+  favs: new Set(['c5', 'e14', 'v1']),
+  slot: 1, openOrder: null, done: null,
+};
+
+/* =====================================================================
+   OUTILS
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+const fmt = n => n.toFixed(2).replace('.', ',') + ' €';
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const norm = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+const brandLine = p => p.mdd ? `${p.b}, une marque Intermarché` : p.b;
+const has = k => state.profile.prefs.includes(k);
+const label = (arr, k) => (arr.find(x => x[0] === k) || [k, k])[1];
+
+const IC = {
+  store: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M4 9h16l-1-4H5z"/><path d="M5 9v10h14V9"/><path d="M4 9a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0A2.7 2.7 0 0 0 20 9"/></svg>',
+  book: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M3 5c3-1 6-1 9 1 3-2 6-2 9-1v14c-3-1-6-1-9 1-3-2-6-2-9-1z"/><path d="M12 6v14"/></svg>',
+  chef: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M7 14a4 4 0 1 1 1.5-7.7 4 4 0 0 1 7 0A4 4 0 1 1 17 14v5H7z"/><path d="M7 16h10"/></svg>',
+  ray: '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M3 7h3M3 12h3M3 17h3"/><circle cx="14" cy="11" r="5"/><path d="m18 15 3 3"/></svg>',
+  search: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7.5"/><path d="m17 17 4 4"/></svg>',
+  help: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5v.7"/><circle cx="12" cy="17" r=".6" fill="currentColor"/></svg>',
+  heart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-9-9.3C2 7.4 4.2 4.5 7.3 4.5c2 0 3.5 1.1 4.7 2.8 1.2-1.7 2.7-2.8 4.7-2.8 3.1 0 5.3 2.9 4.3 6.2C19.5 15.4 12 20 12 20z"/></svg>',
+  user: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"><circle cx="11" cy="8" r="4"/><path d="M3.5 20c.8-3.8 3.8-6 7.5-6 1.2 0 2.3.2 3.3.7"/><path d="m15 18 2 2 4-4"/></svg>',
+  cart: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M3 9h18l-1.6 9.2a2 2 0 0 1-2 1.8H6.6a2 2 0 0 1-2-1.8z"/><path d="M8 9V7a4 4 0 0 1 8 0v2"/><path d="M8 14h8"/></svg>',
+  cartplus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><path d="M3 9h12M18 9h3l-1.6 9.2a2 2 0 0 1-2 1.8H6.6a2 2 0 0 1-2-1.8L3 9"/><path d="M8 9V7a4 4 0 0 1 6.5-3.1"/><path d="M19 2v6M16 5h6"/></svg>',
+  insta: '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="#fff"/></svg>',
+};
+['store', 'book', 'chef', 'ray', 'search', 'help', 'heart', 'user', 'cart'].forEach(k => { $('ic-' + k).outerHTML = IC[k]; });
+
+let toastT;
+function toast(msg, ms = 2800) {
+  const t = $('toast'); t.innerHTML = msg; t.classList.add('on');
+  clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('on'), ms);
+}
+
+/* =====================================================================
+   MOTEUR DE PROFIL : filtres, scores, remplacements
+   ===================================================================== */
+function allowed(p) {
+  if ((has('veg')) && (p.meat || p.fish)) return false;
+  if (has('sansporc') && p.porc) return false;
+  if (has('sansgluten') && p.gluten) return false;
+  if (has('sanslactose') && p.lactose) return false;
+  return true;
+}
+const HIST = {};
+ORDERS.forEach(o => o.items.forEach(id => { HIST[id] = (HIST[id] || 0) + 1; }));
+
+function prodScore(p) {
+  const pr = state.profile; let s = (HIST[p.id] || 0) * 6;
+  if (has('local') && p.loc) s += 22;
+  if (has('bio') && p.bio) s += 22;
+  if (has('maison') && ['fl', 'epsal'].includes(p.cat)) s += 4;
+  if (has('rapide') && ['boul'].includes(p.cat)) s += 6;
+  if (has('flexi') && p.meat) s -= 12;
+  if (pr.budget === 'petit') { if (p.mdd) s += 10; if (PROMO[p.id]) s += 8; }
+  if (pr.budget === 'premium') { if (p.bio || p.loc) s += 6; if (p.ns === 'A') s += 3; }
+  if (pr.marques === 'mdd' && p.mdd) s += 10;
+  if (pr.marques === 'marques' && !p.mdd && !p.loc) s += 10;
+  return s;
+}
+function whyProd(p) {
+  if (has('local') && p.loc) return '📍 Vous aimez le local';
+  if (has('bio') && p.bio) return '🌱 Bio';
+  if (HIST[p.id] >= 3) return '🔁 Vous l’achetez souvent';
+  if (state.profile.budget === 'petit' && (p.mdd || PROMO[p.id])) return '💶 Petit budget';
+  if (state.profile.marques === 'mdd' && p.mdd) return '★ Marque Intermarché';
+  if (HIST[p.id]) return '🔁 Déjà acheté';
+  return '✨ Pour votre profil';
+}
+function subScore(o, c) {
+  const pr = state.profile; const rel = (c.p - o.p) / o.p; let s = 50;
+  s -= Math.abs(rel) * 25;
+  if (c.b === o.b) s += 10;
+  if (pr.budget === 'petit') { s -= rel * 40; if (c.mdd) s += 10; }
+  if (pr.budget === 'premium') { s += rel * 20; if (c.bio || c.loc) s += 8; }
+  if (pr.marques === 'mdd' && c.mdd) s += 18;
+  if (pr.marques === 'marques' && !c.mdd) s += 18;
+  if (has('bio') && c.bio) s += 22;
+  if (has('local') && c.loc) s += 22;
+  if (o.bio && c.bio) s += 8;
+  if (o.loc && c.loc) s += 8;
+  s -= c.r * 0.6;
+  return s;
+}
+const candidates = pid => PRODUCTS.filter(c => c.g === P[pid].g && c.id !== pid && allowed(c));
+const rankSubs = pid => candidates(pid).sort((a, b) => subScore(P[pid], b) - subScore(P[pid], a)).map(c => c.id);
+function reasons(oid, cid) {
+  const o = P[oid], c = P[cid], rel = (c.p - o.p) / o.p, out = [];
+  if (c.b === o.b) out.push(['Même marque', '']);
+  if (c.loc && (o.loc || has('local'))) out.push(['Local', 'loc']);
+  if (c.bio && (o.bio || has('bio') || state.profile.budget === 'premium')) out.push(['Bio', 'bio']);
+  if (rel < -0.05) out.push(['Moins cher', 'ok']);
+  else if (Math.abs(rel) <= 0.1) out.push(['Prix proche', '']);
+  if (c.mdd && (state.profile.budget === 'petit' || state.profile.marques === 'mdd')) out.push(['Marque Intermarché', 'mdd']);
+  if (!c.mdd && state.profile.marques === 'marques') out.push(['Grande marque', '']);
+  if (c.r <= 10) out.push(['Bonne disponibilité', 'ok']);
+  if (!out.length) out.push(['Même rayon', '']);
+  return out.slice(0, 3);
+}
+function deltaHtml(oid, cid) {
+  const d = Math.round((P[cid].p - P[oid].p) * 100) / 100;
+  const cls = d > 0.004 ? 'up' : d < -0.004 ? 'down' : 'eq';
+  const txt = cls === 'eq' ? 'même prix' : (d > 0 ? '+' : '−') + fmt(Math.abs(d));
+  return `<span class="delta ${cls}">${txt}</span>`;
+}
+function refreshPendingSubs() {
+  Object.entries(state.subs).forEach(([pid, s]) => {
+    if (s.status === 'pending') s.list = rankSubs(pid).slice(0, 3);
+    else if (s.user) s.list = s.user.filter(id => allowed(P[id]));
+  });
+}
+
+function recipeAllowed(r) {
+  if (has('veg') && (r.tags.includes('meat') || r.tags.includes('fish'))) return false;
+  if (has('sansporc') && r.tags.includes('porc')) return false;
+  if (has('sansgluten') && r.tags.includes('gluten')) return false;
+  if (has('sanslactose') && r.tags.includes('lactose')) return false;
+  if (r.tags.includes('local') && !has('local')) return false;
+  return true;
+}
+function recipeScore(r) {
+  const pr = state.profile; let s = 0;
+  if (r.tags.includes('local') && has('local')) s += 30;
+  if (has('rapide') && r.t <= 30) s += 20;
+  if (has('maison') && r.t >= 40) s += 8;
+  if (pr.temps === 'court') s += r.t <= 25 ? 20 : r.t > 45 ? -25 : 0;
+  if (pr.temps === 'long' && r.t >= 60) s += 12;
+  if (has('flexi') && (r.tags.includes('meat'))) s -= 15;
+  if (has('veg') && r.tags.includes('veg')) s += 10;
+  if (['famille', 'coloc'].includes(pr.foyer) && r.tags.includes('famille')) s += 10;
+  if (pr.budget === 'petit') s -= recipeCost(r, 4).total / 4 * 4;
+  if (pr.budget === 'premium' && r.tags.includes('local')) s += 6;
+  return s;
+}
+function recipeWhy(r) {
+  const out = [];
+  if (r.t <= 25 && (has('rapide') || state.profile.temps === 'court')) out.push('⏱ Rapide');
+  if (r.tags.includes('veg') && (has('veg') || has('flexi'))) out.push('🥦 Végétarien');
+  if (r.tags.includes('famille') && state.profile.foyer === 'famille') out.push('👨‍👩‍👧 En famille');
+  if (has('maison') && r.t >= 40) out.push('👩‍🍳 Fait maison');
+  return out.slice(0, 2);
+}
+// Choisit, dans le groupe du produit de la recette, la référence la plus adaptée au profil
+function pickForProfile(pid) {
+  const o = P[pid];
+  const pool = PRODUCTS.filter(c => c.g === o.g && allowed(c));
+  if (!pool.length) return pid;
+  return pool.map(c => [c, subScore(o, c) + (c.id === pid ? 15 : 0)]).sort((a, b) => b[1] - a[1])[0][0].id;
+}
+function recipeLines(r, portions, have) {
+  const k = portions / r.base;
+  return r.ing.map((ing, i) => {
+    const q = ing.q * k;
+    const line = { i, ing, qtyTxt: fmtQty(q, ing.u, ing.n), pantry: !!ing.pantry, have: have ? have[i] : (ing.have || ing.pantry) };
+    if (!ing.pantry) {
+      line.pid = pickForProfile(ing.pid);
+      line.swapped = line.pid !== ing.pid;
+      line.units = Math.max(1, Math.ceil(q / ing.pack - 1e-9));
+    }
+    return line;
+  });
+}
+function recipeCost(r, portions, have) {
+  const lines = recipeLines(r, portions, have);
+  const buy = lines.filter(l => !l.pantry && !l.have);
+  return { lines, buy, total: buy.reduce((s, l) => s + P[l.pid].p * l.units, 0) };
+}
+function fmtQty(q, u, n) {
+  let v = q;
+  if (u === 'g' && v >= 1000) return `${String(Math.round(v / 100) / 10).replace('.', ',')} kg de ${n}`;
+  if (u === 'g') v = Math.round(v / 10) * 10;
+  else if (u === 'cl' || u === 'kg') v = Math.round(v * 10) / 10;
+  else v = Math.max(1, Math.round(v));
+  const vs = String(v).replace('.', ',');
+  if (!u) return `${vs} ${n}`;
+  const de = /^[aeiouyhœéèê]/i.test(n) ? 'd’' : 'de ';
+  if (n.startsWith('d’')) return `${vs} ${u} ${n}`;
+  return `${vs} ${u} ${de}${n}`;
+}
+
+/* =====================================================================
+   PANIER & REMPLACEMENTS
+   ===================================================================== */
+const cartCount = () => Object.values(state.cart).reduce((a, b) => a + b, 0);
+const cartTotal = () => Object.entries(state.cart).reduce((s, [id, q]) => s + P[id].p * q, 0);
+
+function add(pid, n = 1, silent = false) {
+  const isNew = !state.cart[pid];
+  state.cart[pid] = (state.cart[pid] || 0) + n;
+  let created = false;
+  if (isNew && P[pid].r >= RUPT && !state.subs[pid]) {
+    state.subs[pid] = { status: 'pending', list: rankSubs(pid).slice(0, 3) };
+    created = true;
+  }
+  update();
+  if (!silent) {
+    if (created) openSubProposal(pid);
+    else toast(`✓ ${esc(P[pid].n)} ajouté au panier`);
+  }
+  return created;
+}
+function setQty(pid, q) {
+  if (q <= 0) { delete state.cart[pid]; delete state.subs[pid]; }
+  else state.cart[pid] = q;
+  update();
+}
+function setSubStatus(pid, status) {
+  state.subs[pid].status = status;
+  if (status === 'accepted') state.subs[pid].user = [...state.subs[pid].list];
+  closeModal(); update();
+  toast(status === 'accepted' ? '✓ Remplacements validés : le préparateur suivra votre ordre de préférence'
+    : '✓ Noté : ce produit ne sera pas remplacé s’il est indisponible');
+}
+function removeSub(pid, sid) {
+  const s = state.subs[pid]; s.list = s.list.filter(x => x !== sid);
+  if (!s.list.length) s.status = 'refused';
+  update(); if ($('mdBg').classList.contains('on') && modalKind === 'prop') openSubProposal(pid);
+}
+function acceptAllPending() {
+  Object.values(state.subs).forEach(s => { if (s.status === 'pending') s.status = 'accepted'; });
+  update(); toast('✓ Tous les remplacements proposés sont validés');
+}
+
+/* ---------- Modales ---------- */
+let modalKind = null;
+function showModal(html, cls = '', kind = null) {
+  $('md').className = 'md ' + cls; $('md').innerHTML = html; $('mdBg').classList.add('on'); modalKind = kind;
+}
+function closeModal() { $('mdBg').classList.remove('on'); modalKind = null; }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeDrawers(); toggleMenu(false); } });
+
+function riskLine(p) {
+  return `<div style="display:flex;align-items:center;gap:10px;margin-top:6px;font-size:13px">
+    <div class="meter"><i style="width:${Math.min(100, p.r * 2)}%"></i></div>
+    <span><b style="color:var(--warn)">${p.r} %</b> de rupture sur le drive ${esc(STORE.short)} (30 derniers jours)</span></div>`;
+}
+function openSubProposal(pid) {
+  const o = P[pid], s = state.subs[pid];
+  const cards = s.list.map((id, i) => {
+    const c = P[id];
+    return `<div class="scard">
+      <span class="rank">${i === 0 ? '1er choix' : (i + 1) + 'e choix'}</span>
+      <button class="rm" title="Retirer cette proposition" onclick="removeSub('${pid}','${id}')">×</button>
+      <div class="img" style="background:${BG[c.cat]}">${c.e}</div>
+      <div class="nm">${esc(c.b)}<br><span style="font-weight:400">${esc(c.n)}</span></div>
+      <div class="muted" style="font-size:12px">${esc(c.u)} · ${c.k}</div>
+      <div class="rtags">${reasons(pid, id).map(([t, k]) => `<span class="tag ${k}">${t}</span>`).join('')}</div>
+      <div class="pr"><b>${fmt(c.p)}</b>${deltaHtml(pid, id)}</div>
+    </div>`;
+  }).join('');
+  showModal(`
+    <div class="mh"><div style="font-size:30px">⚠️</div><div class="t">
+      <h2>Ce produit est souvent en rupture sur le drive</h2>
+      <div class="muted" style="margin-top:4px">Au cas où il manquerait le jour de la préparation, nous avons préparé des remplacements selon votre profil. Vous gardez la main.</div>
+    </div><button class="xbtn" onclick="closeModal()">×</button></div>
+    <div class="mb">
+      <div class="orig"><div class="thumb" style="background:${BG[o.cat]}">${o.e}</div>
+        <div style="flex:1"><div class="nm">${esc(brandLine(o))} — ${esc(o.n)}</div><div class="muted" style="font-size:13px">${esc(o.u)} · ${fmt(o.p)} · ajouté à votre panier ✓</div>${riskLine(o)}</div></div>
+      <div class="mlabel" style="margin-top:20px"><span>Si indisponible, le préparateur prendra dans cet ordre :</span></div>
+      ${s.list.length ? `<div class="subgrid">${cards}</div>` : `<div class="muted">Aucun remplacement retenu.</div>`}
+      <div class="explain">ℹ️ <span>Classement selon votre profil : <b>${profileSummary()}</b>. Vous ne payez que le produit réellement préparé.</span></div>
+    </div>
+    <div class="mf">
+      <button class="btn soft" onclick="setSubStatus('${pid}','refused')">Ne pas remplacer</button>
+      <span class="sp"></span>
+      <button class="btn ghost" onclick="openSubEditor('${pid}')">Modifier</button>
+      <button class="btn red" onclick="setSubStatus('${pid}','accepted')" ${s.list.length ? '' : 'disabled'}>Accepter ces remplacements</button>
+    </div>`, 'wide', 'prop');
+}
+
+let edPid = null, edList = [];
+function openSubEditor(pid) { edPid = pid; edList = [...state.subs[pid].list]; renderEditor(); }
+function renderEditor() {
+  const pid = edPid, o = P[pid];
+  const row = (id, i, sel) => {
+    const c = P[id];
+    return `<div class="edrow ${sel ? '' : 'cand'}">
+      ${sel ? `<span class="num">${i + 1}</span>` : `<span></span>`}
+      <div class="thumb sm" style="background:${BG[c.cat]}">${c.e}</div>
+      <div><div class="nm">${esc(c.b)} — ${esc(c.n)}</div>
+        <div class="meta"><span class="muted" style="font-size:12px">${esc(c.u)}</span>${reasons(pid, id).map(([t, k]) => `<span class="tag ${k}">${t}</span>`).join('')}</div></div>
+      <div style="text-align:right"><b>${fmt(c.p)}</b><br>${deltaHtml(pid, id)}</div>
+      ${sel ? `<div class="ctl">
+          <button onclick="edMove(${i},-1)" ${i === 0 ? 'disabled' : ''} title="Monter">↑</button>
+          <button onclick="edMove(${i},1)" ${i === edList.length - 1 ? 'disabled' : ''} title="Descendre">↓</button>
+          <button onclick="edRemove(${i})" title="Retirer">✕</button></div>`
+        : `<button class="btn sm ghost" onclick="edAdd('${id}')" ${edList.length >= 3 ? 'disabled' : ''}>+ Ajouter</button>`}
+    </div>`;
+  };
+  const others = rankSubs(pid).filter(id => !edList.includes(id));
+  showModal(`
+    <div class="mh"><div class="thumb" style="background:${BG[o.cat]}">${o.e}</div><div class="t">
+      <h2>Mes remplacements</h2><div class="muted">${esc(o.b)} — ${esc(o.n)} · ${fmt(o.p)}</div>
+    </div><button class="xbtn" onclick="closeModal()">×</button></div>
+    <div class="mb">
+      <div class="mlabel"><span>Ordre de préférence (3 maximum)</span><span class="muted" style="font-weight:400">${edList.length}/3</span></div>
+      <div class="edlist">${edList.length ? edList.map((id, i) => row(id, i, true)).join('') : '<div class="muted">Aucun remplacement : le produit sera retiré s’il manque.</div>'}</div>
+      <div class="mlabel"><span>Autres produits possibles</span><span class="muted" style="font-weight:400">triés selon votre profil</span></div>
+      <div class="edlist">${others.length ? others.map(id => row(id, 0, false)).join('') : '<div class="muted">Aucun autre produit équivalent compatible avec votre profil.</div>'}</div>
+    </div>
+    <div class="mf"><button class="btn soft" onclick="openSubProposal('${pid}')">← Retour</button><span class="sp"></span>
+      <button class="btn red" onclick="edSave()">Enregistrer</button></div>`, 'wide', 'edit');
+}
+function edMove(i, d) { const j = i + d; [edList[i], edList[j]] = [edList[j], edList[i]]; renderEditor(); }
+function edRemove(i) { edList.splice(i, 1); renderEditor(); }
+function edAdd(id) { if (edList.length < 3) { edList.push(id); renderEditor(); } }
+function edSave() {
+  const s = state.subs[edPid]; s.list = [...edList]; s.user = [...edList]; s.status = edList.length ? 'accepted' : 'refused';
+  closeModal(); update(); toast(edList.length ? '✓ Remplacements enregistrés' : '✓ Ce produit ne sera pas remplacé');
+}
+
+/* ---------- Recette (modale) ---------- */
+let rec = null; // { id, portions, have[] }
+function openRecipe(id) {
+  const r = RECIPES.find(x => x.id === id);
+  rec = { id, portions: state.profile.personnes, have: r.ing.map(i => !!(i.have || i.pantry)) };
+  renderRecipe();
+}
+function renderRecipe() {
+  const r = RECIPES.find(x => x.id === rec.id);
+  const { lines, buy, total } = recipeCost(r, rec.portions, rec.have);
+  const risky = buy.filter(l => P[l.pid].r >= RUPT).length;
+  const rows = lines.map(l => {
+    if (l.pantry) return `<label class="ingr ${l.have ? 'have' : ''}"><input type="checkbox" ${l.have ? 'checked' : ''} onchange="recHave(${l.i},this.checked)">
+      <div><div class="q">${esc(l.qtyTxt)}</div><div class="p">Placard — non ajouté au panier</div></div><div class="pp"></div></label>`;
+    const p = P[l.pid];
+    return `<label class="ingr ${l.have ? 'have' : ''}"><input type="checkbox" ${l.have ? 'checked' : ''} onchange="recHave(${l.i},this.checked)" title="J’en ai déjà">
+      <div><div class="q">${esc(l.qtyTxt)}</div>
+        <div class="p"><span>${p.e} ${esc(p.b)} — ${esc(p.n)} (${esc(p.u)})${l.units > 1 ? ` × ${l.units}` : ''}</span>
+        ${l.swapped ? '<span class="tag loc">choisi selon votre profil</span>' : ''}${p.loc ? '<span class="tag loc">Local</span>' : ''}${p.r >= RUPT ? '<span class="tag warn">⚠ souvent en rupture</span>' : ''}</div></div>
+      <div class="pp">${fmt(p.p * l.units)}</div></label>`;
+  }).join('');
+  showModal(`
+    <div style="position:relative" class="rhero"><div class="art" style="background:${r.bg}">${r.e}</div>
+      <div class="t"><div class="rtags">${r.tags.includes('local') ? '<span class="tag loc">📍 Recette niçoise</span>' : '<span class="tag">Classique</span>'}${r.tags.includes('veg') ? '<span class="tag bio">Végétarien</span>' : ''}${recipeWhy(r).map(w => `<span class="tag">${w}</span>`).join('')}</div>
+      <h2>${esc(r.n)}</h2><div class="rmeta"><span>⏱ ${r.t >= 60 ? Math.floor(r.t / 60) + ' h' + (r.t % 60 ? ' ' + (r.t % 60) : '') : r.t + ' min'}</span><span>💶 ${fmt(total / rec.portions)} / pers.</span></div></div>
+      <button class="xbtn" onclick="closeModal()">×</button></div>
+    <div class="mb"><div class="rcols">
+      <div>
+        <div class="portions"><span class="lbl">Pour combien de personnes ?</span>
+          <div class="step sm" style="background:var(--ink)"><button onclick="recPortions(-1)">−</button><span>${rec.portions}</span><button onclick="recPortions(1)">+</button></div>
+          <span class="muted" style="font-size:13px">profil : ${state.profile.personnes} pers.</span></div>
+        <div class="colhead"><span>Ingrédients</span><span>Cochez ce que vous avez déjà</span></div>
+        ${rows}
+      </div>
+      <div><div class="colhead"><span>Préparation</span></div><ol class="steps">${r.steps.map(s => `<li>${esc(s)}</li>`).join('')}</ol>
+        ${risky ? `<div class="riskbox" style="margin-top:14px"><span class="ic">🔄</span><span>${risky} ingrédient${risky > 1 ? 's sont' : ' est'} souvent en rupture : des remplacements vous seront proposés dans le panier.</span></div>` : ''}
+      </div>
+    </div></div>
+    <div class="mf"><div><b>${buy.length} produit${buy.length > 1 ? 's' : ''}</b> à ajouter · <b>${fmt(total)}</b></div><span class="sp"></span>
+      <button class="btn ghost" onclick="closeModal()">Fermer</button>
+      <button class="btn red" onclick="addRecipe()" ${buy.length ? '' : 'disabled'}>${IC.cartplus} Ajouter la recette au panier</button></div>`, 'wide', 'rec');
+}
+function recPortions(d) { rec.portions = Math.max(1, Math.min(12, rec.portions + d)); renderRecipe(); }
+function recHave(i, v) { rec.have[i] = v; renderRecipe(); }
+function addRecipe() {
+  const r = RECIPES.find(x => x.id === rec.id);
+  const { buy } = recipeCost(r, rec.portions, rec.have);
+  let created = 0;
+  buy.forEach(l => { if (add(l.pid, l.units, true)) created++; });
+  closeModal();
+  toast(`✓ ${esc(r.n)} : ${buy.length} produits ajoutés au panier${created ? ` · ${created} remplacement${created > 1 ? 's' : ''} proposé${created > 1 ? 's' : ''}` : ''}`, 3800);
+  if (created) setTimeout(openCart, 400);
+}
+
+/* =====================================================================
+   TIROIRS (panier, compte) & MENU
+   ===================================================================== */
+function closeDrawers() { $('cartDr').classList.remove('on'); $('accDr').classList.remove('on'); $('drBg').classList.remove('on'); }
+function openCart() { toggleMenu(false); renderCart(); $('cartDr').classList.add('on'); $('drBg').classList.add('on'); }
+function openAccount() { toggleMenu(false); renderAccount(); $('accDr').classList.add('on'); $('drBg').classList.add('on'); }
+
+function subBox(pid, compact = false) {
+  const s = state.subs[pid]; if (!s) return '';
+  const p = P[pid];
+  const st = { pending: '⚠ Remplacements proposés — à confirmer', accepted: '✓ Remplacements validés', refused: '✕ Pas de remplacement' }[s.status];
+  const list = s.status !== 'refused' && s.list.length
+    ? `<ol>${s.list.map(id => `<li><span class="n">${P[id].e} ${esc(P[id].b)} — ${esc(P[id].n)}</span>${deltaHtml(pid, id)}</li>`).join('')}</ol>` : '';
+  const acts = s.status === 'pending'
+    ? `<button class="btn sm green" onclick="setSubStatus('${pid}','accepted')">Accepter</button><button class="btn sm ghost" onclick="openSubEditor('${pid}')">Modifier</button><button class="btn sm soft" onclick="setSubStatus('${pid}','refused')">Refuser</button>`
+    : s.status === 'accepted'
+      ? `<button class="btn sm ghost" onclick="openSubEditor('${pid}')">Modifier</button><button class="btn sm soft" onclick="setSubStatus('${pid}','refused')">Ne pas remplacer</button>`
+      : `<button class="btn sm ghost" onclick="reactivate('${pid}')">Proposer des remplacements</button>`;
+  return `<div class="subbox ${s.status}">
+    <div class="top"><span class="t">${st}</span><span class="tag warn">rupture ${p.r} %</span></div>
+    ${s.status === 'refused' ? `<div class="muted" style="margin:6px 0">S’il manque, ce produit sera retiré de la commande et non facturé.</div>` : s.list.length ? `<div class="muted" style="margin-top:4px">Si indisponible, dans cet ordre :</div>` : `<div class="muted" style="margin:6px 0">Aucun remplacement compatible avec votre profil actuel.</div>`}
+    ${list}<div class="acts">${acts}</div></div>`;
+}
+function reactivate(pid) { state.subs[pid] = { status: 'pending', list: rankSubs(pid).slice(0, 3) }; update(); openSubProposal(pid); }
+
+function renderCart() {
+  const ids = Object.keys(state.cart);
+  const pending = Object.values(state.subs).filter(s => s.status === 'pending').length;
+  if (!ids.length) {
+    $('cartDr').innerHTML = `<div class="dh"><h3>Mon panier</h3><button class="xbtn" onclick="closeDrawers()">×</button></div>
+      <div class="db"><div class="empty"><div class="basket">🧺</div><h2 class="cond">Votre panier est vide</h2>
+      <p style="font-size:18px">Et si vous alliez faire un tour du côté de nos différents rayons ?</p>
+      <button class="btn red" onclick="closeDrawers();go('list',{cat:'promo'})">Voir nos promotions</button>
+      <p style="margin-top:22px"><button class="link" onclick="closeDrawers();go('recipes')">…ou choisir une recette pour vous →</button></p></div></div>`;
+    return;
+  }
+  // produits à risque en premier
+  ids.sort((a, b) => (state.subs[b] ? 1 : 0) - (state.subs[a] ? 1 : 0));
+  $('cartDr').innerHTML = `<div class="dh"><h3>Mon panier <span class="muted" style="font-size:18px">(${cartCount()} article${cartCount() > 1 ? 's' : ''})</span></h3><button class="xbtn" onclick="closeDrawers()">×</button></div>
+    <div class="db">
+      ${pending ? `<div class="pending-note"><span>⚠ ${pending} produit${pending > 1 ? 's' : ''} souvent en rupture : remplacements à confirmer</span><button class="btn sm green" onclick="acceptAllPending()">Tout accepter</button></div>` : ''}
+      ${ids.map(id => {
+        const p = P[id], q = state.cart[id];
+        return `<div class="citem"><div class="row">
+          <div class="thumb" style="background:${BG[p.cat]}">${p.e}</div>
+          <div><div class="nm">${esc(p.b)} — ${esc(p.n)}</div><div class="sub">${esc(p.u)}</div><div class="pr">${fmt(p.p * q)}</div></div>
+          <div class="step sm"><button onclick="setQty('${id}',${q - 1})">−</button><span>${q}</span><button onclick="setQty('${id}',${q + 1})">+</button></div>
+        </div>${subBox(id)}</div>`;
+      }).join('')}
+    </div>
+    <div class="df"><div class="tot"><span style="font-size:18px">Total estimé</span><span class="v">${fmt(cartTotal())}</span></div>
+      <button class="btn red" style="width:100%" onclick="closeDrawers();go('checkout')">Valider mon panier</button></div>`;
+}
+
+function barcode() {
+  let x = 0, bars = '';
+  const seed = '32503902830474077031';
+  for (let i = 0; i < 60; i++) { const w = 1 + (+seed[i % seed.length] + i) % 3; if (i % 2 === 0) bars += `<rect x="${x}" y="0" width="${w}" height="60" fill="#111"/>`; x += w + 1; }
+  return `<svg viewBox="0 0 ${x} 60" preserveAspectRatio="none">${bars}</svg>`;
+}
+function renderAccount() {
+  $('accDr').innerHTML = `<div style="display:flex;justify-content:flex-end;padding:14px 18px 0"><button class="xbtn" onclick="closeDrawers()">×</button></div>
+    <div class="accard"><div class="nm">Jean MARTIN</div><div class="sd">Solde de fidélité : <b>8,49 €</b></div>
+      <div class="bc">${barcode()}<div>2900 0000 1234 5678 012</div></div></div>
+    <div class="acmenu">
+      ${[['🧺', 'Mes achats', 'achats'], ['🎯', 'Mon profil conso <span class="tag new">Nouveau</span>', 'profil'], ['♡', 'Mes produits', 'favs'], ['🎟', 'Mes avantages', 'avantages'], ['👤', 'Mes informations', 'infos'], ['?', 'Aide et contact', 'aide']]
+        .map(([ic, t, k]) => `<button onclick="closeDrawers();${k === 'favs' ? "go('list',{cat:'favs'})" : `go('compte',{compte:'${k}'})`}"><span class="ic">${ic}</span>${t}<span class="chev">›</span></button>`).join('')}
+      <div style="text-align:center;margin:18px 0"><button class="link" style="font-size:18px" onclick="toast('Démo : déconnexion désactivée')">⎋ Déconnexion</button></div>
+    </div>`;
+}
+
+let menuCat = 'viande';
+function toggleMenu(force) {
+  const on = force === undefined ? !$('mm').classList.contains('on') : force;
+  $('mm').classList.toggle('on', on); $('mmBg').classList.toggle('on', on); $('rayBtn').classList.toggle('on', on);
+  $('searchBox').classList.toggle('on', on);
+  if (on) renderMenu();
+}
+function renderMenu() {
+  const subs = [...new Set(PRODUCTS.filter(p => p.cat === menuCat).map(p => p.sub))];
+  const cat = CATS.find(c => c.id === menuCat);
+  $('mm').innerHTML = `<div class="c1">
+      <h3>En ce moment</h3>
+      <button class="it hl" onclick="toggleMenu(false);go('list',{cat:'promo'})"><span class="e">%</span><span class="t">Toutes nos promotions</span></button>
+      <button class="it" onclick="toggleMenu(false);go('list',{cat:'nice'})"><span class="e">☀️</span><span class="t">Spécialités de Nice</span></button>
+      <button class="it" onclick="toggleMenu(false);go('list',{cat:'nouv'})"><span class="e">📣</span><span class="t">Nouveautés de votre magasin</span></button>
+      <button class="it" onclick="toggleMenu(false);go('recipes')"><span class="e">🍲</span><span class="t">Recettes pour vous</span></button>
+      <h3 style="margin-top:24px">Rayons</h3>
+      ${CATS.map(c => `<button class="it ${c.id === menuCat ? 'on' : ''}" onmouseenter="menuCat='${c.id}';renderMenu()" onclick="toggleMenu(false);go('list',{cat:'${c.id}'})"><span class="e">${c.e}</span><span class="t">${c.n}</span><span class="chev">›</span></button>`).join('')}
+    </div>
+    <div class="c2"><h3>${cat.n}</h3><button class="all" onclick="toggleMenu(false);go('list',{cat:'${cat.id}'})">Voir tout le rayon</button>
+      ${subs.map(s => `<button class="it" onclick="toggleMenu(false);go('list',{cat:'${cat.id}',sub:'${esc(s)}'})"><span class="t">${esc(s)}</span></button>`).join('')}</div>`;
+}
+
+function searchFocus(on) { if (!$('mm').classList.contains('on')) $('searchBox').classList.toggle('on', on); }
+function doSearch() { const q = $('q').value.trim(); if (q) go('search', { q }); }
+
+/* =====================================================================
+   VUES
+   ===================================================================== */
+function badges(p) {
+  const b = [];
+  if (PROMO[p.id] === 'pp') b.push('<span class="badge pp">Petit prix</span>');
+  if (PROMO[p.id] === 'qp') b.push('<span class="badge qp">Le quotidien à prix bas</span>');
+  if (p.nw) b.push('<span class="badge new">Nouveauté magasin</span>');
+  if (p.loc) b.push('<span class="badge loc">📍 Local</span>');
+  else if (p.bio) b.push('<span class="badge bio">Bio</span>');
+  return b.slice(0, 2).join('');
+}
+function stepper(id, q, cls = '') {
+  return `<div class="step ${cls}" onclick="event.stopPropagation()"><button onclick="setQty('${id}',${q - 1})">−</button><span>${q}</span><button onclick="setQty('${id}',${q + 1})">+</button></div>`;
+}
+function card(p, why) {
+  const q = state.cart[p.id] || 0;
+  const rem = PROMO[p.id] && PROMO[p.id].startsWith('-') ? `<span class="remise">${PROMO[p.id]}<small>REMISE<br>IMMÉDIATE</small></span>` : '';
+  return `<div class="pcard" onclick="go('product',{pid:'${p.id}'})">
+    <div class="ptop">${badges(p)}</div>
+    <button class="fav ${state.favs.has(p.id) ? 'on' : ''}" onclick="event.stopPropagation();toggleFav('${p.id}')" aria-label="Favori">${IC.heart}</button>
+    <div class="pimg" style="background:${BG[p.cat]}">${p.e}${rem}</div>
+    ${why ? `<div class="why">${why}</div>` : ''}
+    <div class="pbrand">${esc(brandLine(p))}</div>
+    <div class="pname">${esc(p.n)}</div>
+    <div class="punit">${esc(p.u)} · ${p.k}</div>
+    ${p.r >= RUPT ? `<div class="rwarn">⚠ Souvent en rupture en ligne</div>` : ''}
+    <div class="pbot"><div class="price">${fmt(p.p)}</div>${q ? stepper(p.id, q) : `<button class="addbtn" onclick="event.stopPropagation();add('${p.id}')" aria-label="Ajouter au panier">${IC.cartplus}</button>`}</div>
+  </div>`;
+}
+let carN = 0;
+function carousel(items) {
+  const id = 'car' + (carN++);
+  return `<div class="car"><button class="cnav l" onclick="scrollCar('${id}',-1)">‹</button><button class="cnav r" onclick="scrollCar('${id}',1)">›</button>
+    <div class="crow" id="${id}">${items.join('')}</div></div>`;
+}
+function scrollCar(id, d) { const el = $(id); el.scrollBy({ left: d * el.clientWidth * 0.8, behavior: 'smooth' }); }
+function toggleFav(id) { state.favs.has(id) ? state.favs.delete(id) : state.favs.add(id); render(); }
+
+function profileSummary() {
+  const pr = state.profile;
+  const parts = [label(FOYERS, pr.foyer), `${pr.personnes} pers.`, label(BUDGETS, pr.budget)];
+  pr.prefs.slice(0, 3).forEach(k => parts.push(label(PREFS, k).replace(/^\S+\s/, '')));
+  return parts.join(' · ');
+}
+const isCustom = () => JSON.stringify(state.profile) !== JSON.stringify(DERIVED);
+
+function recipeCard(r) {
+  const c = recipeCost(r, state.profile.personnes);
+  return `<div class="rcard" onclick="openRecipe('${r.id}')">
+    <div class="rart" style="background:${r.bg}">${r.tags.includes('local') ? '<span class="tag loc">📍 Niçoise</span>' : ''}${r.e}</div>
+    <div class="rbody"><h3>${esc(r.n)}</h3>
+      <div class="rmeta"><span>⏱ ${r.t >= 60 ? Math.floor(r.t / 60) + ' h' + (r.t % 60 ? ' ' + (r.t % 60) : '') : r.t + ' min'}</span><span>👥 ${state.profile.personnes} pers.</span><span>💶 ${fmt(c.total / state.profile.personnes)}/pers.</span></div>
+      <div class="rtags">${recipeWhy(r).map(w => `<span class="tag">${w}</span>`).join('')}</div>
+      <div class="rfoot"><b>${c.buy.length} produits · ${fmt(c.total)}</b><span class="link">Voir la recette →</span></div>
+    </div></div>`;
+}
+
+function viewHome() {
+  const pr = state.profile;
+  const reco = PRODUCTS.filter(allowed).sort((a, b) => prodScore(b) - prodScore(a)).slice(0, 12);
+  const niceList = state.homeTab === 'nice' ? PRODUCTS.filter(p => p.loc && allowed(p)).sort((a, b) => (b.nw - a.nw) || prodScore(b) - prodScore(a))
+    : PRODUCTS.filter(p => p.nw && allowed(p));
+  const recs = RECIPES.filter(recipeAllowed).sort((a, b) => recipeScore(b) - recipeScore(a)).slice(0, 4);
+  const usual = Object.entries(HIST).sort((a, b) => b[1] - a[1]).map(([id]) => P[id]).filter(allowed).slice(0, 10);
+  return `
+    <div class="panel hello">
+      <div><h2>Bonjour Jean</h2>
+        <div class="prof"><span class="lbl">🎯 Votre profil :</span>
+          <span class="tag">${label(FOYERS, pr.foyer)}</span><span class="tag">👥 ${pr.personnes} personnes</span><span class="tag">${label(BUDGETS, pr.budget)}</span>
+          ${pr.prefs.map(k => `<span class="tag ${k === 'local' ? 'loc' : k === 'bio' ? 'bio' : ''}">${label(PREFS, k)}</span>`).join('')}
+          <span class="pstatus ${isCustom() ? 'edit' : 'auto'}" style="font-size:12px;padding:2px 10px">${isCustom() ? '✎ personnalisé' : '⟲ déduit de vos achats'}</span>
+          <button class="link" onclick="go('compte',{compte:'profil'})">Modifier</button></div></div>
+      <div class="fid" onclick="go('compte',{compte:'achats'})"><div><div class="t">Solde de fidélité</div><div class="d">Mis à jour le 12/10/2026</div></div><div class="v">8,49 €</div><span style="font-size:24px">›</span></div>
+    </div>
+
+    <div class="pa-banner">Notre programme pouvoir d’achat</div>
+
+    <section class="sec">
+      <div class="sec-h"><div><h2>Sélectionnés pour vous</h2><p>D’après votre profil : ${esc(profileSummary())}</p></div></div>
+      ${carousel(reco.map(p => card(p, whyProd(p))))}
+    </section>
+
+    <section class="nice-sec">
+      <div class="sec-h" style="position:relative;z-index:1"><div><span class="eyebrow">📍 ${esc(STORE.name)}</span><h2>Le meilleur de Nice, dans votre drive</h2>
+        <p>Spécialités niçoises, producteurs de l’arrière-pays et nouveautés choisies par votre magasin.</p></div></div>
+      <div class="tabs">
+        <button class="chip ${state.homeTab === 'nice' ? 'on' : ''}" onclick="state.homeTab='nice';render()">☀️ Spécialités de la région</button>
+        <button class="chip ${state.homeTab === 'nouv' ? 'on' : ''}" onclick="state.homeTab='nouv';render()">📣 Nouveautés du magasin</button>
+        <button class="chip" onclick="go('list',{cat:'nice'})">Tout voir →</button>
+      </div>
+      ${carousel(niceList.map(p => card(p)))}
+    </section>
+
+    <section class="sec">
+      <div class="sec-h"><div><h2>Des recettes pour vous</h2><p>Pour ${pr.personnes} personnes${has('local') ? ', avec des recettes niçoises car vous aimez les produits locaux' : ''}. Validez une recette : les ingrédients vont directement dans le panier.</p></div>
+        <button class="link" onclick="go('recipes')">Toutes les recettes →</button></div>
+      <div class="rgrid">${recs.map(recipeCard).join('')}</div>
+    </section>
+
+    <section class="sec">
+      <div class="sec-h"><div><h2>Vos produits habituels</h2><p>Les produits que vous achetez le plus souvent en ligne.</p></div></div>
+      ${carousel(usual.map(p => card(p, `🔁 Acheté ${HIST[p.id]} fois`)))}
+    </section>
+    <p class="demo-note">Démo d’interface — produits, prix, taux de rupture et producteurs locaux sont fictifs.</p>`;
+}
+
+function viewList() {
+  const { cat, sub } = state;
+  let title, items, crumbs = [];
+  if (cat === 'promo') { title = 'Toutes nos promotions'; items = PRODUCTS.filter(p => PROMO[p.id]); }
+  else if (cat === 'nice') { title = 'Spécialités de Nice & produits locaux'; items = PRODUCTS.filter(p => p.loc); }
+  else if (cat === 'nouv') { title = 'Nouveautés de votre magasin'; items = PRODUCTS.filter(p => p.nw); }
+  else if (cat === 'favs') { title = 'Mes produits'; items = PRODUCTS.filter(p => state.favs.has(p.id)); }
+  else {
+    const c = CATS.find(x => x.id === cat); title = sub || c.n;
+    crumbs = sub ? [[c.n, `go('list',{cat:'${cat}'})`]] : [];
+    items = PRODUCTS.filter(p => p.cat === cat && (!sub || p.sub === sub));
+  }
+  const hidden = items.filter(p => !allowed(p)).length;
+  items = items.filter(allowed);
+  items = state.sort === 'prix' ? items.sort((a, b) => a.p - b.p) : items.sort((a, b) => prodScore(b) - prodScore(a));
+  const subs = CATS.find(x => x.id === cat) ? [...new Set(PRODUCTS.filter(p => p.cat === cat).map(p => p.sub))] : [];
+  return `<div class="crumb">🏠 / ${crumbs.map(([t, a]) => `<a onclick="${a}">${t}</a> / `).join('')}<b>${esc(title)}</b></div>
+    <div class="lhead"><div><h1>${esc(title)}</h1><div class="muted">${items.length} produits${hidden ? ` · ${hidden} masqué${hidden > 1 ? 's' : ''} selon vos préférences (${state.profile.prefs.filter(k => ['veg', 'sansporc', 'sansgluten', 'sanslactose'].includes(k)).map(k => label(PREFS, k).replace(/^\S+\s/, '')).join(', ')})` : ''}</div></div>
+      <label>Trier par <select onchange="state.sort=this.value;render()"><option value="profil" ${state.sort === 'profil' ? 'selected' : ''}>Pertinence pour mon profil</option><option value="prix" ${state.sort === 'prix' ? 'selected' : ''}>Prix croissant</option></select></label></div>
+    ${subs.length ? `<div class="subchips"><button class="chip ${!sub ? 'on' : ''}" onclick="go('list',{cat:'${cat}'})">Tout</button>${subs.map(s => `<button class="chip ${s === sub ? 'on' : ''}" onclick="go('list',{cat:'${cat}',sub:'${esc(s)}'})">${esc(s)}</button>`).join('')}</div>` : ''}
+    ${items.length ? `<div class="grid">${items.map(p => card(p)).join('')}</div>` : `<div class="panel muted">Aucun produit ici pour le moment.</div>`}`;
+}
+
+function viewSearch() {
+  const q = norm(state.q);
+  const items = PRODUCTS.filter(p => norm(`${p.b} ${p.n} ${p.sub}`).includes(q) && allowed(p)).sort((a, b) => prodScore(b) - prodScore(a));
+  const recs = RECIPES.filter(r => recipeAllowed(r) && norm(r.n + ' ' + r.ing.map(i => i.n).join(' ')).includes(q));
+  return `<div class="crumb">🏠 / <b>Recherche</b></div><h1>« ${esc(state.q)} »</h1><p class="muted">${items.length} produit${items.length > 1 ? 's' : ''}, classés selon votre profil</p>
+    ${items.length ? `<div class="grid">${items.map(p => card(p)).join('')}</div>` : '<div class="panel muted">Aucun produit trouvé.</div>'}
+    ${recs.length ? `<section class="sec"><h2 style="margin-bottom:14px">Recettes avec « ${esc(state.q)} »</h2><div class="rgrid">${recs.map(recipeCard).join('')}</div></section>` : ''}`;
+}
+
+function nutri(ns) {
+  if (!ns) return '';
+  const col = { A: '#038141', B: '#85bb2f', C: '#fecb02', D: '#ee8100', E: '#e63e11' };
+  return `<div class="ns"><small>NUTRI-SCORE</small><div class="row">${'ABCDE'.split('').map(l => `<span class="${l === ns ? 'on' : ''}" style="background:${col[l]}">${l}</span>`).join('')}</div></div>`;
+}
+function viewProduct() {
+  const p = P[state.pid], c = CATS.find(x => x.id === p.cat), q = state.cart[p.id] || 0;
+  const alike = PRODUCTS.filter(x => x.id !== p.id && (x.g === p.g || x.sub === p.sub) && allowed(x)).sort((a, b) => prodScore(b) - prodScore(a));
+  const more = PRODUCTS.filter(x => x.cat === p.cat && !alike.includes(x) && x.id !== p.id && allowed(x)).sort((a, b) => prodScore(b) - prodScore(a));
+  const subPrev = p.r >= RUPT ? rankSubs(p.id).slice(0, 3) : [];
+  return `<div class="crumb">🏠 / <a onclick="go('list',{cat:'${c.id}'})">${c.n}</a> / <a onclick="go('list',{cat:'${c.id}',sub:'${esc(p.sub)}'})">${esc(p.sub)}</a> / <b>${esc(p.n)}</b></div>
+    <div class="pd">
+      <div class="big"><div class="art" style="background:${BG[p.cat]}">${p.e}</div><div style="position:absolute;left:18px;top:18px;display:flex;gap:6px">${badges(p)}</div></div>
+      <div class="col">
+        <div class="info"><button class="fav ${state.favs.has(p.id) ? 'on' : ''}" style="top:16px;right:16px" onclick="toggleFav('${p.id}')">${IC.heart}</button>
+          <div class="brand">${esc(brandLine(p))}</div><div class="nm">${esc(p.n)}</div><div class="unit">${esc(p.u)} | ${p.k}</div>
+          ${nutri(p.ns)}
+          <p style="margin:14px 0 0" class="muted">Produit également disponible en magasin</p></div>
+        ${p.loc ? `<div class="localbox"><span style="font-size:20px">📍</span><span><b>Produit local</b> sélectionné par ${esc(STORE.name)} — ${esc(p.b)}. Circuit court, disponible uniquement dans les magasins de la région.</span></div>` : ''}
+        ${p.r >= RUPT ? `<div class="riskbox"><span class="ic">⚠️</span><div><b>Souvent en rupture sur le drive</b> (${p.r} % des commandes ces 30 derniers jours).<br>Dès l’ajout au panier, nous vous proposerons des remplacements :
+          <div style="margin-top:6px">${subPrev.map((id, i) => `${i + 1}. ${esc(P[id].b)} — ${esc(P[id].n)} (${fmt(P[id].p)})`).join('<br>')}</div></div></div>` : ''}
+        <div class="buy"><div class="price">${fmt(p.p)}</div>${q ? stepper(p.id, q) : `<button class="btn red" style="padding:14px 26px;font-size:18px" onclick="add('${p.id}')">${IC.cartplus} Ajouter au panier</button>`}</div>
+        <div class="acc"><span>Caractéristiques</span><span>⌄</span></div>
+        <div class="acc"><span>En savoir plus</span><span>⌄</span></div>
+      </div>
+    </div>
+    <section class="sec"><div class="sec-h"><h2>Vous aimerez aussi</h2></div>${carousel([...alike, ...more].slice(0, 10).map(x => card(x)))}</section>`;
+}
+
+function viewRecipes() {
+  const all = RECIPES.filter(recipeAllowed).sort((a, b) => recipeScore(b) - recipeScore(a));
+  const hidden = RECIPES.length - all.length;
+  const f = state.recFilter;
+  const list = all.filter(r => f === 'all' || (f === 'local' && r.tags.includes('local')) || (f === 'classic' && !r.tags.includes('local'))
+    || (f === 'rapide' && r.t <= 30) || (f === 'veg' && r.tags.includes('veg')));
+  const filters = [['all', 'Toutes'], ...(has('local') ? [['local', '📍 Niçoises']] : []), ['classic', 'Classiques'], ['rapide', '⏱ 30 min max'], ['veg', '🥦 Végétariennes']];
+  return `<div class="crumb">🏠 / <b>Recettes pour vous</b></div>
+    <div class="lhead"><div><h1>Recettes pour vous</h1><div class="muted">Sélectionnées selon votre profil : ${esc(profileSummary())} — <button class="link" onclick="go('compte',{compte:'profil'})">modifier</button></div></div></div>
+    ${!has('local') ? `<div class="hint"><span style="font-size:26px">☀️</span><div class="t"><b>Envie de recettes niçoises ?</b> Socca, pissaladière, daube… Elles s’affichent quand « Produits locaux & régionaux » fait partie de votre profil.</div><button class="btn sm red" onclick="togglePref('local');toast('✓ Produits locaux ajoutés à votre profil')">Ajouter à mon profil</button></div>` : ''}
+    <div class="subchips">${filters.map(([k, t]) => `<button class="chip ${f === k ? 'on' : ''}" onclick="state.recFilter='${k}';render()">${t}</button>`).join('')}</div>
+    <div class="rgrid">${list.map(recipeCard).join('') || '<div class="panel muted">Aucune recette pour ce filtre.</div>'}</div>
+    ${hidden ? `<p class="muted" style="margin-top:18px">${hidden} recette${hidden > 1 ? 's' : ''} masquée${hidden > 1 ? 's' : ''} car non adaptée${hidden > 1 ? 's' : ''} à votre profil.</p>` : ''}`;
+}
+
+/* ---------- Compte ---------- */
+function viewCompte() {
+  const k = state.compte;
+  const menu = [['achats', '🧺', 'Mes achats'], ['profil', '🎯', 'Mon profil conso'], ['favs', '♡', 'Mes produits'], ['avantages', '🎟', 'Mes avantages'], ['infos', '👤', 'Mes informations'], ['aide', '?', 'Aide et contact']];
+  return `<div class="acc-layout">
+    <aside class="side">
+      <div class="fidcard"><div class="g">Profitez de vos 5% d’avantage carte</div>
+        <div class="w"><div><b>8,49 €</b><span>Mon solde ›</span></div><div><b>0 €</b><span>Mes économies ›</span></div></div></div>
+      ${menu.map(([id, ic, t]) => `<button class="mi ${k === id ? 'on' : ''}" onclick="${id === 'favs' ? "go('list',{cat:'favs'})" : `go('compte',{compte:'${id}'})`}"><span style="width:26px;text-align:center">${ic}</span>${t}${id === 'profil' ? '<span class="tag new">Nouveau</span>' : ''}<span class="chev">›</span></button>`).join('')}
+    </aside>
+    <div class="acc-main">${k === 'achats' ? viewAchats() : k === 'profil' ? viewProfil() : `<div class="panel"><h1>${label(menu.map(m => [m[0], m[2]]), k)}</h1><p class="muted">Écran non repris dans la démo.</p></div>`}</div>
+  </div>`;
+}
+function viewAchats() {
+  return `<div class="panel"><h1>Mes achats</h1><div class="tabs" style="margin-bottom:0"><button class="chip on" style="background:var(--ink);color:#fff;border-color:var(--ink);border-radius:24px">Achats en ligne</button><button class="chip" style="border-radius:24px">Achats en magasin</button></div></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:26px"><h2 style="font-size:26px">Historique de mes commandes</h2>
+      <select style="font:inherit;padding:12px 16px;border-radius:10px;border:1.5px solid var(--line);min-width:300px"><option>3 derniers mois</option></select></div>
+    ${ORDERS.map(o => `<div class="order"><div class="oh"><div>Commande N°${o.no}<span class="st">LIVRÉE</span><br>Livrée le ${o.date}</div><div class="amt">${o.total.toFixed(2).replace('.', ',')}€</div>
+        <button class="link" style="color:var(--ink);font-size:19px" onclick="state.openOrder=state.openOrder==='${o.no}'?null:'${o.no}';render()">${state.openOrder === o.no ? 'Masquer' : 'Voir ma commande'} ⌄</button></div>
+      ${state.openOrder === o.no ? `<div class="ob">${o.items.map(id => `<span class="chip">${P[id].e} ${esc(P[id].n)}</span>`).join('')}
+        <div style="width:100%;margin-top:8px"><button class="btn sm red" onclick="rebuy('${o.no}')">Tout racheter</button></div></div>` : ''}</div>`).join('')}`;
+}
+function rebuy(no) {
+  let created = 0;
+  ORDERS.find(o => o.no === no).items.forEach(id => { if (allowed(P[id]) && !state.cart[id]) { if (add(id, 1, true)) created++; } });
+  toast(`✓ Commande ajoutée au panier${created ? ` · ${created} remplacements proposés` : ''}`);
+  if (created) setTimeout(openCart, 400);
+}
+
+function insights() {
+  const all = ORDERS.flatMap(o => o.items).map(id => P[id]);
+  const pct = f => Math.round(all.filter(f).length / all.length * 100);
+  const byCat = CATS.map(c => [c.n, all.filter(p => p.cat === c.id).length]).sort((a, b) => b[1] - a[1]);
+  const max = byCat[0][1];
+  const avg = ORDERS.reduce((s, o) => s + o.total, 0) / ORDERS.length;
+  return { mdd: pct(p => p.mdd), loc: pct(p => p.loc), bio: pct(p => p.bio), avg, byCat, max,
+    prep: pct(p => p.cat === 'boul' && p.sub === 'Spécialités niçoises') };
+}
+function viewProfil() {
+  const pr = state.profile, I = insights();
+  const demo = 'v1';
+  const demoSubs = rankSubs(demo).slice(0, 3);
+  const recs = RECIPES.filter(recipeAllowed).sort((a, b) => recipeScore(b) - recipeScore(a)).slice(0, 3);
+  const seg = (arr, key) => `<div class="seg">${arr.map(([k, t, d]) => `<button class="${pr[key] === k ? 'on' : ''}" onclick="setProf('${key}','${k}')"><b>${t}</b><span>${d}</span></button>`).join('')}</div>`;
+  return `<div class="panel" style="display:flex;justify-content:space-between;align-items:center;gap:20px">
+      <div><h1>Mon profil de consommation</h1><p class="muted" style="margin:6px 0 0">Il personnalise vos recommandations, vos remplacements de produits en rupture et vos recettes. Modifiable à tout moment.</p></div>
+      <div style="text-align:right;white-space:nowrap"><span class="pstatus ${isCustom() ? 'edit' : 'auto'}">${isCustom() ? '✎ Personnalisé par vous' : '⟲ Déduit de votre historique'}</span>
+        ${isCustom() ? `<div style="margin-top:8px"><button class="link" onclick="resetProfile()">Revenir au profil déduit de mes achats</button></div>` : ''}</div>
+    </div>
+    <div class="grid2" style="margin-top:20px">
+      <div>
+        <div class="panel">
+          <h3>Ce que nous avons appris de vos achats</h3>
+          <p class="muted" style="margin:4px 0 0;font-size:14px">${ORDERS.length} commandes drive, du ${ORDERS[ORDERS.length - 1].date} au ${ORDERS[0].date}</p>
+          <div class="kpis"><div class="kpi"><b>${I.avg.toFixed(0)} €</b><span>panier moyen</span></div><div class="kpi"><b>${I.mdd} %</b><span>marques Intermarché</span></div>
+            <div class="kpi"><b>${I.loc} %</b><span>produits locaux</span></div><div class="kpi"><b>${I.bio} %</b><span>bio</span></div></div>
+          <div class="insight"><span class="ic">👨‍👩‍👧‍👦</span><div><b>Foyer d’environ 4 personnes</b><span class="muted">6 L de lait, 12 œufs et ~1 kg de viande par commande, yaourts en pack de 16.</span></div></div>
+          <div class="insight"><span class="ic">📍</span><div><b>Attaché aux produits locaux</b><span class="muted">Olives de Nice, blettes, huile d’olive AOP et pissaladière reviennent régulièrement.</span></div></div>
+          <div class="insight"><span class="ic">👩‍🍳</span><div><b>Cuisine maison</b><span class="muted">Beaucoup de produits bruts (légumes, farine, pâtes) et très peu de plats préparés.</span></div></div>
+          <div class="insight"><span class="ic">⚖️</span><div><b>Budget équilibré, marques mixtes</b><span class="muted">${I.mdd} % de marques Intermarché, quelques grandes marques (Petit Navire, Lactel…).</span></div></div>
+          <div class="bars">${I.byCat.map(([n, v]) => `<div class="bar"><span>${n}</span><div class="tr"><i style="width:${v / I.max * 100}%"></i></div><span class="v">${v}</span></div>`).join('')}</div>
+        </div>
+        <div class="panel">
+          <h3>Ce que votre profil change, en direct</h3>
+          <div class="preview"><div style="font-weight:700;margin-bottom:4px">🔄 Si la viande hachée Jean Rozé manque :</div>
+            ${demoSubs.length ? demoSubs.map((id, i) => `<div class="pi"><span class="num" style="width:22px;height:22px;border-radius:50%;background:var(--ink);color:#fff;display:grid;place-items:center;font-size:12px;font-weight:700">${i + 1}</span><span class="n">${P[id].e} ${esc(P[id].b)} — ${esc(P[id].n)}</span>${deltaHtml(demo, id)}</div>`).join('') : '<div class="muted">Aucun remplacement compatible (profil végétarien) : la viande ne vous est plus proposée.</div>'}</div>
+          <div class="preview"><div style="font-weight:700;margin-bottom:4px">🍲 Vos recettes en tête de liste :</div>
+            ${recs.map(r => `<div class="pi"><span>${r.e}</span><span class="n">${esc(r.n)}</span><span class="muted">${r.t} min</span></div>`).join('')}</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="fgroup"><div class="fl">Mon foyer</div><div class="fd">Pour adapter les formats (familial, portions individuelles…)</div>
+          <div class="chips">${FOYERS.map(([k, t]) => `<button class="chip ${pr.foyer === k ? 'on' : ''}" onclick="setProf('foyer','${k}')">${t}</button>`).join('')}</div></div>
+        <div class="fgroup"><div class="fl">Nombre de personnes</div><div class="fd">Utilisé pour les quantités des recettes</div>
+          <div class="people"><div class="step sm"><button onclick="setProf('personnes',${Math.max(1, pr.personnes - 1)})">−</button><span>${pr.personnes}</span><button onclick="setProf('personnes',${Math.min(12, pr.personnes + 1)})">+</button></div>
+          <span class="ico">${'👤'.repeat(Math.min(pr.personnes, 8))}</span></div></div>
+        <div class="fgroup"><div class="fl">Mes préférences de consommation</div><div class="fd">Plusieurs choix possibles. Végétarien, sans porc, sans gluten et sans lactose masquent les produits non compatibles.</div>
+          <div class="chips">${PREFS.map(([k, t]) => `<button class="chip ${has(k) ? 'on' : ''}" onclick="togglePref('${k}')">${t}</button>`).join('')}</div></div>
+        <div class="fgroup"><div class="fl">Mon budget</div><div class="fd">Oriente les recommandations et l’ordre des remplacements</div>${seg(BUDGETS, 'budget')}</div>
+        <div class="fgroup"><div class="fl">Mes marques</div><div class="fd">&nbsp;</div>${seg(MARQUES, 'marques')}</div>
+        <div class="fgroup"><div class="fl">Mon temps de cuisine</div><div class="fd">Pour vous proposer des recettes réalistes</div>${seg(TEMPS, 'temps')}</div>
+        <div class="uses"><div><b>🛒 Recommandations</b>Accueil, rayons et recherche triés pour vous</div><div><b>🔄 Remplacements</b>Proposés quand un produit est souvent en rupture</div><div><b>🍲 Recettes</b>Adaptées à vos goûts et votre foyer</div></div>
+      </div>
+    </div>`;
+}
+function profileChanged() { refreshPendingSubs(); update(); toast('✓ Profil mis à jour — recommandations, remplacements et recettes recalculés', 2200); }
+function setProf(k, v) { state.profile[k] = v; profileChanged(); }
+function togglePref(k) {
+  const p = state.profile.prefs;
+  if (p.includes(k)) p.splice(p.indexOf(k), 1);
+  else { p.push(k); if (k === 'veg') { const i = p.indexOf('flexi'); if (i >= 0) p.splice(i, 1); } if (k === 'flexi') { const i = p.indexOf('veg'); if (i >= 0) p.splice(i, 1); } }
+  // garder l’ordre de la liste de référence pour comparer au profil déduit
+  state.profile.prefs = PREFS.map(x => x[0]).filter(x => p.includes(x));
+  profileChanged();
+}
+function resetProfile() { state.profile = JSON.parse(JSON.stringify(DERIVED)); profileChanged(); }
+
+/* ---------- Validation du panier ---------- */
+const SLOTS = [['🏪', 'Retrait au drive', 'Samedi 17 octobre · 08h00 - 12h00', 0], ['🚚', 'Livraison à domicile', 'Samedi 17 octobre · 10h00 - 12h00', 0], ['🚶', 'Retrait piéton', 'Vendredi 16 octobre · 16h00 - 17h00', 0]];
+function viewCheckout() {
+  if (state.done) return `<div class="panel success"><div class="big">✅</div><h1>Commande N°${state.done.no} confirmée</h1>
+    <p style="font-size:18px">${SLOTS[state.done.slot][1]} — ${SLOTS[state.done.slot][2]}<br>${esc(STORE.name)}</p>
+    <p class="muted">${state.done.subs} consigne${state.done.subs > 1 ? 's' : ''} de remplacement transmise${state.done.subs > 1 ? 's' : ''} au préparateur. Vous ne payez que les produits réellement préparés.</p>
+    <button class="btn red" onclick="state.done=null;go('home')">Retour à l’accueil</button></div>`;
+  const ids = Object.keys(state.cart);
+  if (!ids.length) return `<div class="panel"><h1>Mon panier</h1><p class="muted">Votre panier est vide.</p><button class="btn red" onclick="go('home')">Continuer mes courses</button></div>`;
+  const risky = ids.filter(id => state.subs[id]);
+  const pending = risky.filter(id => state.subs[id].status === 'pending').length;
+  return `<div class="crumb">🏠 / <b>Valider mon panier</b></div><h1 style="margin-bottom:16px">Valider mon panier</h1>
+    <div class="co"><div>
+      ${risky.length ? `<div class="panel"><div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><div><h3>🔄 Produits à risque de rupture</h3><p class="muted" style="margin:4px 0 0">Vérifiez vos consignes : elles seront suivies par le préparateur si le produit manque en magasin.</p></div>
+        ${pending ? `<button class="btn sm green" onclick="acceptAllPending()">Tout accepter (${pending})</button>` : ''}</div>
+        ${risky.map(id => `<div class="citem"><div class="row"><div class="thumb" style="background:${BG[P[id].cat]}">${P[id].e}</div><div><div class="nm">${esc(P[id].b)} — ${esc(P[id].n)}</div><div class="sub">Quantité : ${state.cart[id]}</div></div><div class="pr">${fmt(P[id].p * state.cart[id])}</div></div>${subBox(id)}</div>`).join('')}</div>` : ''}
+      <div class="panel" style="margin-top:20px"><h3>Mes produits (${cartCount()})</h3>
+        ${ids.filter(id => !state.subs[id]).map(id => `<div class="citem"><div class="row"><div class="thumb" style="background:${BG[P[id].cat]}">${P[id].e}</div><div><div class="nm">${esc(P[id].b)} — ${esc(P[id].n)}</div><div class="sub">${esc(P[id].u)}</div></div>${stepper(id, state.cart[id], 'sm')}</div></div>`).join('')}
+      </div></div>
+      <div class="side2">
+        <div class="panel"><h3 style="margin-bottom:12px">Mon créneau</h3>${SLOTS.map(([ic, t, d], i) => `<button class="slot ${state.slot === i ? 'on' : ''}" onclick="state.slot=${i};render()"><span class="ic">${ic}</span><span><b>${t}</b>${d}</span></button>`).join('')}</div>
+        <div class="prep"><h3>📋 Consignes pour le préparateur</h3>
+          ${risky.length ? risky.map(id => { const s = state.subs[id]; return `<div class="l">${esc(P[id].n)} → ${s.status === 'refused' || !s.list.length ? '<b>ne pas remplacer</b>' : s.list.map((x, i) => `<b>${i + 1}.</b> ${esc(P[x].b)} ${esc(P[x].n)}`).join(' · ')}${s.status === 'pending' ? ' <span style="opacity:.6">(proposé)</span>' : ''}</div>`; }).join('') : '<div class="l">Aucun produit à risque dans ce panier.</div>'}</div>
+        <div class="panel"><div class="tot"><span style="font-size:18px">Total estimé</span><span class="v">${fmt(cartTotal())}</span></div>
+          <div class="muted" style="font-size:13px;margin-bottom:12px">Frais de livraison offerts sur votre 1<sup>re</sup> commande.</div>
+          ${pending ? `<div class="pending-note"><span>${pending} remplacement${pending > 1 ? 's' : ''} encore à confirmer : ${pending > 1 ? 'ils seront appliqués' : 'il sera appliqué'} tel${pending > 1 ? 's' : ''} que proposé${pending > 1 ? 's' : ''}.</span></div>` : ''}
+          <button class="btn red" style="width:100%" onclick="placeOrder()">Valider ma commande</button></div>
+      </div></div>`;
+}
+function placeOrder() {
+  const n = Object.values(state.subs).filter(s => s.status !== 'refused' && s.list.length).length;
+  state.done = { no: '8261' + Math.floor(10000 + Math.random() * 89999), slot: state.slot, subs: n };
+  state.cart = {}; state.subs = {}; update(); window.scrollTo(0, 0);
+}
+
+/* =====================================================================
+   ROUTAGE / RENDU
+   ===================================================================== */
+const VIEWS = { home: viewHome, list: viewList, search: viewSearch, product: viewProduct, recipes: viewRecipes, compte: viewCompte, checkout: viewCheckout };
+function go(view, params = {}) {
+  Object.assign(state, { view, sub: null }, params);
+  if (view !== 'search') $('q').value = '';
+  toggleMenu(false); render(); window.scrollTo(0, 0);
+}
+function render() {
+  carN = 0;
+  $('main').innerHTML = VIEWS[state.view]();
+  $('nav-rec').classList.toggle('on', state.view === 'recipes');
+  $('nav-acc').classList.toggle('on', state.view === 'compte');
+}
+function update() {
+  const n = cartCount(); $('cartCount').hidden = !n; $('cartCount').textContent = n;
+  // garder la position des carrousels
+  const pos = [...document.querySelectorAll('.crow')].map(el => el.scrollLeft);
+  render();
+  document.querySelectorAll('.crow').forEach((el, i) => { if (pos[i]) el.scrollLeft = pos[i]; });
+  if ($('cartDr').classList.contains('on')) renderCart();
+}
+
+/* ---------- Bandeau magasin ---------- */
+let bIdx = 0;
+function renderStoreBar() {
+  const m = STORE_BANNER[bIdx];
+  $('storebar').innerHTML = `<div class="wrap">
+    <div class="who"><span class="dot">☀️</span><span>Votre magasin<small>${esc(STORE.short)}</small></span></div>
+    <div class="msg" id="sbMsg"><span class="ic">${m.ic}</span><span>${m.html}</span></div>
+    <div class="dots">${STORE_BANNER.map((_, i) => `<button class="${i === bIdx ? 'on' : ''}" onclick="bIdx=${i};renderStoreBar()" aria-label="Message ${i + 1}"></button>`).join('')}</div>
+    <button class="insta" onclick="toast('Démo : ouverture du compte Instagram ${STORE.instagram}')"><span class="ig">${IC.insta}</span>${STORE.instagram}</button>
+  </div>`;
+}
+setInterval(() => {
+  const el = $('sbMsg'); if (!el) return;
+  el.classList.add('fade');
+  setTimeout(() => { bIdx = (bIdx + 1) % STORE_BANNER.length; renderStoreBar(); }, 350);
+}, 6000);
+
+renderStoreBar();
+render();
+</script>
+</body>
+</html>
