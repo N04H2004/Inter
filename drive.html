@@ -363,6 +363,12 @@
   .insight:last-child { border-bottom: 0; }
   .insight .ic { font-size: 22px; width: 30px; text-align: center; }
   .insight b { display: block; }
+  .main3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 14px; }
+  .mc { background: var(--red-soft); border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 4px; }
+  .mc .ic { font-size: 26px; }
+  .mc b { font-size: 16px; line-height: 1.2; }
+  .mc .muted { font-size: 13px; line-height: 1.3; }
+  .others { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 14px; }
   .insight.off { opacity: .55; }
   .insight.off b { text-decoration: line-through; }
   .src { display: inline-block; margin-left: 6px; font-size: 11px; font-weight: 700; border-radius: 10px; padding: 1px 8px; vertical-align: 2px; text-decoration: none; }
@@ -1332,11 +1338,10 @@ function toggleFav(id) { state.favs.has(id) ? state.favs.delete(id) : state.favs
 
 function profileSummary() {
   const pr = state.profile;
-  const parts = [label(FOYERS, pr.foyer), `${pr.personnes} pers.`, label(BUDGETS, pr.budget)];
-  pr.prefs.slice(0, 3).forEach(k => parts.push(label(PREFS, k).replace(/^\S+\s/, '')));
-  return parts.join(' · ');
+  return mainCriteria().main.map(c => c.t).join(' · ');
 }
-const isCustom = () => JSON.stringify(state.profile) !== JSON.stringify(DERIVED);
+const canon = p => JSON.stringify({ ...p, prefs: [...p.prefs].sort() });
+const isCustom = () => canon(state.profile) !== canon(DERIVED);
 
 function recipeCard(r) {
   const c = recipeCost(r, state.profile.personnes);
@@ -1360,9 +1365,7 @@ function viewHome() {
     <div class="panel hello">
       <div><h2>Bonjour Jean</h2>
         <div class="prof"><span class="lbl">🎯 Votre profil :</span>
-          <span class="tag">${label(FOYERS, pr.foyer)}</span><span class="tag">👥 ${pr.personnes} personnes</span><span class="tag">${label(BUDGETS, pr.budget)}</span>
-          ${pr.prefs.map(k => `<span class="tag ${k === 'local' ? 'loc' : k === 'bio' ? 'bio' : ''}">${label(PREFS, k)}</span>`).join('')}
-          <span class="pstatus ${isCustom() ? 'edit' : 'auto'}" style="font-size:12px;padding:2px 10px">${isCustom() ? '✎ personnalisé' : '⟲ déduit de vos achats'}</span>
+          ${mainCriteria().main.map(c => `<span class="tag" style="font-size:14px;padding:4px 10px">${c.ic} ${esc(c.t)}</span>`).join('')}
           <button class="link" onclick="go('compte',{compte:'profil'})">Modifier</button></div></div>
       <div class="fid" onclick="go('compte',{compte:'achats'})"><div><div class="t">Solde de fidélité</div><div class="d">Mis à jour le 12/10/2026</div></div><div class="v">8,49 €</div><span style="font-size:24px">›</span></div>
     </div>
@@ -1509,31 +1512,38 @@ function insights() {
   return { n: all.length, mdd: pct(p => p.mdd), loc: pct(p => p.loc), bio: pct(p => p.bio), avg, byCat, max,
     prep: pct(p => p.cat === 'boul' && p.sub === 'Spécialités niçoises') };
 }
-// Une ligne par critère du profil actuel : déduit des achats (avec la preuve) ou choisi par l'utilisateur
-function traits(I) {
-  const pr = state.profile, D = DERIVED;
+// Les 3 critères principaux : le foyer puis les préférences dans l'ordre où elles ont été choisies
+// (le budget complète s'il y a moins de 2 préférences). Les autres critères sont listés en dessous, sans mise en avant.
+const PREF_DESC = {
+  local: 'Spécialités niçoises et producteurs de la région mis en avant.', maison: 'Produits bruts et recettes à cuisiner soi-même.',
+  bio: 'Produits bio proposés en priorité.', rapide: 'Recettes de 30 min max et produits pratiques.',
+  healthy: 'Produits bien notés au Nutri-Score et recettes équilibrées.', proteine: 'Viandes, poissons, œufs et légumineuses en avant.',
+  sucre: 'Moins de produits sucrés dans vos suggestions.', flexi: 'Moins de viande dans vos suggestions et vos recettes.',
+  antigaspi: 'Petits prix, promotions et marques Intermarché en avant.', enfants: 'Yaourts, goûters, fruits et formats familiaux.',
+  apero: 'Olives, chips, socca, vins et bières locales.', petitdej: 'Lait, jus, confitures, pain et viennoiseries.',
+  veg: 'Viandes et poissons ne vous sont plus proposés.', sansporc: 'Produits à base de porc masqués.',
+  sansgluten: 'Produits avec gluten masqués.', sanslactose: 'Produits avec lactose masqués.',
+};
+function mainCriteria() {
+  const pr = state.profile, D = DERIVED, I = insights();
   const ev = {
-    foyer: '6 L de lait, 12 œufs et ~1 kg de viande par commande, yaourts en pack de 16.',
-    local: 'Olives de Nice, blettes, huile d’olive AOP et pissaladière reviennent régulièrement.',
-    maison: 'Beaucoup de produits bruts (légumes, farine, pâtes), très peu de plats préparés.',
-    budget: `Panier moyen de ${I.avg.toFixed(0)} €, ${I.mdd} % de marques Intermarché et quelques grandes marques.`,
-    temps: 'Surtout des recettes de 20 à 45 min (pâtes, viande hachée, légumes à cuisiner).',
+    local: 'Olives de Nice, blettes, huile d’olive AOP et pissaladière reviennent dans vos achats.',
+    maison: 'Beaucoup de produits bruts dans vos achats, très peu de plats préparés.',
   };
-  const row = (ic, title, src, txt) => `<div class="insight ${src === 'off' ? 'off' : ''}"><span class="ic">${ic}</span><div><b>${title}
-    <span class="src ${src}">${src === 'auto' ? 'déduit de vos achats' : src === 'edit' ? 'choisi par vous' : 'retiré par vous'}</span></b><span class="muted">${txt}</span></div></div>`;
-  const out = [];
-  const foyerTxt = `${label(FOYERS, pr.foyer)}, ${pr.personnes} personne${pr.personnes > 1 ? 's' : ''}`;
-  out.push(pr.foyer === D.foyer && pr.personnes === D.personnes ? row('👨‍👩‍👧‍👦', foyerTxt, 'auto', ev.foyer)
-    : row('👨‍👩‍👧‍👦', foyerTxt, 'edit', `Vos achats suggéraient : ${label(FOYERS, D.foyer)}, ${D.personnes} personnes.`));
-  pr.prefs.forEach(k => out.push(D.prefs.includes(k) ? row('✔️', label(PREFS, k), 'auto', ev[k] || '')
-    : row('✔️', label(PREFS, k), 'edit', 'Ajouté à votre profil : recommandations et recettes en tiennent compte.')));
-  D.prefs.filter(k => !pr.prefs.includes(k)).forEach(k => out.push(row('✖️', label(PREFS, k), 'off', 'N’est plus pris en compte, même si vos achats le suggéraient.')));
-  const bm = `Budget ${label(BUDGETS, pr.budget).toLowerCase()} · ${label(MARQUES, pr.marques)}`;
-  out.push(pr.budget === D.budget && pr.marques === D.marques ? row('⚖️', bm, 'auto', ev.budget)
-    : row('⚖️', bm, 'edit', `Vos achats suggéraient : budget ${label(BUDGETS, D.budget).toLowerCase()}, marques ${label(MARQUES, D.marques).toLowerCase()}.`));
-  out.push(pr.temps === D.temps ? row('⏱', `Cuisine : ${label(TEMPS, pr.temps).toLowerCase()}`, 'auto', ev.temps)
-    : row('⏱', `Cuisine : ${label(TEMPS, pr.temps).toLowerCase()}`, 'edit', `Vos achats suggéraient : ${label(TEMPS, D.temps).toLowerCase()}.`));
-  return out.join('');
+  const foyer = { ic: { solo: '🧍', couple: '👫', famille: '👨‍👩‍👧‍👦', coloc: '🏠', senior: '👵' }[pr.foyer], t: `${label(FOYERS, pr.foyer)} · ${pr.personnes} pers.`,
+    d: pr.foyer === D.foyer && pr.personnes === D.personnes ? '6 L de lait, 12 œufs et ~1 kg de viande par commande.' : 'Recettes et formats adaptés à votre foyer.' };
+  const prefs = pr.prefs.map(k => ({ ic: label(PREFS, k).split(' ')[0], t: label(PREFS, k).replace(/^\S+\s/, ''), d: (D.prefs.includes(k) && ev[k]) || PREF_DESC[k] }));
+  const budget = { ic: '💶', t: `Budget ${label(BUDGETS, pr.budget).toLowerCase()}`,
+    d: pr.budget === D.budget ? `Panier moyen de ${I.avg.toFixed(0)} €, ${I.mdd} % de marques Intermarché.` : BUDGETS.find(b => b[0] === pr.budget)[2] + '.' };
+  const main = [foyer, ...prefs.slice(0, 2)];
+  if (main.length < 3) main.push(budget);
+  const others = [...prefs.slice(2).map(p => p.t), ...(main.includes(budget) ? [] : [budget.t]), label(MARQUES, pr.marques), `Cuisine : ${label(TEMPS, pr.temps).toLowerCase()}`];
+  return { main, others };
+}
+function traits() {
+  const { main, others } = mainCriteria();
+  return `<div class="main3">${main.map(c => `<div class="mc"><span class="ic">${c.ic}</span><b>${esc(c.t)}</b><span class="muted">${esc(c.d)}</span></div>`).join('')}</div>
+    <div class="others"><span class="muted">Également pris en compte :</span> ${others.map(o => `<span class="tag">${esc(o)}</span>`).join(' ')}</div>`;
 }
 function viewProfil() {
   const pr = state.profile, I = insights();
@@ -1549,9 +1559,9 @@ function viewProfil() {
     <div class="grid2" style="margin-top:20px">
       <div>
         <div class="panel">
-          <h3>Votre profil en détail</h3>
-          <p class="muted" style="margin:4px 0 0;font-size:14px">Pour chaque critère : déduit de vos achats, ou choisi par vous.</p>
-          ${traits(I)}
+          <h3>Votre profil en 3 critères</h3>
+          <p class="muted" style="margin:4px 0 0;font-size:14px">Les critères qui comptent le plus dans vos suggestions.</p>
+          ${traits()}
         </div>
         <div class="panel">
           <h3>Vos achats en chiffres</h3>
@@ -1590,8 +1600,7 @@ function togglePref(k) {
   const p = state.profile.prefs;
   if (p.includes(k)) p.splice(p.indexOf(k), 1);
   else { p.push(k); if (k === 'veg') { const i = p.indexOf('flexi'); if (i >= 0) p.splice(i, 1); } if (k === 'flexi') { const i = p.indexOf('veg'); if (i >= 0) p.splice(i, 1); } }
-  // garder l’ordre de la liste de référence pour comparer au profil déduit
-  state.profile.prefs = PREFS.map(x => x[0]).filter(x => p.includes(x));
+  // l'ordre de choix est conservé : les premières préférences sont les critères principaux
   profileChanged();
 }
 function resetProfile() { state.profile = JSON.parse(JSON.stringify(DERIVED)); profileChanged(); }
