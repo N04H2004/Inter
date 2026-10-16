@@ -46,9 +46,8 @@
 
   /* ---------- En-tête ---------- */
   .hdr { position: sticky; top: 0; z-index: 40; background: #fff; height: 92px; display: flex; align-items: center; gap: 6px; padding: 0 40px; box-shadow: 0 1px 0 var(--line); }
-  .logo { display: flex; flex-direction: column; line-height: .82; cursor: pointer; margin-right: 18px; user-select: none; }
-  .logo .l1 { font: italic 800 38px/0.85 "Barlow Condensed", sans-serif; color: var(--ink); letter-spacing: -1px; }
-  .logo .l2 { font: italic 800 22px/0.9 "Barlow Condensed", sans-serif; color: var(--red); padding-left: 2px; }
+  .logo { cursor: pointer; margin-right: 14px; user-select: none; display: flex; align-items: center; }
+  .logo img { display: block; height: auto; }
   .nav { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 6px 12px; border: 0; background: none; font-size: 14px; font-weight: 500; border-radius: 10px; min-width: 80px; position: relative; }
   .nav:hover { background: var(--bg); }
   .nav svg { width: 26px; height: 26px; }
@@ -65,9 +64,26 @@
   .search .go { border: 0; background: none; padding: 0 12px; }
   .search svg { width: 24px; height: 24px; }
 
+  /* ---------- Barre de rayons (toujours visible) ---------- */
+  .catbar { position: sticky; top: 92px; z-index: 34; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+  .catbar .wrap { position: relative; display: flex; align-items: center; }
+  .catbar .pills { display: flex; gap: 12px; overflow-x: auto; scroll-behavior: smooth; padding: 12px 64px 12px 2px; scrollbar-width: none; flex: 1; }
+  .catbar .pills::-webkit-scrollbar { display: none; }
+  .catbar .pill { flex: none; border: 2px solid var(--line); background: #fff; border-radius: 30px; padding: 10px 18px; font-weight: 600; font-size: 16px; white-space: nowrap; }
+  .catbar .pill:hover { border-color: #bbb; }
+  .catbar .pill.on { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .catbar .pill.hot { border-color: var(--yellow); background: #fffbe0; }
+  .catbar .pill.nice { border-color: #b9d6ef; color: var(--sea); }
+  .catbar .pill.on.nice, .catbar .pill.on.hot { background: var(--ink); border-color: var(--ink); color: #fff; }
+  .catbar .arr { position: absolute; top: 50%; transform: translateY(-50%); width: 50px; height: 50px; border-radius: 50%; border: 0; background: var(--ink); color: #fff; font-size: 24px; display: grid; place-items: center; box-shadow: 0 2px 10px rgba(0,0,0,.2); }
+  .catbar .arr.r { right: 40px; } .catbar .arr.l { left: 40px; }
+  .catbar .arr[hidden] { display: none; }
+
   /* ---------- Bandeaux ---------- */
-  .freeship { background: var(--bg); text-align: center; padding: 12px 0 10px; color: var(--red); font: italic 600 19px/1 "Barlow", sans-serif; text-transform: uppercase; letter-spacing: .3px; }
-  .freeship sup { font-size: 11px; }
+  .freeship { background: #f6f6f6; display: flex; align-items: center; justify-content: center; gap: 12px; height: 54px; color: var(--red); font: italic 500 20px/1 "Barlow", sans-serif; text-transform: uppercase; letter-spacing: .2px; box-shadow: inset 0 1px 0 #ececec; }
+  .freeship sup { font-size: 12px; font-style: italic; }
+  .freeship .truck { width: 28px; height: 26px; }
+  .freeship .info { width: 19px; height: 19px; margin-left: 4px; }
   .storebar { background: linear-gradient(90deg, var(--sea), var(--sea-2)); color: #fff; }
   .storebar .wrap { display: flex; align-items: center; gap: 18px; height: 54px; }
   .storebar .who { display: flex; align-items: center; gap: 10px; font-weight: 700; white-space: nowrap; padding-right: 18px; border-right: 1px solid rgba(255,255,255,.3); }
@@ -339,7 +355,7 @@
 
   /* ---------- Compte ---------- */
   .acc-layout { display: grid; grid-template-columns: 420px 1fr; gap: 30px; align-items: start; }
-  .side { background: #fff; border-radius: 22px; padding: 24px 28px; position: sticky; top: 112px; }
+  .side { background: #fff; border-radius: 22px; padding: 24px 28px; position: sticky; top: 184px; }
   .fidcard { border-radius: 20px; overflow: hidden; box-shadow: 0 6px 22px rgba(0,0,0,.12); margin-bottom: 26px; }
   .fidcard .g { background: linear-gradient(135deg, #1e9a3e, #127a2b); color: #fff; font: 700 22px/1.1 "Barlow Condensed", sans-serif; padding: 22px 22px 34px; }
   .fidcard .w { display: grid; grid-template-columns: 1fr 1fr; padding: 20px 6px 14px; text-align: center; }
@@ -413,7 +429,7 @@
 
   /* ---------- Validation ---------- */
   .co { display: grid; grid-template-columns: 1fr 420px; gap: 24px; align-items: start; }
-  .co .side2 { position: sticky; top: 112px; display: flex; flex-direction: column; gap: 16px; }
+  .co .side2 { position: sticky; top: 184px; display: flex; flex-direction: column; gap: 16px; }
   .slot { display: flex; gap: 12px; align-items: center; border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 14px; width: 100%; background: #fff; text-align: left; margin-bottom: 8px; }
   .slot.on { border-color: var(--red); box-shadow: inset 0 0 0 1px var(--red); }
   .slot .ic { font-size: 22px; }
@@ -450,7 +466,7 @@
 <body>
 
 <header class="hdr">
-  <div class="logo" onclick="go('home')" title="Accueil"><span class="l1">Inter</span><span class="l2">marché</span></div>
+  <div class="logo" onclick="go('home')" title="Accueil"><img src="data:image/png;base64,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" alt="Intermarché" width="118"></div>
   <button class="nav" onclick="toast('Magasin : ' + STORE.name + ' — le changement de magasin viendra dans une prochaine version de la démo.')"><span id="ic-store"></span><span>Nice ⌄</span></button>
   <button class="nav" onclick="go('list',{cat:'promo'})"><span class="promo-ic">%</span><span>Promotions</span></button>
   <button class="nav" onclick="toast('Prospectus : écran non repris dans la démo.')"><span id="ic-book"></span><span>Prospectus</span></button>
@@ -466,12 +482,13 @@
   <button class="nav" onclick="openCart()"><span id="ic-cart"></span><span>Panier</span><span class="count" id="cartCount" hidden>0</span></button>
 </header>
 
-<div class="freeship">🚚&nbsp; Livraison offerte sur votre 1<sup>re</sup> commande &nbsp;ⓘ</div>
+<div class="freeship"><svg class="truck" viewBox="0 0 32 28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round"><rect x="3" y="11" width="16" height="11" rx="1.5"/><path d="M19 14h5l4 4v4h-9"/><circle cx="8" cy="23.5" r="2.3" fill="#f6f6f6"/><circle cx="23" cy="23.5" r="2.3" fill="#f6f6f6"/><rect x="6" y="5" width="9" height="6" rx="1"/><path d="M10.5 5v6M10.5 5c-1-2.5-4-2.5-3.5-.5.3 1 2 .9 3.5.5zm0 0c1-2.5 4-2.5 3.5-.5-.3 1-2 .9-3.5.5z"/></svg><span>Livraison offerte sur votre 1 <sup>re</sup> commande</span><svg class="info" viewBox="0 0 20 20" fill="none" stroke="#1d1d1b" stroke-width="1.4"><circle cx="10" cy="10" r="8"/><path d="M10 9v5" stroke-linecap="round"/><circle cx="10" cy="6.3" r=".9" fill="#1d1d1b" stroke="none"/></svg></div>
 <div class="storebar" id="storebar"></div>
 
 <div class="mm-bg" id="mmBg" onclick="toggleMenu(false)"></div>
 <div class="mm" id="mm"></div>
 
+<nav class="catbar" id="catbar"></nav>
 <main><div class="wrap" id="main"></div></main>
 
 <div class="avis">Votre avis ?</div>
@@ -1645,8 +1662,31 @@ function go(view, params = {}) {
   if (view !== 'search') $('q').value = '';
   toggleMenu(false); render(); window.scrollTo(0, 0);
 }
+function catActive(k) {
+  const v = state.view;
+  if (k === 'home') return v === 'home';
+  if (k === 'recipes') return v === 'recipes';
+  if (v === 'list') return state.cat === k;
+  if (v === 'product') return P[state.pid].cat === k;
+  return false;
+}
+function renderCatbar() {
+  const pills = [['home', 'Pour vous', 'go(\'home\')', ''], ['promo', '% Promotions', "go('list',{cat:'promo'})", 'hot'],
+    ['nice', '☀️ Spécialités de Nice', "go('list',{cat:'nice'})", 'nice'], ['nouv', 'Nouveautés du magasin', "go('list',{cat:'nouv'})", ''],
+    ['recipes', 'Recettes', "go('recipes')", ''],
+    ...CATS.map(c => [c.id, c.n, `go('list',{cat:'${c.id}'})`, ''])];
+  const prev = document.querySelector('#catbar .pills')?.scrollLeft || 0;
+  $('catbar').innerHTML = `<div class="wrap"><button class="arr l" id="catL" onclick="catScroll(-1)" aria-label="Précédent">‹</button>
+    <div class="pills" id="pills" onscroll="catArrows()">${pills.map(([k, t, a, cls]) => `<button class="pill ${cls} ${catActive(k) ? 'on' : ''}" onclick="${a}">${t}</button>`).join('')}</div>
+    <button class="arr r" id="catR" onclick="catScroll(1)" aria-label="Suivant">›</button></div>`;
+  $('pills').scrollLeft = prev; catArrows();
+}
+function catScroll(d) { const el = $('pills'); el.scrollBy({ left: d * el.clientWidth * 0.6 }); }
+function catArrows() { const el = $('pills'); if (!el) return; $('catL').hidden = el.scrollLeft < 10; $('catR').hidden = el.scrollLeft + el.clientWidth >= el.scrollWidth - 10; }
+window.addEventListener('resize', catArrows);
 function render() {
   carN = 0;
+  renderCatbar();
   $('main').innerHTML = VIEWS[state.view]();
   $('nav-rec').classList.toggle('on', state.view === 'recipes');
   $('nav-acc').classList.toggle('on', state.view === 'compte');
