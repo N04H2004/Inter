@@ -55,7 +55,13 @@ L'interface reprend le drive actuel (en-tête, menu Rayons, fiche produit, panie
   pan bagnat, vin de Bellet…) et nouveautés propres au magasin, sur l'accueil et dans le menu Rayons.
 - **Bandeau du magasin** sous « Livraison offerte » : messages qui défilent et lien Instagram, définis par le point de vente
   dans `STORE_BANNER`, en tête du script.
-- **Recettes** : classiques, plus des recettes niçoises si le profil inclut « Produits locaux ». On choisit le nombre de personnes,
-  on coche ce qu'on a déjà, et la recette ajoute les produits au panier (avec remplacements si besoin).
+- **Recettes** (30, dont 11 niçoises) : classées selon tous les critères du profil (foyer, nombre de personnes, préférences,
+  budget, marques, temps de cuisine). Les recettes niçoises n'apparaissent que si le profil inclut « Produits locaux ».
+  Chaque recette indique préparation, cuisson, difficulté, matériel, étapes avec les quantités et une astuce. On choisit le
+  nombre de personnes, on coche ce qu'on a déjà, et la recette ajoute les produits au panier (avec remplacements si besoin).
+  - **Deux montants** : *approvisionnement* (produits entiers achetés au drive) et *coût de la recette* au prorata des quantités
+    utilisées, par personne. Les fruits et légumes vendus au poids sont vendus à la pièce : poids moyen × prix au kilo.
+  - **PDF** : téléchargement de la recette (jsPDF 2.5.1, licence MIT, intégré au fichier : fonctionne hors connexion).
+  - **Vidéo** : lecteur animé avec un avatar chef, sous-titres et voix de synthèse du navigateur (simulation, pas une vraie vidéo).
 
 Produits, prix, taux de rupture et producteurs sont fictifs. Ils se modifient dans `RAW`, `ORDERS`, `RECIPES` et `DERIVED`.
