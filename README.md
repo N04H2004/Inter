@@ -39,3 +39,10 @@ Les dates de calendrier sont réelles ; les articles, stocks, prix et sensibilit
 et se modifient dans `PRODUCTS`, `MATCHES`, `WEATHER`… en tête du script.
 
 Le champ **Simuler une date** (barre du haut) rejoue toute la proposition à une autre date ; le lien « simuler » de chaque fête y amène directement. La météo n'est disponible que pour la date réelle de la démo.
+
+### Produits saisonniers et fin de fête
+- **Article saisonnier à rotation 0** (ex. pain azyme) : quand la fête entre dans la période couverte, la quantité est calculée à partir
+  des ventes de la même fête l'an dernier (recalées sur la date de la fête) × tendance − stock − commandes en cours. Repère « 🗓️ Saison ».
+- **Rotation gonflée par une fête** (ex. lben pendant le Ramadan) : la rotation Mercalys (moyenne 28 j) est recalée sur une base hors fête.
+  Au début de la fête → accélérateur ; après la fête → **frein suggéré** dans la colonne Frein / Acc (ex. × 0,17 le lendemain du Ramadan).
+- Pour voir ces cas : lien « simuler » / « simuler la fin » dans la tuile Fêtes, ou dates 16/04/2027 (Pessah) et 09/03/2027 (fin du Ramadan).

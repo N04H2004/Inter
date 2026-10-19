@@ -148,9 +148,14 @@
   tr.blocked td { color: #a3adb8; text-decoration: line-through; }
   tr.blocked td.new, tr.blocked td:has(input) { text-decoration: none; }
   .expl table { width: 100%; border-collapse: collapse; margin: 4px 0 8px; }
-  .expl td { border: 0; border-bottom: 1px solid var(--line); height: auto; padding: 3px 4px; }
+  .expl td { border: 0; border-bottom: 1px solid var(--line); height: auto; padding: 3px 4px; white-space: normal; }
+  .expl td:last-child { white-space: nowrap; padding-left: 12px; }
   .expl .k { color: var(--muted); }
   .expl h4 { margin: 8px 0 2px; font-size: 12px; color: var(--navy); }
+  .fa { font-size: 10.5px; font-weight: 700; padding: 0 5px; border-radius: 3px; white-space: nowrap; cursor: help; }
+  .fa.frein { background: #fde2e2; color: #b42318; }
+  .fa.acc { background: var(--up-bg); color: var(--up); }
+  .fa.saison { background: #e8ecfb; color: #3b4fb8; }
   .hint { color: var(--muted); font-size: 11px; margin: 0 0 4px; }
   .hint b { color: var(--title-ink); }
   table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
@@ -371,6 +376,13 @@ const FEASTS = [
   { id: "aidkebir",    icon: "🐑", name: "Aïd el-Kébir",           from: new Date(2027, 4, 17),  to: new Date(2027, 4, 17),  ramp: 10, prov: true, prod: "agneau, semoule, épices, riz" },
   { id: "roshhashana", icon: "🍯", name: "Roch Hachana",           from: new Date(2027, 9, 1),   to: new Date(2027, 9, 3),   ramp: 5,  prod: "miel, pommes, pâtisserie" },
 ];
+/* Fêtes de l'an dernier (pour recaler l'historique) */
+const FEAST_PAST = {
+  ramadan: [{ from: new Date(2026, 1, 18), to: new Date(2026, 2, 19), label: "Ramadan 2026 (18/02 → 19/03)" }],
+  pessah: [{ from: new Date(2026, 3, 2), to: new Date(2026, 3, 9), label: "Pessah 2026 (02/04 → 09/04)" }],
+};
+const feastById = id => FEASTS.find(f => f.id === id);
+const inFeastDay = (id, d) => [...(FEAST_PAST[id] || []), feastById(id)].some(f => d0(d) >= f.from && d0(d) <= f.to);
 function feastIntensity(f, w) {
   return avg(w.days.map(d => {
     if (d0(d) >= f.from && d0(d) <= f.to) return 1;
@@ -475,7 +487,7 @@ const FACTORS = [
         lines: [
           ...FEASTS.filter(f => f.to >= addDays(w.start, -1)).map(f => {
             const a = act.find(x => x.f === f);
-            return `${f.icon} <b>${f.name}</b> — ${fD(f.from)}${f.to > f.from ? ` → ${fD(f.to)}` : ""}${f.prov ? " <i>(provisoire)</i>" : ""}${a ? ` · <b class="pos">intensité ${nf(a.i, 2)}</b>` : ""}<br><span class="sub">${f.prod}</span> · <a href="#" data-sim="${simDate(f)}">simuler</a>`;
+            return `${f.icon} <b>${f.name}</b> — ${fD(f.from)}${f.to > f.from ? ` → ${fD(f.to)}` : ""}${f.prov ? " <i>(provisoire)</i>" : ""}${a ? ` · <b class="pos">intensité ${nf(a.i, 2)}</b>` : ""}<br><span class="sub">${f.prod}</span> · <a href="#" data-sim="${simDate(f)}">simuler</a>${f.to > f.from ? ` · <a href="#" data-sim="${iso(f.to)}">simuler la fin</a>` : ""}`;
           }),
           "Sensibilités par article à calibrer sur l'historique de ventes du magasin (ex. hausse mesurée au dernier Ramadan)",
         ] };
@@ -519,7 +531,7 @@ const SUPPLIERS = [
     ["210053", "Poulet rôti (pièce)", 4, 3.40, 5.90, 0, 6, 4, { dimanche: .45, foot: .05 }],
     ["210060", "Mesclun niçois 250 g", 10, 0.78, 1.49, 8, 7, 2, { chaleur: .3, froid: -.15 }],
     ["210077", "Pissaladière (part)", 10, 0.48, 0.95, 0, 12, 3, { dimanche: .3, foot: .1, chaleur: .05 }],
-    ["210084", "Lben lait fermenté 1 L", 6, 0.95, 1.79, 6, 3, 1, { f_ramadan: .9, f_aidfitr: .4 }],
+    ["210084", "Lben lait fermenté 1 L", 6, 0.95, 1.79, 6, 3, 1, {}, false, { hist: { feast: "ramadan", base: 3, uplift: 5 } }],
     ["210091", "Gigot d'agneau (pièce)", 2, 14.90, 22.90, 2, 1, 1, { f_aidkebir: 1.4, f_paques: 1, salaires: .1 }],
     ["210107", "Pâte feuilletée pur beurre", 10, 1.10, 1.99, 8, 3, 1, { f_epiphanie: 1, f_noelortho: .2 }],
   ]},
@@ -567,7 +579,7 @@ const SUPPLIERS = [
     ["430045", "Olives noires de Nice 200 g", 12, 1.80, 3.25, 6, 3, 2, { chaleur: .2, foot: .2, dimanche: .1 }],
     ["430052", "Dattes Deglet Nour 500 g", 12, 2.10, 3.79, 8, 2, 1, { f_ramadan: 1.5, f_aidfitr: .4 }],
     ["430069", "Semoule moyenne 1 kg", 10, 0.95, 1.69, 10, 3, 1, { f_ramadan: .6, f_aidkebir: .5, f_aidfitr: .3 }],
-    ["430076", "Pain azyme 400 g", 12, 1.60, 2.95, 4, 1, 1, { f_pessah: 2 }],
+    ["430076", "Pain azyme 400 g", 12, 1.60, 2.95, 4, 0, 0, {}, false, { season: { feast: "pessah", n1: 60, trend: 1.05 } }],
     ["430083", "Miel toutes fleurs 500 g", 6, 3.40, 5.95, 6, 1, 1, { f_roshhashana: 1, f_ramadan: .2 }],
     ["430090", "Riz basmati 1 kg", 12, 1.70, 2.99, 10, 3, 1, { f_diwali: .6, f_aidkebir: .2 }],
     ["430106", "Huile de tournesol 1 L", 12, 1.35, 2.39, 12, 4, 1, { f_hanoucca: .5, f_chandeleur: .4 }],
@@ -617,7 +629,7 @@ const SUPPLIERS = [
   ]},
 ].map(s => ({ ...s, liv0: s.liv, art: s.real
   ? s.real.map(a => ({ code: a[0], itm8: a[0], lib: a[1], pcb: a[2], classe: a[3], type: a[4], stock: a[5], rot: a[6], encours: a[7], colis: a[8], pa: a[9], pv: Math.round(a[9] * 1.44 * 100) / 100, s: a[10], promo: !!a[11] }))
-  : s.art.map(a => ({ code: a[0], itm8: "00000" + a[0].padStart(8, "0"), lib: a[1].toUpperCase(), pcb: a[2], pa: a[3], pv: a[4], stock: a[5], rot: a[6], vmoy: a[6], colis: a[7], s: a[8], promo: !!a[9], classe: "A", type: "Mois", encours: 0 })) }));
+  : s.art.map(a => ({ code: a[0], itm8: "00000" + a[0].padStart(8, "0"), lib: a[1].toUpperCase(), pcb: a[2], pa: a[3], pv: a[4], stock: a[5], rot: a[6], vmoy: a[6], colis: a[7], s: a[8], promo: !!a[9], ext: a[10], classe: "A", type: "Mois", encours: 0 })) }));
 
 /* ---------- État ---------- */
 const state = {
@@ -649,8 +661,19 @@ function factorsFor(s) {
   fxCache.set(key, r);
   return r;
 }
+/* Proposition du réappro standard : rotation = moyenne des 28 derniers jours.
+   Pour un article « gonflé » par une fête, la moyenne inclut le pic → biais après la fête. */
+function sysProposal(a, s) {
+  const h = a.ext?.hist;
+  if (!h) return { colis: a.colis, rot: a.rot };
+  const days = Array.from({ length: 28 }, (_, k) => addDays(TODAY, k - 28));
+  const nIn = days.filter(d => inFeastDay(h.feast, d)).length;
+  const rot = Math.round(h.base * (1 + h.uplift * nIn / 28) * 100) / 100;
+  return { colis: Math.max(0, Math.ceil((rot * (s.cov + 1) - a.stock) / a.pcb)), rot, nIn };
+}
 function artCalc(a, s) {
   const fx = factorsFor(s);
+  const sys = sysProposal(a, s);
   const sens = { ...a.s, ...(a.promo ? { promo: .5 } : {}) };
   const parts = [];
   let sum = 0;
@@ -659,27 +682,51 @@ function artCalc(a, s) {
     if (Math.abs(v) >= .005) { parts.push({ id, v }); sum += v; }
   }
   parts.sort((x, y) => Math.abs(y.v) - Math.abs(x.v));
-  const coef = clamp(Math.round((1 + sum) * 100) / 100, .5, 2.5);
-  const adjColis = a.colis === 0 ? 0 : Math.max(1, Math.round(a.colis * coef));
-  const sugg = state.applyCoef ? adjColis : a.colis;
+  let coef = clamp(Math.round((1 + sum) * 100) / 100, .5, 2.5);
+  let adjColis = sys.colis === 0 ? 0 : Math.max(1, Math.round(sys.colis * coef));
+  let special = null;
+  const fetesOn = state.on.fetes;
+  if (a.ext?.hist) {
+    /* Rotation recalée : base hors fête × effet de la fête sur la période couverte */
+    const h = a.ext.hist, f = feastById(h.feast);
+    const iW = fetesOn ? feastIntensity(f, fx._w) : 0;
+    const eventRot = h.base * (1 + h.uplift * iW);
+    const target = eventRot * (1 + sum);
+    coef = clamp(Math.round(target / sys.rot * 100) / 100, .1, 6);
+    adjColis = Math.max(0, Math.ceil((target * (s.cov + 1) - a.stock) / a.pcb));
+    const v = eventRot / sys.rot - 1;
+    if (Math.abs(v) >= .005) parts.unshift({ id: "f_" + h.feast, v, label: `${f.name} — rotation recalée hors fête` });
+    if (coef <= .8 || coef >= 1.25) special = { type: coef < 1 ? "frein" : "acc", base: h.base, eventRot, iW, uplift: h.uplift, f };
+  } else if (a.ext?.season) {
+    /* Article saisonnier à rotation 0 : besoin = ventes de la fête l'an dernier, recalées sur la date de la fête */
+    const se = a.ext.season, f = feastById(se.feast), past = FEAST_PAST[se.feast][0];
+    const start = addDays(f.from, -f.ramp), D = diffDays(f.to, start) + 1;
+    const k = fetesOn ? fx._w.days.filter(d => d0(d) >= start && d0(d) <= f.to).length : 0;
+    const needUvc = se.n1 * se.trend * k / D - a.stock - a.encours;
+    const sc = k ? Math.max(0, Math.ceil(needUvc / a.pcb)) : 0;
+    if (sc > adjColis) { adjColis = sc; special = { type: "saison", k, D, needUvc, sc, n1: se.n1, trend: se.trend, f, past }; }
+  }
+  const sugg = state.applyCoef ? adjColis : sys.colis;
   const final = state.frozen[a.code] ?? state.edit[a.code] ?? sugg;
-  return { coef, parts, adjColis, sugg, final, mod: state.edit[a.code] !== undefined && state.edit[a.code] !== sugg };
+  return { coef, parts, adjColis, sugg, final, sys, special, mod: state.edit[a.code] !== undefined && state.edit[a.code] !== sugg };
 }
 function supCalc(s) {
   let colis = 0, uvc = 0, fColis = 0, fUvc = 0, achat = 0, vente = 0, adjUvc = 0, mods = 0;
+  const specials = [];
   const contrib = {};
   for (const a of s.art) {
     const r = artCalc(a, s);
-    colis += a.colis; uvc += a.colis * a.pcb;
+    colis += r.sys.colis; uvc += r.sys.colis * a.pcb;
+    if (r.special && r.special.type !== "acc") specials.push({ a, r });
     adjUvc += r.adjColis * a.pcb;
     fColis += r.final; fUvc += r.final * a.pcb;
     achat += r.final * a.pcb * a.pa; vente += r.final * a.pcb * a.pv;
     if (r.mod) mods++;
-    for (const p of r.parts) contrib[p.id] = (contrib[p.id] || 0) + p.v * a.colis * a.pcb;
+    for (const p of r.parts) contrib[p.id] = (contrib[p.id] || 0) + p.v * r.sys.colis * a.pcb;
   }
-  const parts = Object.entries(contrib).map(([id, v]) => ({ id, v: v / uvc })).filter(p => Math.abs(p.v) >= .005).sort((x, y) => Math.abs(y.v) - Math.abs(x.v));
+  const parts = Object.entries(contrib).map(([id, v]) => ({ id, v: uvc ? v / uvc : 0 })).filter(p => Math.abs(p.v) >= .005).sort((x, y) => Math.abs(y.v) - Math.abs(x.v));
   const coef = clamp(Math.round((1 + parts.reduce((t, p) => t + p.v, 0)) * 100) / 100, .5, 2.5);
-  return { colis, uvc, fColis, fUvc, achat, vente, coef, parts, mods };
+  return { colis, uvc, fColis, fUvc, achat, vente, coef, parts, mods, specials };
 }
 
 /* ---------- Formats ---------- */
@@ -694,7 +741,7 @@ function partsHtml(parts, coef, title) {
   if (!parts.length) return `<div class="tt">${title}</div><div>Aucun facteur actif.</div>`;
   return `<div class="tt">${title}</div>` + parts.map(p => {
     const f = F[p.id];
-    return `<div class="tl"><span>${f.icon} ${fname(p.id)}${f.local ? ' <span class="ltag">LOCAL</span>' : ""}</span><span class="${p.v > 0 ? "pos" : "neg"}">${p.v > 0 ? "+" : ""}${Math.round(p.v * 100)} %</span></div>`;
+    return `<div class="tl"><span>${f.icon} ${p.label || fname(p.id)}${f.local ? ' <span class="ltag">LOCAL</span>' : ""}</span><span class="${p.v > 0 ? "pos" : "neg"}">${p.v > 0 ? "+" : ""}${Math.round(p.v * 100)} %</span></div>`;
   }).join("") + `<div class="tl tot"><span>Coefficient${state.applyCoef ? "" : " (non appliqué)"}</span><span>× ${nf(coef, 2)}</span></div>`;
 }
 
@@ -786,7 +833,10 @@ function renderList() {
     const dev = Math.abs(r.coef - 1) >= .25 && state.applyCoef;
     const franco = s.franco ? (r.fColis >= s.franco ? "Atteint" : "Non atteint") : "Sans";
     const francoWarn = s.franco && r.fColis < s.franco;
-    const alerts = [dev ? `Écart facteurs externes ${r.coef > 1 ? "+" : ""}${Math.round((r.coef - 1) * 100)} %` : "", francoWarn ? `Franco non atteint (${r.fColis}/${s.franco} colis)` : ""].filter(Boolean);
+    const freins = r.specials.filter(x => x.r.special.type === "frein"), saisons = r.specials.filter(x => x.r.special.type === "saison");
+    const alerts = [dev ? `Écart facteurs externes ${r.coef > 1 ? "+" : ""}${Math.round((r.coef - 1) * 100)} %` : "", francoWarn ? `Franco non atteint (${r.fColis}/${s.franco} colis)` : "",
+      ...freins.map(x => `Frein suggéré × ${nf(x.r.coef, 2)} sur ${x.a.lib} (fin ${x.r.special.f.name})`),
+      ...saisons.map(x => `Article saisonnier ${x.a.lib} : ${x.r.special.sc} colis proposés (${x.r.special.f.name}, rotation 0)`)].filter(Boolean);
     const icons = r.parts.slice(0, 3).map(p => F[p.id].icon).join("");
     const dc = r.fColis - r.colis;
     return `<tr data-sup="${s.code}" class="${s.code === state.sel ? "sel" : ""} ${state.valid[s.code] ? "valid" : ""}">
@@ -806,7 +856,7 @@ function renderList() {
       <td style="${francoWarn ? "color:#b3471d;font-weight:700" : ""}">${franco}</td>
       <td class="n">${s.franco ?? ""}</td>
       <td>${s.franco ? "Colis" : ""}</td>
-      <td></td></tr>`;
+      <td>${state.applyCoef ? [freins.length ? `<span class="fa frein" data-tipalert="${freins.map(x => x.a.lib).join(", ")}">▼ ${freins.length} frein</span>` : "", saisons.length ? `<span class="fa saison" data-tipalert="${saisons.map(x => x.a.lib).join(", ")}">🗓️ ${saisons.length} saison.</span>` : ""].join(" ") : ""}</td></tr>`;
   }).join("");
   const nv = Object.keys(state.valid).length;
   document.getElementById("statusSum").textContent =
@@ -836,19 +886,22 @@ function renderArticles() {
   if (!list.some(a => a.code === state.artSel)) state.artSel = list[0]?.code ?? null;
   document.getElementById("tbody").innerHTML = list.map(a => {
     const x = artCalc(a, s);
-    const du = (x.final - a.colis) * a.pcb;
+    const du = (x.final - x.sys.colis) * a.pcb;
+    const sp = x.special;
+    const fa = !sp || !state.applyCoef ? "" : sp.type === "frein" ? `<span class="fa frein" data-tipart="${a.code}">▼ Frein × ${nf(x.coef, 2)}</span>`
+      : sp.type === "acc" ? `<span class="fa acc" data-tipart="${a.code}">▲ Acc. × ${nf(x.coef, 2)}</span>` : `<span class="fa saison" data-tipart="${a.code}">🗓️ Saisonnier</span>`;
     return `<tr data-art="${a.code}" class="${a.code === state.artSel ? "sel" : ""} ${x.final === 0 && state.edit[a.code] === 0 ? "blocked" : ""}">
       <td>${a.itm8}</td>
       <td>${a.lib}${a.promo ? '<span class="promo">PROMO</span>' : ""}</td>
       <td class="n">${a.pcb}</td><td class="c">${a.classe}</td><td>${a.type}</td>
-      <td class="n">${a.stock}</td><td class="n">${nf(a.rot, 2)}</td><td class="n">${a.encours}</td>
-      <td class="n">${a.colis}</td>
+      <td class="n">${a.stock}</td><td class="n">${nf(x.sys.rot, 2)}</td><td class="n">${a.encours}</td>
+      <td class="n">${x.sys.colis}</td>
       <td class="n"><input class="qty ${x.mod ? "mod" : ""}" data-qty="${a.code}" value="${x.final}" inputmode="numeric" ${state.valid[s.code] ? "disabled" : ""} aria-label="Nb colis validés ${a.lib}"></td>
       <td class="n"><b>${x.final * a.pcb}</b>${du ? `<span class="delta">(${du > 0 ? "+" : ""}${du})</span>` : ""}</td>
-      <td class="new c"><span class="coef ${coefCls(x.coef)}" data-tipart="${a.code}">× ${nf(x.coef, 2)}</span><span class="ics">${state.applyCoef ? x.parts.slice(0, 3).map(p => F[p.id].icon).join("") : ""}</span></td>
+      <td class="new c">${sp?.type === "saison" && state.applyCoef ? `<span class="coef up" data-tipart="${a.code}">🗓️ Saison</span>` : `<span class="coef ${coefCls(x.coef)}" data-tipart="${a.code}">× ${nf(x.coef, 2)}</span>`}<span class="ics">${state.applyCoef ? x.parts.slice(0, 3).map(p => F[p.id].icon).join("") : ""}</span></td>
       <td class="n">${a.pa.toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 3 })}</td>
       <td class="n">${eur3(x.final * a.pcb * a.pa)}</td>
-      <td></td></tr>`;
+      <td>${fa}</td></tr>`;
   }).join("") || `<tr><td colspan="15" class="sub" style="text-align:center">Aucun article</td></tr>`;
   document.getElementById("statusSum").textContent =
     `${s.nom} · ${s.art.length} articles · ${r.colis} → ${r.fColis} colis · coef moyen × ${nf(r.coef, 2)}`;
@@ -915,7 +968,12 @@ document.addEventListener("mouseover", e => {
   if (!t) return;
   const s = selSupplier();
   if (t.dataset.tipsup) { const sp = SUPPLIERS.find(x => x.code === +t.dataset.tipsup); const r = supCalc(sp); tip.innerHTML = partsHtml(r.parts, r.coef, `${sp.nom} — moyenne pondérée UVC`); }
-  else if (t.dataset.tipart) { const a = s.art.find(x => x.code === t.dataset.tipart); const r = artCalc(a, s); tip.innerHTML = partsHtml(r.parts, r.coef, a.lib); }
+  else if (t.dataset.tipart) {
+    const a = s.art.find(x => x.code === t.dataset.tipart); const r = artCalc(a, s), sp = r.special;
+    tip.innerHTML = sp?.type === "saison"
+      ? `<div class="tt">${a.lib} — article saisonnier</div>Rotation 0 : besoin basé sur ${sp.past.label}<div class="tl"><span>Ventes ${sp.f.name} l'an dernier</span><span>${sp.n1} UVC</span></div><div class="tl"><span>Jours de la fête couverts</span><span>${sp.k}/${sp.D}</span></div><div class="tl tot"><span>Proposé</span><span>${sp.sc} colis</span></div>`
+      : partsHtml(r.parts, r.coef, a.lib) + (sp?.type === "frein" ? `<div class="sub" style="margin-top:4px">Rotation Mercalys ${nf(r.sys.rot, 2)}/j gonflée par ${sp.f.name} → base hors fête ${nf(sp.base, 2)}/j</div>` : "");
+  }
   else tip.innerHTML = `<div class="tt">Alerte</div>${t.dataset.tipalert}`;
   place(tip, t.getBoundingClientRect());
 });
@@ -1002,16 +1060,27 @@ document.getElementById("bBloq").onclick = () => {
 document.getElementById("bExpl").onclick = () => {
   const s = selSupplier(), a = curArt(); if (!a) return;
   const x = artCalc(a, s), w = factorsFor(s)._w;
-  const raw = a.colis * x.coef;
+  const raw = x.sys.colis * x.coef, sp = x.special;
   const rows = x.parts.length ? x.parts.map(p => { const f = F[p.id]; return `<tr><td>${f.icon} ${f.name}${f.local ? ' <span class="ltag">LOCAL</span>' : ""}</td><td style="text-align:right" class="${p.v > 0 ? "pos" : "neg"}">${p.v > 0 ? "+" : ""}${Math.round(p.v * 100)} %</td></tr>`; }).join("") : `<tr><td colspan="2" class="k">Aucun facteur externe sur cet article</td></tr>`;
   dialog("Explications calculs", `<div class="expl">
     <p><b>${a.lib}</b> — Itm8 ${a.itm8}<br><span class="k">Classe ${a.classe} · prévision ${a.type} · Cdt ${a.pcb}</span></p>
     <h4>1. Calcul réappro standard</h4>
-    <table><tr><td class="k">Stock</td><td style="text-align:right">${a.stock}</td></tr><tr><td class="k">Rotation vente</td><td style="text-align:right">${nf(a.rot, 2)}</td></tr><tr><td class="k">Commandes en cours</td><td style="text-align:right">${a.encours}</td></tr><tr><td><b>Nb colis calculés</b></td><td style="text-align:right"><b>${a.colis}</b> (${a.colis * a.pcb} UVC)</td></tr></table>
+    <table><tr><td class="k">Stock</td><td style="text-align:right">${a.stock}</td></tr><tr><td class="k">Rotation vente (moyenne 28 j)</td><td style="text-align:right">${nf(x.sys.rot, 2)}</td></tr><tr><td class="k">Commandes en cours</td><td style="text-align:right">${a.encours}</td></tr><tr><td><b>Nb colis calculés</b></td><td style="text-align:right"><b>${x.sys.colis}</b> (${x.sys.colis * a.pcb} UVC)</td></tr></table>
+    ${a.ext?.hist ? `<h4>1 bis. Rotation recalée hors fête</h4><table>
+      <tr><td class="k">Jours de ${feastById(a.ext.hist.feast).name} dans les 28 derniers jours</td><td style="text-align:right">${x.sys.nIn}/28</td></tr>
+      <tr><td class="k">Rotation de base hors fête</td><td style="text-align:right">${nf(a.ext.hist.base, 2)}/j</td></tr>
+      <tr><td class="k">Effet de la fête sur la période couverte (+${a.ext.hist.uplift * 100} % × intensité ${nf(state.on.fetes ? feastIntensity(feastById(a.ext.hist.feast), w) : 0, 2)})</td><td style="text-align:right">${nf(a.ext.hist.base * (1 + a.ext.hist.uplift * (state.on.fetes ? feastIntensity(feastById(a.ext.hist.feast), w) : 0)), 2)}/j</td></tr>
+      </table>${sp?.type === "frein" ? `<p class="neg"><b>▼ Frein suggéré × ${nf(x.coef, 2)}</b> : la moyenne de Mercalys inclut encore le pic de ${sp.f.name}, alors que la période couverte est après la fête.</p>` : sp?.type === "acc" ? `<p class="pos"><b>▲ Accélérateur × ${nf(x.coef, 2)}</b> : la fête démarre, la moyenne de Mercalys ne l'a pas encore intégrée.</p>` : ""}` : ""}
+    ${sp?.type === "saison" ? `<h4>1 bis. Article saisonnier (rotation 0)</h4><table>
+      <tr><td class="k">Référence : ${sp.past.label}</td><td style="text-align:right">${sp.n1} UVC vendues</td></tr>
+      <tr><td class="k">Tendance magasin</td><td style="text-align:right">× ${nf(sp.trend, 2)}</td></tr>
+      <tr><td class="k">Jours de la fête (montée en charge incluse) couverts par la livraison</td><td style="text-align:right">${sp.k}/${sp.D}</td></tr>
+      <tr><td class="k">Besoin : ${sp.n1} × ${nf(sp.trend, 2)} × ${sp.k}/${sp.D} − stock ${a.stock} − cdes ${a.encours}</td><td style="text-align:right">${nf(sp.needUvc, 1)} UVC</td></tr>
+      <tr><td><b>Colis proposés (arrondi au colis)</b></td><td style="text-align:right"><b>${sp.sc}</b></td></tr></table>` : ""}
     <h4>2. Facteurs externes — période ${fD(w.start)} → ${fD(w.days.at(-1))}</h4>
     <table>${rows}<tr><td><b>Coefficient</b></td><td style="text-align:right"><b>× ${nf(x.coef, 2)}</b></td></tr></table>
     <h4>3. Proposition ajustée</h4>
-    <p>${a.colis} colis × ${nf(x.coef, 2)} = ${nf(raw, 2)} colis → arrondi au colis : <b>${x.adjColis} colis (${x.adjColis * a.pcb} UVC)</b>${state.applyCoef ? "" : ' <span class="k">— coefficients désactivés, proposition brute conservée</span>'}</p>
+    <p>${sp?.type === "saison" ? `Proposition saisonnière` : a.ext?.hist ? `Besoin recalé sur la période (rotation recalée × ${s.cov + 1} j − stock ${a.stock})` : `${x.sys.colis} colis × ${nf(x.coef, 2)} = ${nf(raw, 2)} colis`} → arrondi au colis : <b>${x.adjColis} colis (${x.adjColis * a.pcb} UVC)</b>${state.applyCoef ? "" : ' <span class="k">— coefficients désactivés, proposition brute conservée</span>'}</p>
     ${x.mod ? `<p class="k">Quantité modifiée manuellement : ${x.final} colis.</p>` : ""}
   </div>`, "Fermer", null);
 };
