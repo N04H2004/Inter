@@ -31,8 +31,11 @@ Commande du jeudi 15/10/2026 pour livraison le vendredi 16/10/2026, qui couvre v
 | Pouvoir d'achat | Salaires | Dernier jour ouvré du mois |
 | Football | Matchs diffusés | Strasbourg–PSG sam. 17/10, Angers–OM et Lyon–OGC Nice dim. 18/10… |
 | Calendrier | Vacances zone B | Toussaint du sam. 17/10 au dim. 1/11 (reprise lun. 2/11) |
+| Calendrier | Fêtes religieuses & culturelles | Diwali, Hanoucca, Épiphanie, Noël orthodoxe, Chandeleur, Ramadan, Aïd el-Fitr, Pâques, Pessah, Aïd el-Kébir, Roch Hachana (dates musulmanes provisoires) |
 | Calendrier | Halloween, jours fériés, promo | 31/10 ; Toussaint 1/11 (dimanche), 11/11 |
 | Local | Ouverture le dimanche, écoles du quartier, tourisme, événements en ville | Spécifique au magasin de Nice Cessole |
 
 Les dates de calendrier sont réelles ; les articles, stocks, prix et sensibilités sont fictifs
 et se modifient dans `PRODUCTS`, `MATCHES`, `WEATHER`… en tête du script.
+
+Le champ **Simuler une date** (barre du haut) rejoue toute la proposition à une autre date ; le lien « simuler » de chaque fête y amène directement. La météo n'est disponible que pour la date réelle de la démo.

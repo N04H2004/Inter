@@ -229,8 +229,9 @@
 <div class="topbar">
   <div class="logo"><div class="m">MER<span>C</span>ALYS</div><div class="r">RÉAPPRO</div></div>
   <div class="tab"><div class="ic"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 2 12h3v8h5v-5h4v5h5v-8h3z"/></svg></div>Accueil</div>
-  <div class="tab"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div>Semaine 42</div>
+  <div class="tab"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div><span id="week">Semaine 42</span></div>
   <div class="tab"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><span id="clock">Jeudi 15/10/2026</span></div>
+  <label class="tab" title="Rejouer la proposition à une autre date (fêtes, vacances, CAF…)" style="cursor:pointer">📆 Simuler une date&nbsp;<input type="date" id="simDate" style="font:inherit;border:0;border-radius:3px;padding:1px 3px"></label>
   <div class="spacer"></div>
   <div class="store-tab">📍 Intermarché Express Nice Cessole — 143 bd de Cessole, 06100 Nice</div>
   <div class="help"><div class="ic">?</div>Aide</div>
@@ -334,13 +335,49 @@
    Proposition calculée le jeudi 15/10/2026 (S42).
    Dates de calendrier réelles ; articles, stocks, prix et sensibilités fictifs.
    ===================================================================== */
-const TODAY = new Date(2026, 9, 15);
+const BASE_TODAY = new Date(2026, 9, 15);
+let TODAY = BASE_TODAY;       // modifiable par « Simuler une date »
 
 /* Météo du lendemain (prévision pour vendredi 16/10/2026 à Nice) */
 const FORECAST = { date: new Date(2026, 9, 16), icon: "☀️", tmin: 15, tmax: 23, ciel: "Ensoleillé, quelques nuages marins", pluie: 0, vent: "Faible, secteur sud", normale: 22 };
 
-const SCHOOL_HOLIDAYS = [{ name: "Toussaint", from: new Date(2026, 9, 17), to: new Date(2026, 10, 1) }]; // zone B, reprise lun. 2/11
-const PUBLIC_HOLIDAYS = [{ name: "Toussaint", d: new Date(2026, 10, 1) }, { name: "Armistice", d: new Date(2026, 10, 11) }];
+/* Vacances zone B (académie de Nice) — « to » = dernier jour avant la reprise */
+const SCHOOL_HOLIDAYS = [
+  { name: "Toussaint", from: new Date(2026, 9, 17), to: new Date(2026, 10, 1) },
+  { name: "Noël", from: new Date(2026, 11, 19), to: new Date(2027, 0, 3) },
+  { name: "Hiver", from: new Date(2027, 1, 20), to: new Date(2027, 2, 7) },
+  { name: "Printemps", from: new Date(2027, 3, 17), to: new Date(2027, 4, 2) },
+];
+const PUBLIC_HOLIDAYS = [
+  { name: "Toussaint", d: new Date(2026, 10, 1) }, { name: "Armistice", d: new Date(2026, 10, 11) },
+  { name: "Noël", d: new Date(2026, 11, 25) }, { name: "Jour de l'an", d: new Date(2027, 0, 1) },
+  { name: "Lundi de Pâques", d: new Date(2027, 2, 29) }, { name: "Fête du Travail", d: new Date(2027, 4, 1) },
+  { name: "Ascension", d: new Date(2027, 4, 6) }, { name: "Victoire 1945", d: new Date(2027, 4, 8) },
+  { name: "Lundi de Pentecôte", d: new Date(2027, 4, 17) },
+];
+
+/* Fêtes religieuses et culturelles (non fériées) — ramp = jours de montée en charge avant la fête
+   Dates des fêtes musulmanes provisoires (observation de la lune). Fêtes juives : début la veille au soir. */
+const FEASTS = [
+  { id: "diwali",      icon: "🪔", name: "Diwali",                 from: new Date(2026, 10, 8),  to: new Date(2026, 10, 8),  ramp: 10, prod: "riz basmati, épices, bougies, confiseries" },
+  { id: "hanoucca",    icon: "🕎", name: "Hanoucca",               from: new Date(2026, 11, 4),  to: new Date(2026, 11, 12), ramp: 7,  prod: "huile, farine (beignets, latkes), bougies" },
+  { id: "epiphanie",   icon: "👑", name: "Épiphanie (galettes)",   from: new Date(2027, 0, 3),   to: new Date(2027, 0, 31),  ramp: 5,  prod: "pâte feuilletée, amandes, farine" },
+  { id: "noelortho",   icon: "☦️", name: "Noël orthodoxe",         from: new Date(2027, 0, 7),   to: new Date(2027, 0, 7),   ramp: 7,  prod: "spiritueux, poissons, pâtisserie" },
+  { id: "chandeleur",  icon: "🥞", name: "Chandeleur",             from: new Date(2027, 1, 2),   to: new Date(2027, 1, 2),   ramp: 7,  prod: "farine, lait, œufs, huile, pâte à tartiner" },
+  { id: "ramadan",     icon: "🌙", name: "Ramadan",                from: new Date(2027, 1, 8),   to: new Date(2027, 2, 9),   ramp: 10, prov: true, prod: "dattes, semoule, lait fermenté, thé à la menthe, miel, amandes" },
+  { id: "aidfitr",     icon: "🌙", name: "Aïd el-Fitr",            from: new Date(2027, 2, 10),  to: new Date(2027, 2, 10),  ramp: 4,  prov: true, prod: "pâtisseries, amandes, semoule, boissons" },
+  { id: "paques",      icon: "🐣", name: "Pâques",                 from: new Date(2027, 2, 28),  to: new Date(2027, 2, 28),  ramp: 21, prod: "chocolats, agneau" },
+  { id: "pessah",      icon: "🍷", name: "Pessah",                 from: new Date(2027, 3, 21),  to: new Date(2027, 3, 29),  ramp: 7,  prod: "pain azyme, produits casher" },
+  { id: "aidkebir",    icon: "🐑", name: "Aïd el-Kébir",           from: new Date(2027, 4, 17),  to: new Date(2027, 4, 17),  ramp: 10, prov: true, prod: "agneau, semoule, épices, riz" },
+  { id: "roshhashana", icon: "🍯", name: "Roch Hachana",           from: new Date(2027, 9, 1),   to: new Date(2027, 9, 3),   ramp: 5,  prod: "miel, pommes, pâtisserie" },
+];
+function feastIntensity(f, w) {
+  return avg(w.days.map(d => {
+    if (d0(d) >= f.from && d0(d) <= f.to) return 1;
+    const k = diffDays(f.from, d);
+    return k > 0 && k <= f.ramp ? 1 - k / (f.ramp + 1) : 0;
+  }));
+}
 const MATCHES = [
   { d: new Date(2026, 9, 16, 20, 45), label: "Le Mans – Toulouse", comp: "Ligue 1 · J7", w: .05 },
   { d: new Date(2026, 9, 17, 17, 15), label: "Strasbourg – PSG", comp: "Ligue 1 · J7", w: .4 },
@@ -377,7 +414,8 @@ const inHoliday = d => SCHOOL_HOLIDAYS.some(h => d0(d) >= h.from && d0(d) <= h.t
    FACTEURS — intensité calculée sur la période couverte par la livraison.
    w = { start, days[] }
    ===================================================================== */
-const weatherWeight = w => w.start <= addDays(TODAY, 2) ? Math.min(1, 2 / w.days.length) : 0; // prévision J+1 : utile pour les livraisons ≤ J+2
+const simulated = () => diffDays(TODAY, BASE_TODAY) !== 0;
+const weatherWeight = w => !simulated() && w.start <= addDays(TODAY, 2) ? Math.min(1, 2 / w.days.length) : 0; // prévision J+1 : utile pour les livraisons ≤ J+2
 
 const FACTORS = [
   { id: "chaleur", key: "meteo", icon: "☀️", name: "Météo J+1 : douceur", hidden: true,
@@ -415,8 +453,8 @@ const FACTORS = [
     } },
   { id: "vacances", icon: "🎒", name: "Vacances scolaires zone B",
     calc: w => { const n = w.days.filter(inHoliday).length; return { i: n / w.days.length,
-      sum: `Toussaint 17/10 → 01/11 · ${n}/${w.days.length} j`,
-      lines: ["Académie de Nice = zone B", "Toussaint : <b>sam. 17/10 → dim. 01/11</b>, reprise lun. 02/11", `${n} jour(s) sur ${w.days.length} de la période en vacances : enfants à la maison (goûter, petit-déj)`] }; } },
+      sum: (h => h ? `${h.name} ${fD(h.from).slice(-5)} → ${fD(h.to).slice(-5)} · ${n}/${w.days.length} j` : "—")(SCHOOL_HOLIDAYS.find(h => h.to >= w.start)),
+      lines: ["Académie de Nice = zone B", ...SCHOOL_HOLIDAYS.filter(h => h.to >= w.start).slice(0, 2).map(h => `${h.name} : <b>${fD(h.from)} → ${fD(h.to)}</b>, reprise ${fD(addDays(h.to, 1))}`), `${n} jour(s) sur ${w.days.length} de la période en vacances : enfants à la maison (goûter, petit-déj)`] }; } },
   { id: "halloween", icon: "🎃", name: "Halloween",
     calc: w => { const h = new Date(w.start.getFullYear(), 9, 31); const n = diffDays(h, w.start);
       return { i: avg(w.days.map(d => { const k = diffDays(h, d); return k >= 0 ? clamp(1 - k / 28, 0, 1) : 0; })),
@@ -425,9 +463,25 @@ const FACTORS = [
   { id: "ferie", icon: "📅", name: "Jours fériés / ponts",
     calc: w => { const inW = PUBLIC_HOLIDAYS.filter(p => w.days.some(d => sameDay(d, p.d)));
       const nx = PUBLIC_HOLIDAYS.find(p => p.d >= w.start);
-      return { i: inW.length ? 1 : 0, sum: inW.length ? inW.map(p => p.name).join(", ") : `Aucun · prochain ${nx.name} ${fD(nx.d)}`,
-        lines: [inW.length ? `Férié sur la période : ${inW.map(p => p.name).join(", ")}` : "Aucun férié sur la période", `Prochain : ${nx.name}, ${fD(nx.d)}${nx.d.getDay() === 0 ? " (tombe un dimanche, pas de pont)" : ""}`] }; } },
-  { id: "promo", icon: "🏷️", name: "Promo catalogue S42",
+      return { i: inW.length ? 1 : 0, sum: inW.length ? inW.map(p => p.name).join(", ") : nx ? `Aucun · prochain ${nx.name} ${fD(nx.d)}` : "Aucun",
+        lines: [inW.length ? `Férié sur la période : ${inW.map(p => p.name).join(", ")}` : "Aucun férié sur la période", nx ? `Prochain : ${nx.name}, ${fD(nx.d)}${nx.d.getDay() === 0 ? " (tombe un dimanche, pas de pont)" : ""}` : ""].filter(Boolean) }; } },
+  { id: "fetes", icon: "🕊️", name: "Fêtes religieuses & culturelles",
+    calc: w => {
+      const act = FEASTS.map(f => ({ f, i: feastIntensity(f, w) })).filter(x => x.i > 0);
+      const next = FEASTS.find(f => f.to >= w.start);
+      const simDate = f => { const d = addDays(f.from, -5); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; };
+      return { i: act.length ? Math.max(...act.map(x => x.i)) : 0,
+        sum: act.length ? act.map(x => `${x.f.icon} ${x.f.name} ${nf(x.i, 2)}`).join(" · ") : next ? `Aucune · prochaine ${next.name} ${fD(next.from)}` : "Aucune",
+        lines: [
+          ...FEASTS.filter(f => f.to >= addDays(w.start, -1)).map(f => {
+            const a = act.find(x => x.f === f);
+            return `${f.icon} <b>${f.name}</b> — ${fD(f.from)}${f.to > f.from ? ` → ${fD(f.to)}` : ""}${f.prov ? " <i>(provisoire)</i>" : ""}${a ? ` · <b class="pos">intensité ${nf(a.i, 2)}</b>` : ""}<br><span class="sub">${f.prod}</span> · <a href="#" data-sim="${simDate(f)}">simuler</a>`;
+          }),
+          "Sensibilités par article à calibrer sur l'historique de ventes du magasin (ex. hausse mesurée au dernier Ramadan)",
+        ] };
+    } },
+  ...FEASTS.map(f => ({ id: "f_" + f.id, key: "fetes", hidden: true, icon: f.icon, name: f.name, calc: w => ({ i: feastIntensity(f, w) }) })),
+  { id: "promo", icon: "🏷️", name: "Promo catalogue",
     calc: () => ({ i: 1, sum: "Articles du prospectus en cours", lines: ["Prospectus semaine 42 : articles marqués PROMO", "Sensibilité standard : +50 % de demande"] }) },
 
   /* ---- Local ---- */
@@ -465,6 +519,9 @@ const SUPPLIERS = [
     ["210053", "Poulet rôti (pièce)", 4, 3.40, 5.90, 0, 6, 4, { dimanche: .45, foot: .05 }],
     ["210060", "Mesclun niçois 250 g", 10, 0.78, 1.49, 8, 7, 2, { chaleur: .3, froid: -.15 }],
     ["210077", "Pissaladière (part)", 10, 0.48, 0.95, 0, 12, 3, { dimanche: .3, foot: .1, chaleur: .05 }],
+    ["210084", "Lben lait fermenté 1 L", 6, 0.95, 1.79, 6, 3, 1, { f_ramadan: .9, f_aidfitr: .4 }],
+    ["210091", "Gigot d'agneau (pièce)", 2, 14.90, 22.90, 2, 1, 1, { f_aidkebir: 1.4, f_paques: 1, salaires: .1 }],
+    ["210107", "Pâte feuilletée pur beurre", 10, 1.10, 1.99, 8, 3, 1, { f_epiphanie: 1, f_noelortho: .2 }],
   ]},
   { code: 2, nom: "02.GEL MEA", liv: new Date(2026, 9, 17), cov: 2, moy4s: 8, art: [
     ["220011", "Crème glacée vanille 1 L", 4, 1.95, 3.49, 12, 3, 2, { chaleur: .6, froid: -.3, pluie: -.15 }],
@@ -479,35 +536,41 @@ const SUPPLIERS = [
     ["230048", "Chips nature 150 g", 12, 0.55, 1.09, 20, 15, 3, { foot: .45, vacances: .1, dimanche: .1 }, true],
   ]},
   { code: 17, nom: "17 LAIT UHT", liv: new Date(2026, 9, 17), cov: 2, moy4s: 6, art: [
-    ["170016", "Lait demi-écrémé 6×1 L", 4, 3.60, 5.70, 20, 9, 5, { caf: .2, vacances: .1 }],
+    ["170016", "Lait demi-écrémé 6×1 L", 4, 3.60, 5.70, 20, 9, 5, { caf: .2, vacances: .1, f_chandeleur: .3 }],
     ["170023", "Lait chocolaté 6×20 cl", 12, 1.30, 2.25, 10, 4, 1, { vacances: .35 }],
   ]},
   /* Articles réels de l'écran Mercalys (page 1) — sensibilités fictives */
   { code: 40, nom: "40 EPICERIE SUCREE LENT", liv: new Date(2026, 9, 20), cov: 7, moy4s: 18, encours: 12, franco: 20, real: [
-    ["0000029294109", "LIPT.THE VT PAMP.MAND.X20...", 12, "C", "Mois", 2, 1.50, 0, 1, 2.16, { froid: .1 }],
-    ["0000017345225", "TWININGS T.VER/MENT 25S 37...", 12, "A", "Mois", 4, 4.75, 0, 1, 2.211, { froid: .2 }],
+    ["0000029294109", "LIPT.THE VT PAMP.MAND.X20...", 12, "C", "Mois", 2, 1.50, 0, 1, 2.16, { froid: .1, f_ramadan: .2 }],
+    ["0000017345225", "TWININGS T.VER/MENT 25S 37...", 12, "A", "Mois", 4, 4.75, 0, 1, 2.211, { froid: .2, f_ramadan: .3, f_aidfitr: .2 }],
     ["0000017897545", "COTTERLEY INF VERV 25S 32,5G", 10, "A", "Mois", 13, 5.75, 0, 1, 0.665, { froid: .3 }],
-    ["0000040065070", "MILKA LAIT NOISETTES 2X100G", 18, "A", "Mois", 26, 6.75, 0, 1, 2.583, { vacances: .15, halloween: .2 }, true],
+    ["0000040065070", "MILKA LAIT NOISETTES 2X100G", 18, "A", "Mois", 26, 6.75, 0, 1, 2.583, { vacances: .15, halloween: .2, f_paques: .3 }, true],
     ["0000017193942", "NESTLE CRUNCH LAIT 2X100G", 20, "A", "Mois", 8, 5.00, 0, 1, 2.03, { vacances: .2, halloween: .2 }],
-    ["0000040062015", "LES CREA CHOC NOIR 72% 100G", 19, "A", "Jour", 0, 64.75, 76, 1, 1.118, { vacances: .15 }],
+    ["0000040062015", "LES CREA CHOC NOIR 72% 100G", 19, "A", "Jour", 0, 64.75, 76, 1, 1.118, { vacances: .15, f_paques: .2, f_chandeleur: .1 }],
     ["0000040065151", "IVORIA BLOC LAIT NOISET. 200G", 11, "A", "Mois", 17, 8.75, 11, 1, 1.608, { vacances: .1 }],
-    ["0000040073046", "KINDER BUENO T3 129G", 10, "A", "Semaine", 1, 14.25, 20, 1, 2.153, { vacances: .3, halloween: .15 }],
+    ["0000040073046", "KINDER BUENO T3 129G", 10, "A", "Semaine", 1, 14.25, 20, 1, 2.153, { vacances: .3, halloween: .15, f_paques: .2 }],
     ["0000017037479", "TWIX MINIS 333G", 24, "A", "Mois", 4, 1.50, 0, 1, 3.292, { halloween: .9, vacances: .1 }],
     ["0000029800137", "PLESH AMANDE CHOCO NR FDS...", 12, "-", "1 / 1", 5, 0.75, 0, 1, 2.786, {}],
     ["0000029403542", "HARIBO LANGUES PIK 180G", 24, "A", "Mois", 10, 2.50, 0, 1, 1.254, { halloween: .8, vacances: .2 }],
     ["0000017672416", "ELOD ASS CONF GELIF+REGLIS6...", 12, "B", "Mois", 4, 0.75, 0, 1, 2.14, { halloween: .6, vacances: .1 }],
     ["0000040072001", "HARIBO TUBO DRAGOLO 750G", 18, "B", "Mois", 5, 2.25, 0, 1, 3.236, { halloween: 1, vacances: .2 }],
     ["0000029002854", "KREMA FRUITS ROUGES 240G", 18, "A", "Mois", 9, 2.00, 0, 1, 1.692, { halloween: .5, vacances: .1 }],
-    ["0000040084032", "CHABRIOR AMANDES EFFILEES...", 12, "A", "Mois", 12, 3.75, 0, 1, 1.574, { vacances: .1 }],
+    ["0000040084032", "CHABRIOR AMANDES EFFILEES...", 12, "A", "Mois", 12, 3.75, 0, 1, 1.574, { vacances: .1, f_epiphanie: .6, f_ramadan: .3, f_aidfitr: .4 }],
     ["0000017079577", "ALSA COOKIE PEPITE CHOCO 24...", 7, "A", "Mois", 4, 2.75, 0, 1, 2.246, { vacances: .35 }],
-    ["0000040091040", "REGILAIT CONC SCR TUBE 300G", 12, "A", "Jour", 8, 21.50, 24, 1, 1.46, { caf: .1 }],
+    ["0000040091040", "REGILAIT CONC SCR TUBE 300G", 12, "A", "Jour", 8, 21.50, 24, 1, 1.46, { caf: .1, f_chandeleur: .2 }],
     ["0000040094010", "PATURAGES LT ECREME PDRE 3...", 12, "A", "Mois", 8, 8.75, 12, 1, 1.657, { caf: .1 }],
   ]},
   { code: 43, nom: "43 EPICERIE SALEE LENT", liv: new Date(2026, 9, 20), cov: 7, moy4s: 12, encours: 8, franco: 10, art: [
     ["430014", "Soupe de légumes 1 L", 6, 1.20, 2.15, 10, 5, 5, { froid: .5, pluie: .2, chaleur: -.3 }],
-    ["430021", "Huile d'olive vierge extra 1 L", 6, 5.10, 8.49, 8, 3, 3, { salaires: .15 }],
+    ["430021", "Huile d'olive vierge extra 1 L", 6, 5.10, 8.49, 8, 3, 3, { salaires: .15, f_hanoucca: .2 }],
     ["430038", "Thon au naturel ×3", 12, 2.90, 4.79, 14, 5, 3, { caf: .2 }],
     ["430045", "Olives noires de Nice 200 g", 12, 1.80, 3.25, 6, 3, 2, { chaleur: .2, foot: .2, dimanche: .1 }],
+    ["430052", "Dattes Deglet Nour 500 g", 12, 2.10, 3.79, 8, 2, 1, { f_ramadan: 1.5, f_aidfitr: .4 }],
+    ["430069", "Semoule moyenne 1 kg", 10, 0.95, 1.69, 10, 3, 1, { f_ramadan: .6, f_aidkebir: .5, f_aidfitr: .3 }],
+    ["430076", "Pain azyme 400 g", 12, 1.60, 2.95, 4, 1, 1, { f_pessah: 2 }],
+    ["430083", "Miel toutes fleurs 500 g", 6, 3.40, 5.95, 6, 1, 1, { f_roshhashana: 1, f_ramadan: .2 }],
+    ["430090", "Riz basmati 1 kg", 12, 1.70, 2.99, 10, 3, 1, { f_diwali: .6, f_aidkebir: .2 }],
+    ["430106", "Huile de tournesol 1 L", 12, 1.35, 2.39, 12, 4, 1, { f_hanoucca: .5, f_chandeleur: .4 }],
   ]},
   { code: 44, nom: "44 HYGIENE PARFUMERIE LENT", liv: new Date(2026, 9, 20), cov: 7, moy4s: 9, encours: 6, franco: 10, art: [
     ["440011", "Gel douche 250 ml", 12, 1.05, 1.99, 20, 6, 3, { caf: .1 }],
@@ -519,17 +582,19 @@ const SUPPLIERS = [
     ["510018", "Bière blonde 12×25 cl", 3, 4.60, 7.90, 9, 5, 4, { chaleur: .25, foot: .6, salaires: .1, dimanche: .1 }],
     ["510025", "Rosé de Provence AOP 75 cl", 6, 2.95, 5.50, 20, 6, 2, { chaleur: .3, ferie: .25, salaires: .2, dimanche: .15 }, true],
     ["510032", "Pastis 1 L", 6, 11.20, 18.90, 6, 1, 1, { chaleur: .35, foot: .3, salaires: .15 }],
-    ["510049", "Jus d'orange 1 L", 6, 0.72, 1.35, 14, 8, 3, { vacances: .2 }],
+    ["510049", "Jus d'orange 1 L", 6, 0.72, 1.35, 14, 8, 3, { vacances: .2, f_ramadan: .2 }],
+    ["510056", "Vodka 70 cl", 6, 9.80, 16.50, 4, 1, 1, { f_noelortho: .6, salaires: .1 }],
   ]},
   { code: 141, nom: "141 SCAPR EPICERIE DROG HYG", liv: new Date(2026, 9, 20), cov: 7, moy4s: 2, art: [
     ["141017", "Piles alcalines AA ×4", 10, 2.10, 4.20, 10, 1, 1, { halloween: .1 }],
-    ["141024", "Bougies chauffe-plat ×30", 6, 1.60, 3.20, 6, 1, 1, { froid: .1, halloween: .3 }],
+    ["141024", "Bougies chauffe-plat ×30", 6, 1.60, 3.20, 6, 1, 1, { froid: .1, halloween: .3, f_diwali: .5, f_hanoucca: .3 }],
   ]},
   { code: 142, nom: "142 FECULENT SAUCES", liv: new Date(2026, 9, 17), cov: 7, moy4s: 5, art: [
     ["142014", "Pâtes coquillettes 500 g", 20, 0.42, 0.85, 45, 12, 2, { caf: .25, pluie: .05 }],
     ["142021", "Riz long 1 kg", 12, 1.10, 1.95, 20, 4, 1, { caf: .2 }],
     ["142038", "Ketchup 560 g", 10, 1.25, 2.29, 10, 3, 1, { foot: .25, chaleur: .1 }],
     ["142045", "Sauce tomate basilic 400 g", 12, 0.95, 1.75, 14, 4, 1, { caf: .15 }],
+    ["142052", "Farine de blé T45 1 kg", 10, 0.62, 1.15, 12, 3, 1, { f_chandeleur: 1.2, f_epiphanie: .3, f_hanoucca: .2, f_diwali: .2 }],
   ]},
   { code: 143, nom: "143 PETIT DEJ BISCUITS", liv: new Date(2026, 9, 17), cov: 7, moy4s: 6, art: [
     ["143011", "Biscuits goûter ×8", 12, 0.92, 1.75, 16, 10, 3, { vacances: .35, caf: .1 }],
@@ -550,7 +615,7 @@ const SUPPLIERS = [
     ["146012", "Croquettes chat 2 kg", 4, 4.20, 7.49, 6, 1, 1, { caf: .1 }],
     ["146029", "Litière 10 L", 3, 2.60, 4.69, 5, 1, 1, {}],
   ]},
-].map(s => ({ ...s, art: s.real
+].map(s => ({ ...s, liv0: s.liv, art: s.real
   ? s.real.map(a => ({ code: a[0], itm8: a[0], lib: a[1], pcb: a[2], classe: a[3], type: a[4], stock: a[5], rot: a[6], encours: a[7], colis: a[8], pa: a[9], pv: Math.round(a[9] * 1.44 * 100) / 100, s: a[10], promo: !!a[11] }))
   : s.art.map(a => ({ code: a[0], itm8: "00000" + a[0].padStart(8, "0"), lib: a[1].toUpperCase(), pcb: a[2], pa: a[3], pv: a[4], stock: a[5], rot: a[6], vmoy: a[6], colis: a[7], s: a[8], promo: !!a[9], classe: "A", type: "Mois", encours: 0 })) }));
 
@@ -657,13 +722,14 @@ function renderFactors() {
     <div class="day">${FORECAST.date.toLocaleDateString("fr-FR", { weekday: "long", day: "numeric", month: "long" })}</div>
     <div class="main"><span class="sun">${FORECAST.icon}</span><span class="temps">${FORECAST.tmax}°<small> / ${FORECAST.tmin}°</small></span></div>
     <div class="desc">${FORECAST.ciel}<br>Pluie ${FORECAST.pluie} % · Vent ${FORECAST.vent.toLowerCase()}<br>Normale de saison : ${FORECAST.normale}° (${FORECAST.tmax - FORECAST.normale >= 0 ? "+" : ""}${FORECAST.tmax - FORECAST.normale}°)</div>
-    <div class="eff">${!wOn ? '<span class="chip">Désactivé</span>' : ww === 0 ? '<span class="chip">Hors horizon météo pour cette livraison</span>' : effs || '<span class="chip">Sans effet</span>'}</div>`;
+    <div class="eff">${simulated() ? '<span class="chip">Date simulée : prévision non disponible</span>' : !wOn ? '<span class="chip">Désactivé</span>' : ww === 0 ? '<span class="chip">Hors horizon météo pour cette livraison</span>' : effs || '<span class="chip">Sans effet</span>'}</div>`;
 
   // Bandeau compact : météo + facteurs actifs
   document.getElementById("fxStrip").innerHTML =
-    `<span class="sch wx" title="Météo de demain">${FORECAST.icon} Demain ${FORECAST.tmax}° / ${FORECAST.tmin}° · pluie ${FORECAST.pluie} %</span>` +
-    FACTORS.filter(f => !f.hidden && fx[f.id].i > 0).map(f =>
-      `<span class="sch ${f.local ? "loc" : ""}" data-tile="${f.id}">${f.icon} ${f.name.split(" — ")[0].replace(/ \(.*\)/, "")} <b>${nf(fx[f.id].i, 2)}</b></span>`).join("") +
+    (simulated() ? `<span class="sch wx">🌤️ Météo : non disponible (date simulée)</span>` : `<span class="sch wx" title="Météo de demain">${FORECAST.icon} Demain ${FORECAST.tmax}° / ${FORECAST.tmin}° · pluie ${FORECAST.pluie} %</span>`) +
+    FACTORS.filter(f => !f.hidden && fx[f.id].i > 0).map(f => f.id === "fetes"
+      ? FEASTS.filter(x => fx["f_" + x.id].i > 0).map(x => `<span class="sch" data-tile="fetes">${x.icon} ${x.name} <b>${nf(fx["f_" + x.id].i, 2)}</b></span>`).join("")
+      : `<span class="sch ${f.local ? "loc" : ""}" data-tile="${f.id}">${f.icon} ${f.name.split(" — ")[0].replace(/ \(.*\)/, "")} <b>${nf(fx[f.id].i, 2)}</b></span>`).join("") +
     `<span class="sch more" id="fxMore">Tous les facteurs ▾</span>`;
 
   // Tuiles
@@ -753,7 +819,7 @@ function renderArticles() {
   const d = r.fColis - r.colis, du = r.fUvc - r.uvc;
   const fld = (l, v) => `<div class="f"><label>${l}</label><span>${v}</span></div>`;
   document.getElementById("artHeadBd").innerHTML = [
-    fld("Date prop. cde.", "15/10/2026"), "<div></div>", "<div></div>", fld("Date livraison", s.liv.toLocaleDateString("fr-FR")),
+    fld("Date prop. cde.", TODAY.toLocaleDateString("fr-FR")), "<div></div>", "<div></div>", fld("Date livraison", s.liv.toLocaleDateString("fr-FR")),
     fld("Fournisseur", `${s.code} : ${s.nom}`), "<div></div>", "<div></div>", "<div></div>",
     fld("Montants achats", eur3(r.achat)), fld("Nombre de colis", `${r.fColis}${d ? `<span class="delta">(${d > 0 ? "+" : ""}${d})</span>` : ""}`), fld("Total Poids/volume", nf(Math.round(poids))), fld("Nombre d'UVC", `${r.fUvc}${du ? `<span class="delta">(${du > 0 ? "+" : ""}${du})</span>` : ""}`),
     fld("Franco montant", "0,000 €"), fld("Franco colis", s.franco ?? 0), fld("Franco Poids/volume", 0), fld("Valeur vente", eur3(r.vente)),
@@ -794,7 +860,7 @@ function render() {
   const art = state.view === "articles";
   document.getElementById("title").textContent = art
     ? `Détail article — ${s.nom} — livraison du ${fDs(s.liv)}`
-    : "Proposition de commande fournisseur du 15/10/2026";
+    : `Proposition de commande fournisseur du ${TODAY.toLocaleDateString("fr-FR")}${simulated() ? " (date simulée)" : ""}`;
   document.getElementById("backBtn").hidden = !art;
   document.getElementById("hint").innerHTML = art
     ? `Colonne <b>Coef. ext.</b> : survol = détail des facteurs · <b>Nb colis validés</b> pré-rempli avec le coefficient, modifiable · bouton <b>Explications calculs</b> pour le détail d'une ligne.`
@@ -956,7 +1022,29 @@ document.getElementById("selectBtn").onclick = () => toast("Sélection : toutes 
 document.addEventListener("keydown", e => { if (e.key === "Escape") { document.getElementById("modal").classList.remove("open"); document.getElementById("pop").classList.remove("show"); } });
 
 /* Horloge (date de la démo, heure réelle) */
-function tick() { document.getElementById("clock").textContent = `Jeudi 15/10/2026 ${nowH()}`; }
+function tick() {
+  const d = TODAY.toLocaleDateString("fr-FR", { weekday: "long" });
+  document.getElementById("clock").textContent = `${d.charAt(0).toUpperCase() + d.slice(1)} ${TODAY.toLocaleDateString("fr-FR")} ${nowH()}`;
+  const t = new Date(Date.UTC(TODAY.getFullYear(), TODAY.getMonth(), TODAY.getDate())); const day = t.getUTCDay() || 7;
+  t.setUTCDate(t.getUTCDate() + 4 - day);
+  document.getElementById("week").textContent = `Semaine ${Math.ceil(((t - Date.UTC(t.getUTCFullYear(), 0, 1)) / 864e5 + 1) / 7)}`;
+}
+const iso = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+function setSim(v) {
+  const [y, m, d] = v.split("-").map(Number);
+  if (!y) return;
+  TODAY = new Date(y, m - 1, d);
+  const shift = diffDays(TODAY, BASE_TODAY);
+  SUPPLIERS.forEach(s => s.liv = addDays(s.liv0, shift));
+  state.edit = {}; state.frozen = {}; state.valid = {};
+  document.getElementById("simDate").value = iso(TODAY);
+  document.getElementById("pop").classList.remove("show");
+  tick(); render();
+  toast(shift ? `Proposition rejouée au ${TODAY.toLocaleDateString("fr-FR")}` : "Retour à la date de la démo");
+}
+document.getElementById("simDate").value = iso(TODAY);
+document.getElementById("simDate").addEventListener("change", e => setSim(e.target.value));
+document.getElementById("pop").addEventListener("click", e => { const a = e.target.closest("[data-sim]"); if (a) { e.preventDefault(); setSim(a.dataset.sim); } });
 tick(); setInterval(tick, 30000);
 
 render();
